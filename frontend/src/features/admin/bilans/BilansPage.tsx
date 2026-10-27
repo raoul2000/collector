@@ -11,7 +11,7 @@ import { PageHeader } from '../PageHeader'
 import { BarresHorizontales } from './BarresHorizontales'
 import styles from './bilans.module.css'
 import { ColonnesHeures } from './ColonnesHeures'
-import { colonnesParJour, mentionSansContenance, totalContenance } from './donnees'
+import { colonnesParJour, mentionSansContenance, totalContenance } from '../../../lib/bilans'
 
 const heure = (date: Date) => date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
 

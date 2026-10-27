@@ -15,7 +15,7 @@ Référence fonctionnelle et technique : [specifications.md](specifications.md).
 | 0 | Environnement de développement | ✅ |
 | 1 | Socle : base de données, API référentiel, administration minimale | ✅ |
 | 2 | Saisie bénévole, hors ligne et synchronisation | ✅ |
-| 3 | Bilans | 🔄 |
+| 3 | Bilans | ✅ |
 | 4 | Déploiement et recette | ⬜ |
 
 ---
@@ -158,7 +158,7 @@ Objectif : un bénévole saisit des articles depuis son téléphone, y compris s
 
 ---
 
-## Lot 3 — Bilans 🔄
+## Lot 3 — Bilans ✅
 
 Objectif : suivre la collecte en temps réel et motiver les bénévoles.
 
@@ -174,11 +174,17 @@ Objectif : suivre la collecte en temps réel et motiver les bénévoles.
 - ✅ Rendu vérifié par capture d'écran sur un jeu de 759 saisies ; Recharts n'est chargé que dans l'espace responsable
 - ✅ Test instable du lot 2 élucidé et corrigé (assertion trop tôt sur l'en-tête) — 102 tests OK
 
-### 3.3 Bilans bénévoles ⬜
-- Écran « Notre collecte » accessible depuis la saisie : magasin, catégories, total général, classement des magasins
-- Rafraîchissement automatique quand le réseau est disponible
+### 3.3 Bilans bénévoles ✅
+- ✅ Onglet « Collecte » (écran « Notre collecte ») : chiffres clés du magasin, catégories les plus collectées (6, puis « Voir les autres »), total général, classement des magasins avec le magasin du bénévole mis en avant (les autres en gris) — aucune comparaison entre bénévoles
+- ✅ Barres en HTML/CSS (pas de bibliothèque de graphiques sur le téléphone) ; actualisation chaque minute ; message clair sans connexion (les derniers chiffres reçus restent affichés)
+- ✅ Rendu vérifié par capture d'écran sur une largeur de téléphone (390 px)
 
-**Critère de fin de lot** : les bilans reflètent les saisies en moins d'une minute ; les totaux sont vérifiés par des tests.
+### Compléments réalisés pendant le lot 3
+- ✅ Page d'erreur propre (« Une erreur est survenue », bouton « Recharger ») à la place de la page technique de React Router
+- ✅ Bilans des responsables exclus du pré-cache du service worker : 554 Ko au lieu de 912 Ko téléchargés d'avance sur chaque téléphone
+- ✅ 110 tests côté serveur, 107 côté application
+
+**Critère de fin de lot** ✅ : les bilans se mettent à jour automatiquement (30 s pour les responsables, 1 min pour les bénévoles ; un téléphone connecté envoie ses saisies 1,5 s après la saisie), soit moins d'une minute en conditions normales ; les totaux sont vérifiés par des tests sur un jeu de données couvrant poids, volumes, articles sans contenance, saisies supprimées et autres campagnes.
 
 ---
 
@@ -233,3 +239,4 @@ Objectif : suivre la collecte en temps réel et motiver les bénévoles.
 | 27/10/2026 | Étape 2.9 terminée : gestion des saisies par les responsables — **lot 2 terminé** |
 | 27/10/2026 | Étape 3.1 terminée : API des bilans |
 | 27/10/2026 | Étape 3.2 terminée : bilans des responsables |
+| 27/10/2026 | Étape 3.3 terminée : bilans des bénévoles — **lot 3 terminé** |

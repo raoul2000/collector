@@ -4,7 +4,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { BilanAdmin, BilanCategorie, Campagne } from '../../../api/types'
 import { fakeApi, SESSION_OK } from '../../../test/fakeApi'
 import { renderApp } from '../../../test/renderApp'
-import { colonnesParJour, mentionSansContenance, totalContenance } from './donnees'
+import { colonnesParJour, mentionSansContenance, totalContenance } from '../../../lib/bilans'
 
 afterEach(() => {
   vi.unstubAllGlobals()
@@ -129,7 +129,7 @@ describe('Données des graphiques', () => {
 
 describe('graduations', () => {
   it('donne des pas ronds couvrant le maximum', async () => {
-    const { graduations, majuscule } = await import('./donnees')
+    const { graduations, majuscule } = await import('../../../lib/bilans')
     expect(graduations(138)).toEqual([0, 50, 100, 150])
     expect(graduations(366)).toEqual([0, 100, 200, 300, 400])
     expect(graduations(235)).toEqual([0, 100, 200, 300])

@@ -4,7 +4,7 @@ import { formatJour } from '../../../lib/dates'
 import { formatKg, formatLitres, formatNombre, pluriel } from '../../../lib/format'
 import styles from './bilans.module.css'
 import { CHART } from './chartTheme'
-import { colonnesParJour, graduations, majuscule, type Colonne } from './donnees'
+import { colonnesParJour, graduations, majuscule, type Colonne } from '../../../lib/bilans'
 import { InfoBulle } from './InfoBulle'
 
 /**

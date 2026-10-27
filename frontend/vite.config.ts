@@ -37,6 +37,9 @@ export default defineConfig({
       workbox: {
         // Toute l'application est mise en cache : elle démarre sans réseau
         globPatterns: ['**/*.{js,css,html,svg,png,ico}'],
+        // Les bilans des responsables (avec Recharts) nécessitent le réseau : inutile de les télécharger
+        // d'avance sur les téléphones des bénévoles
+        globIgnores: ['**/BilansPage-*'],
         navigateFallback: 'index.html',
         // Les appels à l'API ne passent jamais par le cache (les données hors ligne sont dans IndexedDB)
         navigateFallbackDenylist: [/^\/api\//],

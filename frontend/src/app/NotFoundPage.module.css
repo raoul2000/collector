@@ -6,3 +6,11 @@
   padding: calc(var(--space-7) + var(--safe-top)) var(--space-4) var(--space-7);
   text-align: center;
 }
+
+.detail {
+  max-width: 100%;
+  overflow-x: auto;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  white-space: pre-wrap;
+}

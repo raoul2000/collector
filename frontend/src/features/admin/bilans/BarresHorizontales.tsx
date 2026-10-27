@@ -1,6 +1,6 @@
 import { Bar, BarChart, CartesianGrid, LabelList, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { formatNombre } from '../../../lib/format'
-import { graduations } from './donnees'
+import { graduations } from '../../../lib/bilans'
 import { CHART } from './chartTheme'
 import { InfoBulle } from './InfoBulle'
 

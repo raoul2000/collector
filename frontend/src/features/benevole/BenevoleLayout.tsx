@@ -15,6 +15,7 @@ import { SyncIndicator } from './SyncIndicator'
 const NAVIGATION = [
   { to: '/', label: 'Saisir', icone: '＋', end: true },
   { to: '/mes-saisies', label: 'Mes saisies', icone: '☰', end: false },
+  { to: '/collecte', label: 'Collecte', icone: '★', end: false },
   { to: '/parametres', label: 'Réglages', icone: '⚙', end: false },
 ]
 

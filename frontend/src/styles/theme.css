@@ -81,4 +81,6 @@
   --chart-grid: #e6e3df;
   --chart-axis: #8a847d;
   --chart-surface: #ffffff;
+  /* Éléments de contexte quand un seul est mis en avant */
+  --chart-deemphasis: #c9c5bf;
 }

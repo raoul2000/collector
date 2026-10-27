@@ -56,3 +56,8 @@
   padding: var(--space-6) 0;
   text-align: center;
 }
+
+.voirTout {
+  margin-top: var(--space-3);
+  color: var(--color-info);
+}

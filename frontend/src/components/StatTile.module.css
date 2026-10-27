@@ -35,3 +35,14 @@
   color: var(--color-text-muted);
   font-size: var(--font-size-sm);
 }
+
+/* Sur téléphone : le chiffre principal occupe toute la largeur, les autres se partagent la ligne suivante */
+@media (max-width: 30rem) {
+  .row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .hero {
+    grid-column: 1 / -1;
+  }
+}

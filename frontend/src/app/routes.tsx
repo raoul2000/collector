@@ -1,8 +1,10 @@
 import { Navigate, type RouteObject } from 'react-router'
 import { BenevoleLayout } from '../features/benevole/BenevoleLayout'
+import { CollectePage } from '../features/benevole/CollectePage'
 import { MesSaisiesPage } from '../features/benevole/MesSaisiesPage'
 import { ParametresPage } from '../features/benevole/ParametresPage'
 import { SaisiePage } from '../features/saisie/SaisiePage'
+import { ErrorPage } from './ErrorPage'
 import { NotFoundPage } from './NotFoundPage'
 
 /**
@@ -15,19 +17,23 @@ export const routes: RouteObject[] = [
   {
     path: '/',
     element: <BenevoleLayout />,
+    errorElement: <ErrorPage />,
     children: [
       { index: true, element: <SaisiePage /> },
       { path: 'mes-saisies', element: <MesSaisiesPage /> },
+      { path: 'collecte', element: <CollectePage /> },
       { path: 'parametres', element: <ParametresPage /> },
     ],
   },
   {
     path: '/admin/connexion',
     lazy: async () => ({ Component: (await import('../features/admin/LoginPage')).LoginPage }),
+    errorElement: <ErrorPage />,
   },
   {
     path: '/admin',
     lazy: async () => ({ Component: (await import('../features/admin/AdminLayout')).AdminLayout }),
+    errorElement: <ErrorPage />,
     children: [
       { index: true, element: <Navigate to="bilans" replace /> },
       {

@@ -1,5 +1,5 @@
-import type { BilanCategorie, BilanHeure } from '../../../api/types'
-import { formatKg, formatLitres, pluriel } from '../../../lib/format'
+import type { BilanCategorie, BilanHeure } from '../api/types'
+import { formatKg, formatLitres, pluriel } from './format'
 
 export interface Colonne {
   heure: number

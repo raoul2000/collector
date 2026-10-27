@@ -1,0 +1,66 @@
+.liste {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ligne {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.texte {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.libelle {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.rang {
+  min-width: 1.25rem;
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.valeur {
+  flex-shrink: 0;
+  font-weight: var(--font-weight-bold);
+  font-variant-numeric: tabular-nums;
+}
+
+.enAvant .libelle {
+  font-weight: var(--font-weight-bold);
+}
+
+.detail {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.piste {
+  height: 10px;
+  margin-top: 2px;
+}
+
+.barre {
+  height: 100%;
+  min-width: 2px;
+  border-radius: 0 4px 4px 0;
+  background: var(--chart-series-1);
+}
+
+/* Forme « mise en avant » : les autres éléments en gris */
+.attenuee {
+  background: var(--chart-deemphasis);
+}

@@ -17,8 +17,11 @@ Application web de saisie des dons pour la collecte alimentaire de la Croix-Roug
 cd backend
 composer install
 cp config/config.example.php config/config.php   # puis renseigner les accès MySQL
+php bin/migrate.php --fresh --seed               # (re)crée la base avec les données de développement
 composer serve                                   # API sur http://localhost:8000
-composer test                                    # tests PHPUnit
+composer test                                    # tests PHPUnit (base collector_test recréée)
 ```
+
+En production, `php bin/migrate.php` applique uniquement les migrations en attente.
 
 Vérification : http://localhost:8000/api/health

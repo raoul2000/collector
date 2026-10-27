@@ -44,11 +44,12 @@ Objectif : une base de données en place, une API qui expose le référentiel, e
 - ✅ Route `GET /api/health` (état de l'API et de la base)
 - ✅ Commandes : `composer serve`, `composer test` — 23 tests OK
 
-### 1.2 Schéma de la base de données ⬜
-- `backend/sql/001_schema.sql` : tables `campagne`, `magasin`, `campagne_magasin`, `categorie`, `format`, `appareil`, `saisie`, `journal_admin` et index
-- Petit outil de migration `backend/bin/migrate.php` (scripts numérotés + table `schema_version`)
-- `backend/sql/seed_dev.sql` : une campagne, quelques magasins de test, **liste provisoire de catégories et formats** (en attendant la liste Croix-Rouge)
-- Base de test séparée `collector_test` pour PHPUnit
+### 1.2 Schéma de la base de données ✅
+- ✅ `backend/sql/migrations/001_schema_initial.sql` : tables `campagne`, `magasin`, `campagne_magasin`, `categorie`, `format`, `appareil`, `saisie`, `journal_admin`, index et contraintes (une seule campagne active, quantité 1–999, contenances positives, clés étrangères)
+- ✅ Colonnes de synchronisation sur `saisie` : `modifie_le`, `supprime_le`, `corrige_le`, `maj_le` (précision à la milliseconde)
+- ✅ Outil de migration `backend/bin/migrate.php` (scripts numérotés + table `schema_version` ; options `--fresh`, `--seed`, `--db`)
+- ✅ `backend/sql/seed_dev.sql` : 2 campagnes, 5 magasins, **19 catégories provisoires** et 32 formats
+- ✅ Base de test `collector_test` recréée à chaque exécution de PHPUnit, tests en transaction — 32 tests OK
 
 ### 1.3 API référentiel ⬜
 - `GET /api/referentiel` : campagne active, magasins de la campagne, catégories actives (ordonnées) et leurs formats
@@ -194,3 +195,4 @@ Objectif : suivre la collecte en temps réel et motiver les bénévoles.
 |---|---|
 | 27/10/2026 | Spécifications v0.3 validées, environnement prêt, plan établi |
 | 27/10/2026 | Étape 1.1 terminée : squelette du backend PHP |
+| 27/10/2026 | Étape 1.2 terminée : schéma de la base, migrations, données de développement |

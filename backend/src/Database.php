@@ -18,9 +18,10 @@ final class Database
      *
      * @param array{host: string, port: int, name: string, user: string, password: string} $db
      */
-    public static function connect(array $db, string $timezone): PDO
+    public static function connect(array $db, string $timezone, bool $selectDatabase = true): PDO
     {
-        $dsn = sprintf('mysql:host=%s;port=%d;dbname=%s;charset=utf8mb4', $db['host'], $db['port'], $db['name']);
+        $dsn = sprintf('mysql:host=%s;port=%d;charset=utf8mb4', $db['host'], $db['port'])
+            . ($selectDatabase ? ';dbname=' . $db['name'] : '');
 
         $pdo = new PDO($dsn, $db['user'], $db['password'], [
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
@@ -33,5 +34,25 @@ final class Database
         $pdo->exec("SET time_zone = '{$offset}'");
 
         return $pdo;
+    }
+
+    /**
+     * Crée la base si elle n'existe pas (en la supprimant d'abord si $dropFirst). Réservé au développement et aux tests.
+     *
+     * @param array{host: string, port: int, name: string, user: string, password: string} $db
+     */
+    public static function create(array $db, string $timezone, bool $dropFirst = false): void
+    {
+        if (preg_match('/^\w+$/', $db['name']) !== 1) {
+            throw new \InvalidArgumentException("Nom de base invalide : {$db['name']}");
+        }
+
+        $server = self::connect($db, $timezone, selectDatabase: false);
+        if ($dropFirst) {
+            $server->exec("DROP DATABASE IF EXISTS `{$db['name']}`");
+        }
+        $server->exec(
+            "CREATE DATABASE IF NOT EXISTS `{$db['name']}` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci",
+        );
     }
 }

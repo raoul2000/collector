@@ -218,7 +218,22 @@ Objectif : suivre la collecte en temps réel et motiver les bénévoles.
 | Élément | Nécessaire pour |
 |---|---|
 | Liste de référence des catégories Croix-Rouge | 4.2 (une liste provisoire est utilisée d'ici là) |
-| Nom de domaine / sous-domaine | 4.1 |
+| Nom de domaine / sous-domaine | 4.1, version imprimable de la fiche bénévole (4.4) |
+| Accès Ionos : SFTP, SSH si disponible, base MySQL, PHP 8.4, certificat SSL | 4.1 |
+
+## Reprise du travail
+
+État au 27/10/2026 : lots 1, 2 et 3 terminés ; lot 4 préparé (procédure et script de déploiement, fiche bénévole, guide du responsable).
+
+Prochaines étapes possibles :
+1. **Installation sur Ionos** dès réception du domaine et des accès (suivre [deploiement.md](deploiement.md), vérifier les `.htaccess` sur le vrai serveur Apache).
+2. **Recette sur de vrais téléphones** (4.3), une fois le site en HTTPS.
+3. **Version imprimable de la fiche bénévole** avec l'adresse et un QR code.
+4. **Import de la liste Croix-Rouge** (4.2) quand elle sera disponible.
+5. Évolution proposée, en attente de décision : permettre au responsable de **corriger le magasin d'une saisie** (aujourd'hui : supprimer puis ressaisir).
+6. Évolutions ultérieures prévues : export Excel, comparaison entre années.
+
+Environnement de développement : voir le [README](../README.md). La base locale `collector` contient un jeu de démonstration d'environ 760 saisies (pour voir les bilans) ; `php bin/migrate.php --fresh --seed` la remet à zéro.
 
 ## Journal
 
@@ -245,3 +260,4 @@ Objectif : suivre la collecte en temps réel et motiver les bénévoles.
 | 27/10/2026 | Étape 3.3 terminée : bilans des bénévoles — **lot 3 terminé** |
 | 27/10/2026 | Étape 4.1 préparée : procédure et script de déploiement |
 | 27/10/2026 | Étape 4.4 : fiche bénévole et guide du responsable |
+| 27/10/2026 | Fin de la session de travail : état et prochaines étapes notés dans « Reprise du travail » |

@@ -1,0 +1,24 @@
+# Dépendances
+node_modules/
+backend/vendor/
+
+# Builds
+frontend/dist/
+frontend/dev-dist/
+
+# Configuration locale (contient des secrets)
+backend/config/config.php
+.env
+.env.local
+
+# Caches et journaux
+.phpunit.cache/
+*.log
+npm-debug.log*
+
+# Éditeurs / système
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+Thumbs.db

@@ -9,6 +9,7 @@ const NAVIGATION = [
   { to: 'campagnes', label: 'Campagnes' },
   { to: 'magasins', label: 'Magasins' },
   { to: 'categories', label: 'Catégories' },
+  { to: 'saisies', label: 'Saisies' },
 ]
 
 /**

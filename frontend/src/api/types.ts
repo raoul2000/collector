@@ -137,3 +137,45 @@ export interface SyncResponse {
   changements: SaisieServeur[]
   curseur: string
 }
+
+// --- Saisies (administration) --------------------------------------------------------------------
+
+export interface SaisieAdmin {
+  id: string
+  campagneId: number
+  magasinId: number
+  categorieId: number
+  quantite: number
+  contenanceUnitaire: number | null
+  saisieLe: string
+  modifieLe: string
+  supprime: boolean
+  corrigeParResponsable: string | null
+  /** Prénom du bénévole (appareil) */
+  prenom: string
+  magasinNom: string
+  categorieNom: string
+  unite: Unite
+}
+
+export interface PageSaisies {
+  saisies: SaisieAdmin[]
+  total: number
+  page: number
+  parPage: number
+}
+
+export interface FiltresSaisies {
+  campagne?: number
+  magasin?: number
+  categorie?: number
+  prenom?: string
+  supprimees?: boolean
+  page: number
+}
+
+export interface CorrectionSaisie {
+  categorieId: number
+  quantite: number
+  contenanceUnitaire: number | null
+}

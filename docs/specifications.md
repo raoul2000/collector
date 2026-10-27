@@ -246,7 +246,8 @@ Volumétrie estimée : quelques dizaines de milliers de lignes par campagne, ce 
 | PUT | `/api/admin/categories/ordre` | Nouvel ordre d'affichage |
 | PUT, DELETE | `/api/admin/categories/{id}` | Modification (dont formats), suppression si aucune saisie |
 | GET | `/api/admin/bilans/magasin?id=` | Bilan par catégorie et par heure |
-| … | `/api/admin/saisies` | Consultation et correction des saisies |
+| GET | `/api/admin/saisies?campagne=&magasin=&categorie=&prenom=&supprimees=1&page=&parPage=` | Saisies des bénévoles (paginées) |
+| PUT, DELETE | `/api/admin/saisies/{id}` | Correction, suppression logique (transmises au téléphone) |
 
 Erreurs : `{"error": {"code": "...", "message": "...", "details": {"fields": {"champ": "message"}}}}` avec les codes HTTP 400, 401, 403, 404, 405, 409, 422, 429, 500, 503.
 

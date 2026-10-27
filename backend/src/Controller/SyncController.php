@@ -23,8 +23,8 @@ use PDO;
  *
  * Résolution des conflits, pour une saisie existante :
  * - corrigée par un responsable après la version connue du téléphone (baseMajLe) → la correction l'emporte ;
- * - plus ancienne que la version enregistrée (renvoi tardif) → ignorée ;
- * - sinon → la version du téléphone est enregistrée.
+ * - le téléphone connaissait la dernière version du serveur → sa version est enregistrée ;
+ * - sinon, plus ancienne que la version enregistrée (renvoi tardif) → ignorée, plus récente → enregistrée.
  */
 final readonly class SyncController
 {
@@ -131,7 +131,11 @@ final readonly class SyncController
         } elseif ($existing['corrige_le'] !== null && ($base === null || $existing['corrige_le'] > $base)) {
             $statut = 'conflit';
         } else {
-            if ($modifieLe->format('Y-m-d H:i:s.v') >= $existing['modifie_le']) {
+            // Le téléphone connaissait la dernière version du serveur : sa modification est la plus récente,
+            // quelle que soit son horloge. Sinon (renvoi après une réponse perdue…), on compare les dates
+            // de modification, toutes deux issues de l'horloge du téléphone.
+            $connaitDerniereVersion = $base !== null && $base >= $existing['maj_le'];
+            if ($connaitDerniereVersion || $modifieLe->format('Y-m-d H:i:s.v') >= $existing['modifie_le']) {
                 $this->saisies->updateFromDevice($id, $saisie);
             }
             $statut = 'ok';

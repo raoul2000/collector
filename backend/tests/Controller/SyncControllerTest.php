@@ -112,6 +112,21 @@ final class SyncControllerTest extends ApiTestCase
         self::assertSame(4, $response->data['resultats'][0]['saisie']['quantite']);
     }
 
+    public function testChangeAfterCorrectionIsAppliedEvenIfThePhoneClockIsLate(): void
+    {
+        $id = self::uuid();
+        $this->sync([$this->saisie($id)]);
+        usleep(5000);
+        // Correction datée par l'horloge du serveur, bien après celle du téléphone
+        $this->db->exec("UPDATE saisie SET quantite = 3, modifie_le = '2026-11-27 18:00:00.000', corrige_le = NOW(3), modifie_par_responsable = 'Paul'");
+        $majLe = $this->sync([])->data['changements'][0]['majLe'];
+
+        $response = $this->sync([$this->saisie($id, ['quantite' => 4, 'modifieLe' => '2026-11-27T11:00:00.000+01:00', 'baseMajLe' => $majLe])]);
+
+        self::assertSame('ok', $response->data['resultats'][0]['statut']);
+        self::assertSame(4, $response->data['resultats'][0]['saisie']['quantite']);
+    }
+
     public function testSaisieOfAnotherDeviceIsRejected(): void
     {
         $id = self::uuid();

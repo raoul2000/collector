@@ -14,7 +14,7 @@ Référence fonctionnelle et technique : [specifications.md](specifications.md).
 |---|---|---|
 | 0 | Environnement de développement | ✅ |
 | 1 | Socle : base de données, API référentiel, administration minimale | ✅ |
-| 2 | Saisie bénévole, hors ligne et synchronisation | 🔄 |
+| 2 | Saisie bénévole, hors ligne et synchronisation | ✅ |
 | 3 | Bilans | ⬜ |
 | 4 | Déploiement et recette | ⬜ |
 
@@ -98,7 +98,7 @@ Objectif : une base de données en place, une API qui expose le référentiel, e
 
 ---
 
-## Lot 2 — Saisie bénévole, hors ligne et synchronisation 🔄
+## Lot 2 — Saisie bénévole, hors ligne et synchronisation ✅
 
 Objectif : un bénévole saisit des articles depuis son téléphone, y compris sans réseau, et retrouve et corrige ses saisies.
 
@@ -148,11 +148,13 @@ Objectif : un bénévole saisit des articles depuis son téléphone, y compris s
 - ✅ Dans l'en-tête : « À jour », « N en attente », « Envoi… », « Hors ligne · N en attente », « Erreur d'envoi » ; un appui relance la synchronisation
 - ✅ Tests des parcours (premier lancement, hors ligne, réglages) — 77 tests OK
 
-### 2.9 Gestion des saisies par les responsables ⬜
-- `GET /api/admin/saisies` (filtres : magasin, catégorie, prénom, période), modification, suppression
-- Écran de consultation et de correction, journalisation (avant/après)
+### 2.9 Gestion des saisies par les responsables ✅
+- ✅ `GET /api/admin/saisies` : filtres campagne, magasin, catégorie, prénom (recherche partielle), saisies supprimées ; pagination (50 par page)
+- ✅ `PUT /api/admin/saisies/{id}` (correction de la catégorie, de la contenance, de la quantité) et `DELETE` (suppression logique), journalisés avant/après ; la correction redescend sur le téléphone et l'emporte sur ses modifications hors ligne
+- ✅ Écran « Saisies » : campagne active par défaut, filtres, statut (corrigée, supprimée), correction avec le même formulaire que les bénévoles, suppression confirmée
+- ✅ Règle de synchronisation affinée : une modification faite par le téléphone après réception d'une correction est acceptée même si l'horloge du téléphone retarde
 
-**Critère de fin de lot** : plusieurs téléphones saisissent en parallèle, avec et sans réseau ; aucune saisie perdue ni dupliquée ; les corrections d'un responsable redescendent sur le téléphone du bénévole.
+**Critère de fin de lot** ✅ : vérifié par les tests automatisés (102 côté serveur, 95 côté application) et par un scénario de bout en bout sur le serveur PHP et MySQL réels (deux téléphones, renvoi après réponse perdue, correction pendant une coupure réseau) : aucune saisie perdue ni dupliquée, la correction du responsable redescend sur le téléphone. **Reste à faire en recette (lot 4) : l'essai sur de vrais téléphones.**
 
 ---
 
@@ -225,3 +227,4 @@ Objectif : suivre la collecte en temps réel et motiver les bénévoles.
 | 27/10/2026 | Étapes 2.3 et 2.8 terminées : identification du bénévole, indicateur de synchronisation |
 | 27/10/2026 | Étape 2.4 terminée : écran de saisie |
 | 27/10/2026 | Étape 2.5 terminée : mes saisies |
+| 27/10/2026 | Étape 2.9 terminée : gestion des saisies par les responsables — **lot 2 terminé** |

@@ -1,0 +1,33 @@
+.filtres {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  align-items: end;
+  gap: var(--space-3) var(--space-4);
+  margin-bottom: var(--space-4);
+}
+
+.total {
+  margin-bottom: var(--space-2);
+  color: var(--color-text-muted);
+}
+
+.date {
+  white-space: nowrap;
+}
+
+.supprimee td {
+  color: var(--color-text-muted);
+  text-decoration: line-through;
+}
+
+.supprimee td:nth-last-child(-n + 2) {
+  text-decoration: none;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  margin-top: var(--space-4);
+}

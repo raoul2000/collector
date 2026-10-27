@@ -7,6 +7,7 @@ use App\Auth\AdminAuth;
 use App\Controller\Admin\CampagneController;
 use App\Controller\Admin\CategorieController;
 use App\Controller\Admin\MagasinController;
+use App\Controller\Admin\SaisieController;
 use App\Controller\AdminAuthController;
 use App\Controller\HealthController;
 use App\Controller\ReferentielController;
@@ -105,4 +106,14 @@ return static function (App $app): void {
     $r->put('/api/admin/categories/ordre', $admin(static fn ($q, $p) => $categories()->reorder($q, $p)));
     $r->put('/api/admin/categories/{id}', $admin(static fn ($q, $p) => $categories()->update($q, $p)));
     $r->delete('/api/admin/categories/{id}', $admin(static fn ($q, $p) => $categories()->delete($q, $p)));
+
+    $saisies = static fn (): SaisieController => new SaisieController(
+        $db(),
+        new SaisieRepository($db()),
+        new SaisieRules($db()),
+        new JournalRepository($db()),
+    );
+    $r->get('/api/admin/saisies', $admin(static fn ($q, $p) => $saisies()->list($q, $p)));
+    $r->put('/api/admin/saisies/{id}', $admin(static fn ($q, $p) => $saisies()->update($q, $p)));
+    $r->delete('/api/admin/saisies/{id}', $admin(static fn ($q, $p) => $saisies()->delete($q, $p)));
 };

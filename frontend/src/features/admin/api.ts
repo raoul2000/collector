@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { api, ApiError } from '../../api/client'
 import type {
   AdminSession,
@@ -6,8 +6,12 @@ import type {
   CampagneInput,
   Categorie,
   CategorieInput,
+  CorrectionSaisie,
+  FiltresSaisies,
   Magasin,
   MagasinInput,
+  PageSaisies,
+  SaisieAdmin,
 } from '../../api/types'
 
 /**
@@ -18,6 +22,7 @@ export const ADMIN_SESSION_KEY = ['admin', 'session'] as const
 const CAMPAGNES_KEY = ['admin', 'campagnes'] as const
 const MAGASINS_KEY = ['admin', 'magasins'] as const
 const CATEGORIES_KEY = ['admin', 'categories'] as const
+const SAISIES_KEY = ['admin', 'saisies'] as const
 
 // --- Session -------------------------------------------------------------------------------------
 
@@ -165,6 +170,44 @@ export function useReorderCategories() {
       }
     },
     onSuccess: (categories) => queryClient.setQueryData(CATEGORIES_KEY, categories),
+  })
+}
+
+// --- Saisies -------------------------------------------------------------------------------------
+
+export const PAR_PAGE = 50
+
+export function useAdminSaisies(filtres: FiltresSaisies, enabled = true) {
+  const params = new URLSearchParams({ page: String(filtres.page), parPage: String(PAR_PAGE) })
+  if (filtres.campagne) params.set('campagne', String(filtres.campagne))
+  if (filtres.magasin) params.set('magasin', String(filtres.magasin))
+  if (filtres.categorie) params.set('categorie', String(filtres.categorie))
+  if (filtres.prenom) params.set('prenom', filtres.prenom)
+  if (filtres.supprimees) params.set('supprimees', '1')
+
+  return useQuery({
+    queryKey: [...SAISIES_KEY, filtres],
+    queryFn: ({ signal }) => api.get<PageSaisies>(`admin/saisies?${params}`, signal),
+    // Garde l'affichage précédent pendant le chargement d'une autre page ou d'un autre filtre
+    placeholderData: keepPreviousData,
+    enabled,
+  })
+}
+
+export function useCorrigerSaisie() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, correction }: { id: string; correction: CorrectionSaisie }) =>
+      api.put<SaisieAdmin>(`admin/saisies/${id}`, correction),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: SAISIES_KEY }),
+  })
+}
+
+export function useSupprimerSaisie() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (id: string) => api.delete(`admin/saisies/${id}`),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: SAISIES_KEY }),
   })
 }
 

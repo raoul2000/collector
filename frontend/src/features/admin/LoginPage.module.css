@@ -1,0 +1,28 @@
+.page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100dvh;
+  padding: calc(var(--space-4) + var(--safe-top)) var(--space-4) calc(var(--space-4) + var(--safe-bottom));
+  background: linear-gradient(180deg, var(--color-primary) 0 12rem, var(--color-bg) 12rem);
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  width: min(24rem, 100%);
+  padding: var(--space-5);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-md);
+}
+
+.title {
+  font-size: var(--font-size-xl);
+}
+
+.subtitle {
+  margin-top: var(--space-1);
+  color: var(--color-text-muted);
+}

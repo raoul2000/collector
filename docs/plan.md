@@ -13,7 +13,7 @@ Référence fonctionnelle et technique : [specifications.md](specifications.md).
 | Lot | Contenu | Statut |
 |---|---|---|
 | 0 | Environnement de développement | ✅ |
-| 1 | Socle : base de données, API référentiel, administration minimale | 🔄 |
+| 1 | Socle : base de données, API référentiel, administration minimale | ✅ |
 | 2 | Saisie bénévole, hors ligne et synchronisation | ⬜ |
 | 3 | Bilans | ⬜ |
 | 4 | Déploiement et recette | ⬜ |
@@ -31,7 +31,7 @@ Référence fonctionnelle et technique : [specifications.md](specifications.md).
 
 ---
 
-## Lot 1 — Socle 🔄
+## Lot 1 — Socle ✅
 
 Objectif : une base de données en place, une API qui expose le référentiel, et un espace responsable permettant de configurer une campagne (magasins, catégories, formats).
 
@@ -81,17 +81,20 @@ Objectif : une base de données en place, une API qui expose le référentiel, e
 - ✅ Client HTTP typé (`ApiError`, erreurs par champ, détection d'absence de réseau) et types de l'API ; proxy Vite `/api` → `localhost:8000`
 - ✅ Vitest + Testing Library — 26 tests OK ; build : 108 Ko compressés
 
-### 1.7 Écrans d'administration ⬜
-- Connexion responsable
-- Gestion des campagnes
-- Gestion des magasins
-- Gestion des catégories et de leurs formats (ordre, unité, formats prédéfinis)
+### 1.7 Écrans d'administration ✅
+- ✅ Connexion responsable, garde d'accès (redirection vers la connexion puis retour à la page demandée), retour automatique à la connexion à l'expiration de la session, déconnexion
+- ✅ Gestion des campagnes : liste, création/modification (dates, magasins participants), activation avec confirmation, alerte si aucune campagne active, suppression
+- ✅ Gestion des magasins : liste, création/modification, activation, suppression (bloquée s'il y a des saisies)
+- ✅ Gestion des catégories : liste ordonnée (↑/↓), unité verrouillée après saisies, éditeur de formats (saisie en g/kg, cl/L/ml, tri, doublons), suppression
+- ✅ Erreurs de validation du serveur affichées sous les champs ; messages de confirmation
 
-### 1.8 Tests du lot 1 ⬜
-- PHPUnit : routeur, validation, repositories (sur `collector_test`), authentification
-- Vitest : mise en place et premiers tests (client API)
+### 1.8 Tests du lot 1 ✅
+- ✅ PHPUnit : routeur, requêtes, validation, migrations et contraintes du schéma, référentiel, authentification, administration — 78 tests
+- ✅ Vitest : client API, formats, composants, routes, parcours d'administration complets avec un faux serveur d'API — 48 tests
 
-**Critère de fin de lot** : un responsable se connecte, crée une campagne, ses magasins et ses catégories ; `GET /api/referentiel` renvoie ces données ; tous les tests passent.
+**Critère de fin de lot** ✅ : un responsable se connecte, crée une campagne, ses magasins et ses catégories ; `GET /api/referentiel` renvoie ces données ; tous les tests passent.
+
+> À reprendre au lot 2 : charger l'espace responsable à la demande (découpage du code) pour alléger le chargement des bénévoles (actuellement 118 Ko compressés pour l'ensemble).
 
 ---
 
@@ -207,3 +210,4 @@ Objectif : suivre la collecte en temps réel et motiver les bénévoles.
 | 27/10/2026 | Étape 1.4 terminée : authentification des responsables |
 | 27/10/2026 | Étape 1.5 terminée : API d'administration |
 | 27/10/2026 | Étape 1.6 terminée : squelette du frontend |
+| 27/10/2026 | Étapes 1.7 et 1.8 terminées : écrans d'administration et tests — **lot 1 terminé** |

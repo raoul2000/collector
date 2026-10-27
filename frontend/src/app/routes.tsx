@@ -1,5 +1,7 @@
 import { Navigate, type RouteObject } from 'react-router'
 import { BenevoleLayout } from '../features/benevole/BenevoleLayout'
+import { MesSaisiesPage } from '../features/benevole/MesSaisiesPage'
+import { ParametresPage } from '../features/benevole/ParametresPage'
 import { SaisiePage } from '../features/saisie/SaisiePage'
 import { NotFoundPage } from './NotFoundPage'
 
@@ -13,7 +15,11 @@ export const routes: RouteObject[] = [
   {
     path: '/',
     element: <BenevoleLayout />,
-    children: [{ index: true, element: <SaisiePage /> }],
+    children: [
+      { index: true, element: <SaisiePage /> },
+      { path: 'mes-saisies', element: <MesSaisiesPage /> },
+      { path: 'parametres', element: <ParametresPage /> },
+    ],
   },
   {
     path: '/admin/connexion',

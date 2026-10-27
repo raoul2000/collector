@@ -114,10 +114,11 @@ Objectif : un bénévole saisit des articles depuis son téléphone, y compris s
 - ✅ Référentiel mis en cache, réécrit seulement si sa version change ; dates ISO avec le fuseau du téléphone
 - ✅ Tests sur IndexedDB simulée (`fake-indexeddb`) — 56 tests OK
 
-### 2.3 Premier lancement et identification ⬜
-- Génération et mémorisation de l'identifiant d'appareil (UUID)
-- Saisie du prénom, choix du magasin ; mémorisation (Zustand `persist`)
-- Magasin affiché en permanence, modifiable ; prénom modifiable dans les paramètres
+### 2.3 Premier lancement et identification ✅
+- ✅ Identifiant d'appareil (UUID) généré une fois et conservé ; écran de bienvenue : prénom et magasin (grandes cases) ; demande de stockage persistant au navigateur
+- ✅ Premier lancement sans réseau : message explicite et bouton « Réessayer » ; magasin retiré de la collecte : nouveau choix demandé (prénom conservé)
+- ✅ Magasin affiché en permanence dans l'en-tête ; barre de navigation en bas (Saisir, Mes saisies, Réglages)
+- ✅ Réglages : magasin, prénom, installation sur l'écran d'accueil (Android : bouton ; iPhone : instructions Safari), synchronisation manuelle, lien vers l'espace responsable
 
 ### 2.4 Écran de saisie ⬜
 - Grille de catégories (gros boutons, ordre défini par l'administration)
@@ -142,8 +143,9 @@ Objectif : un bénévole saisit des articles depuis son téléphone, y compris s
 - ✅ Identité du bénévole (identifiant d'appareil, prénom, magasin) conservée sur le téléphone (Zustand `persist`)
 - ✅ Tests Vitest (nominal, coupure réseau, erreur serveur, corrections, lots, concurrence) — 71 tests OK
 
-### 2.8 Indicateur d'état ⬜
-- « En ligne » / « Hors ligne » / « N saisies en attente d'envoi », bouton de synchronisation manuelle
+### 2.8 Indicateur d'état ✅
+- ✅ Dans l'en-tête : « À jour », « N en attente », « Envoi… », « Hors ligne · N en attente », « Erreur d'envoi » ; un appui relance la synchronisation
+- ✅ Tests des parcours (premier lancement, hors ligne, réglages) — 77 tests OK
 
 ### 2.9 Gestion des saisies par les responsables ⬜
 - `GET /api/admin/saisies` (filtres : magasin, catégorie, prénom, période), modification, suppression
@@ -219,3 +221,4 @@ Objectif : suivre la collecte en temps réel et motiver les bénévoles.
 | 27/10/2026 | Étape 2.1 terminée : PWA |
 | 27/10/2026 | Étape 2.2 terminée : stockage local |
 | 27/10/2026 | Étape 2.7 terminée : moteur de synchronisation |
+| 27/10/2026 | Étapes 2.3 et 2.8 terminées : identification du bénévole, indicateur de synchronisation |

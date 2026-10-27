@@ -10,18 +10,80 @@
   z-index: 10;
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
   min-height: calc(var(--header-height) + var(--safe-top));
   padding: var(--safe-top) var(--space-4) 0;
   background: var(--color-primary);
   color: var(--color-on-primary);
 }
 
+.headerText {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.2;
+}
+
 .brand {
+  font-size: var(--font-size-sm);
+  opacity: 0.85;
+}
+
+/* Magasin courant, affiché en permanence pour éviter les erreurs */
+.magasin {
+  overflow: hidden;
   font-size: var(--font-size-lg);
   font-weight: var(--font-weight-bold);
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .main {
   flex: 1;
-  padding: var(--space-4) var(--space-4) calc(var(--space-4) + var(--safe-bottom));
+  padding: var(--space-4);
+}
+
+.center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-6) 0;
+  text-align: center;
+}
+
+.tabbar {
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  padding-bottom: var(--safe-bottom);
+  border-top: 1px solid var(--color-border);
+  background: var(--color-surface);
+}
+
+.tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-height: var(--touch-lg);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  text-decoration: none;
+  touch-action: manipulation;
+}
+
+.tabIcon {
+  font-size: 1.375rem;
+  line-height: 1;
+}
+
+.active {
+  color: var(--color-primary);
+  box-shadow: inset 0 3px 0 var(--color-primary);
 }

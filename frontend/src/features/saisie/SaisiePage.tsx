@@ -1,8 +1,110 @@
+import { useEffect, useState } from 'react'
+import type { CategorieRef } from '../../api/types'
 import { Alert } from '../../components/Alert'
+import { Tile } from '../../components/Tile'
+import { toast } from '../../components/toast'
+import { creerSaisie, supprimerSaisie } from '../../db/saisies'
+import { demanderSynchro } from '../../sync/engine'
+import { useBenevole } from '../benevole/context'
+import { libelleSaisie } from './libelle'
+import { SaisieForm, type ContenuForm } from './SaisieForm'
+import styles from './SaisiePage.module.css'
+
+/** Durée pendant laquelle la dernière saisie peut être annulée d'un appui */
+export const DUREE_ANNULATION_MS = 8000
+
+const DETAIL_UNITE = { kg: 'poids', L: 'volume', unite: 'à l\'unité' } as const
 
 /**
- * Écran de saisie des dons (réalisé au lot 2).
+ * Saisie des dons : choix de la catégorie, puis du poids / volume et de la quantité.
+ * Après validation, retour immédiat à la grille des catégories, prêt pour l'article suivant.
  */
 export function SaisiePage() {
-  return <Alert kind="info">L'écran de saisie sera disponible prochainement.</Alert>
+  const { referentiel, magasin } = useBenevole()
+  const [categorie, setCategorie] = useState<CategorieRef | null>(null)
+  const [derniere, setDerniere] = useState<{ id: string; libelle: string } | null>(null)
+
+  // La possibilité d'annuler disparaît après quelques secondes
+  useEffect(() => {
+    if (!derniere) {
+      return
+    }
+    const minuteur = setTimeout(() => setDerniere(null), DUREE_ANNULATION_MS)
+    return () => clearTimeout(minuteur)
+  }, [derniere])
+
+  const campagne = referentiel.campagne
+  if (!campagne) {
+    return <Alert kind="warning">Aucune collecte n'est en cours : la saisie n'est pas disponible.</Alert>
+  }
+  if (referentiel.categories.length === 0) {
+    return <Alert kind="warning">Aucune catégorie de produits n'est définie pour l'instant.</Alert>
+  }
+
+  const enregistrer = async (choisie: CategorieRef, contenu: ContenuForm) => {
+    const saisie = await creerSaisie({
+      campagneId: campagne.id,
+      magasinId: magasin.id,
+      categorieId: choisie.id,
+      ...contenu,
+    })
+    demanderSynchro()
+    setDerniere({ id: saisie.id, libelle: libelleSaisie(choisie, contenu.quantite, contenu.contenanceUnitaire) })
+    setCategorie(null)
+    window.scrollTo?.({ top: 0 })
+  }
+
+  const annuler = async () => {
+    if (!derniere) {
+      return
+    }
+    await supprimerSaisie(derniere.id)
+    demanderSynchro()
+    toast.info(`Saisie annulée : ${derniere.libelle}`)
+    setDerniere(null)
+  }
+
+  return (
+    <div className={styles.page}>
+      {derniere && (
+        <div className={styles.confirmation} role="status">
+          <span className={styles.check} aria-hidden="true">
+            ✓
+          </span>
+          <span className={styles.confirmationTexte}>{derniere.libelle}</span>
+          <button type="button" className={styles.annuler} onClick={() => void annuler()}>
+            Annuler
+          </button>
+        </div>
+      )}
+
+      {categorie === null ? (
+        <>
+          <h1 className="visually-hidden">Choisir une catégorie</h1>
+          <div className={styles.grid}>
+            {referentiel.categories.map((c) => (
+              <Tile key={c.id} size="lg" detail={DETAIL_UNITE[c.unite]} onClick={() => setCategorie(c)}>
+                {c.nom}
+              </Tile>
+            ))}
+          </div>
+        </>
+      ) : (
+        <>
+          <div className={styles.detailHeader}>
+            <button type="button" className={styles.retour} onClick={() => setCategorie(null)} aria-label="Changer de catégorie">
+              ←
+            </button>
+            <h1 className={styles.detailTitre}>{categorie.nom}</h1>
+          </div>
+          <SaisieForm
+            key={categorie.id}
+            categorie={categorie}
+            submitLabel="Valider"
+            onSubmit={(contenu) => void enregistrer(categorie, contenu)}
+          />
+        </>
+      )}
+    </div>
+  )
 }

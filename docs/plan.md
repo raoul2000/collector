@@ -120,11 +120,12 @@ Objectif : un bénévole saisit des articles depuis son téléphone, y compris s
 - ✅ Magasin affiché en permanence dans l'en-tête ; barre de navigation en bas (Saisir, Mes saisies, Réglages)
 - ✅ Réglages : magasin, prénom, installation sur l'écran d'accueil (Android : bouton ; iPhone : instructions Safari), synchronisation manuelle, lien vers l'espace responsable
 
-### 2.4 Écran de saisie ⬜
-- Grille de catégories (gros boutons, ordre défini par l'administration)
-- Contenance selon l'unité : formats prédéfinis + champ libre (g/kg, cl/L) ; bouton « Contenance inconnue » avec avertissement
-- Quantité [−] / [+] et saisie directe ; contrôles de cohérence et confirmation au-delà d'un seuil
-- Validation, confirmation brève, retour à la grille ; « Annuler la dernière saisie »
+### 2.4 Écran de saisie ✅
+- ✅ Grille de catégories (grandes cases, ordre défini par l'administration, indication poids / volume / à l'unité)
+- ✅ Contenance selon l'unité : formats prédéfinis, « Autre… » (g/kg, cl/L/ml, virgule acceptée, 25 kg / 10 L max.), « Inconnu » avec confirmation (« le poids ne sera pas comptabilisé »)
+- ✅ Quantité [−] / [+] et saisie directe ; confirmation au-delà de 50 articles
+- ✅ Saisie courante en 3 touches (catégorie, format, Valider), retour immédiat à la grille, bandeau « ✓ 1 × Pâtes 500 g » avec « Annuler » pendant 8 s
+- ✅ Saisie bloquée (message) sans collecte active ou sans catégorie — 88 tests OK
 
 ### 2.5 Mes saisies ⬜
 - Liste des saisies de l'appareil avec état de synchronisation
@@ -222,3 +223,4 @@ Objectif : suivre la collecte en temps réel et motiver les bénévoles.
 | 27/10/2026 | Étape 2.2 terminée : stockage local |
 | 27/10/2026 | Étape 2.7 terminée : moteur de synchronisation |
 | 27/10/2026 | Étapes 2.3 et 2.8 terminées : identification du bénévole, indicateur de synchronisation |
+| 27/10/2026 | Étape 2.4 terminée : écran de saisie |

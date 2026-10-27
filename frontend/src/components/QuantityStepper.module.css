@@ -1,0 +1,52 @@
+.stepper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.label {
+  font-weight: var(--font-weight-medium);
+}
+
+.controls {
+  display: grid;
+  grid-template-columns: var(--touch-lg) 1fr var(--touch-lg);
+  gap: var(--space-2);
+}
+
+.button {
+  height: var(--touch-lg);
+  border: 2px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  font-size: 2rem;
+  font-weight: var(--font-weight-bold);
+  line-height: 1;
+  cursor: pointer;
+  touch-action: manipulation;
+  user-select: none;
+}
+
+.button:active:not(:disabled) {
+  background: var(--color-surface-muted);
+}
+
+.button:disabled {
+  opacity: 0.35;
+}
+
+.input {
+  width: 100%;
+  height: var(--touch-lg);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  text-align: center;
+}
+
+.input:focus {
+  border-color: var(--color-focus);
+  outline: none;
+}

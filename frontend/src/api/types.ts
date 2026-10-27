@@ -85,3 +85,55 @@ export interface CategorieInput {
   codeReference: string
   formats: number[]
 }
+
+// --- Synchronisation (bénévole) ------------------------------------------------------------------
+
+/** Saisie telle qu'envoyée par le téléphone */
+export interface SaisieEnvoyee {
+  id: string
+  campagneId: number
+  magasinId: number
+  categorieId: number
+  quantite: number
+  contenanceUnitaire: number | null
+  saisieLe: string
+  modifieLe: string
+  supprime: boolean
+  /** Version serveur connue du téléphone */
+  baseMajLe: string | null
+}
+
+/** Saisie telle qu'enregistrée par le serveur */
+export interface SaisieServeur {
+  id: string
+  campagneId: number
+  magasinId: number
+  categorieId: number
+  quantite: number
+  contenanceUnitaire: number | null
+  saisieLe: string
+  modifieLe: string
+  supprime: boolean
+  corrigeParResponsable: string | null
+  /** Marqueur de version côté serveur */
+  majLe: string
+}
+
+export interface ResultatSync {
+  id: string | null
+  statut: 'ok' | 'conflit' | 'rejete'
+  erreur?: string
+  saisie?: SaisieServeur
+}
+
+export interface SyncRequest {
+  prenom: string
+  curseur: string | null
+  saisies: SaisieEnvoyee[]
+}
+
+export interface SyncResponse {
+  resultats: ResultatSync[]
+  changements: SaisieServeur[]
+  curseur: string
+}

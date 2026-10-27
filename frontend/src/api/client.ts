@@ -27,10 +27,12 @@ export class ApiError extends Error {
 
 type Method = 'GET' | 'POST' | 'PUT' | 'DELETE'
 
-interface RequestOptions {
+export interface RequestOptions {
   method?: Method
   body?: unknown
   signal?: AbortSignal
+  /** En-têtes supplémentaires (ex. X-Device-Id) */
+  headers?: Record<string, string>
 }
 
 interface ErrorPayload {
@@ -45,8 +47,12 @@ export function apiUrl(path: string): string {
   return `${import.meta.env.BASE_URL}api/${path.replace(/^\/+/, '')}`
 }
 
-export async function request<T>(path: string, { method = 'GET', body, signal }: RequestOptions = {}): Promise<T> {
+export async function request<T>(
+  path: string,
+  { method = 'GET', body, signal, headers: extraHeaders }: RequestOptions = {},
+): Promise<T> {
   const headers: Record<string, string> = {
+    ...extraHeaders,
     Accept: 'application/json',
     'X-Requested-With': 'Collector',
   }

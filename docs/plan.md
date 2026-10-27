@@ -135,11 +135,12 @@ Objectif : un bénévole saisit des articles depuis son téléphone, y compris s
 - ✅ Idempotence (UUID client), contrôle d'appartenance, suppression logique, renvois tardifs ignorés, corrections des responsables prioritaires (`conflit`), saisies invalides refusées une par une (`rejete`)
 - ✅ Règles de validité communes (`SaisieRules`) : catégorie, quantité 1–999, contenance selon l'unité (25 kg / 10 L), magasin et campagne existants ; dates ISO 8601 converties en Europe/Paris — 94 tests OK
 
-### 2.7 Moteur de synchronisation ⬜
-- Module TypeScript indépendant de React
-- Déclenchement au démarrage, au retour du réseau, périodiquement et manuellement
-- Envoi par lots, nouvelles tentatives avec délai croissant, récupération des corrections
-- Tests unitaires Vitest (cas nominal, coupure réseau, doublons, conflits)
+### 2.7 Moteur de synchronisation ✅
+- ✅ Module TypeScript indépendant de React (`src/sync/engine.ts`) ; règles de fusion en fonctions pures (`merge.ts`)
+- ✅ Synchronisation : référentiel, envoi par lots de 100 avec l'identifiant d'appareil, application des résultats (acceptée, corrigée par un responsable, refusée) et des changements serveur, mémorisation du curseur ; une seule synchronisation à la fois
+- ✅ Déclenchement au démarrage, au retour du réseau, au retour au premier plan, 1,5 s après une saisie, toutes les 30 s ; après un échec, nouvelles tentatives espacées (5 s → 60 s)
+- ✅ Identité du bénévole (identifiant d'appareil, prénom, magasin) conservée sur le téléphone (Zustand `persist`)
+- ✅ Tests Vitest (nominal, coupure réseau, erreur serveur, corrections, lots, concurrence) — 71 tests OK
 
 ### 2.8 Indicateur d'état ⬜
 - « En ligne » / « Hors ligne » / « N saisies en attente d'envoi », bouton de synchronisation manuelle
@@ -217,3 +218,4 @@ Objectif : suivre la collecte en temps réel et motiver les bénévoles.
 | 27/10/2026 | Étape 2.6 terminée : API de synchronisation |
 | 27/10/2026 | Étape 2.1 terminée : PWA |
 | 27/10/2026 | Étape 2.2 terminée : stockage local |
+| 27/10/2026 | Étape 2.7 terminée : moteur de synchronisation |

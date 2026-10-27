@@ -70,7 +70,7 @@ describe('Accès à l’espace responsable', () => {
     await user.click(await screen.findByRole('button', { name: 'Déconnexion' }))
 
     await waitFor(() => expect(router.state.location.pathname).toBe('/admin/connexion'))
-    expect(api.calls).toContainEqual({ method: 'POST', path: '/api/admin/logout', body: undefined })
+    expect(api.calls).toContainEqual(expect.objectContaining({ method: 'POST', path: '/api/admin/logout' }))
   })
 })
 

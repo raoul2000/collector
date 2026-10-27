@@ -9,6 +9,7 @@ export interface FakeResponse {
 export type FakeRoute = FakeResponse | ((body: unknown) => FakeResponse)
 
 export interface FakeCall {
+  headers: Record<string, string>
   method: string
   path: string
   body: unknown
@@ -32,7 +33,7 @@ export function fakeApi(routes: Record<string, FakeRoute>) {
     const method = init?.method ?? 'GET'
     const path = String(input)
     const body: unknown = typeof init?.body === 'string' ? JSON.parse(init.body) : undefined
-    calls.push({ method, path, body })
+    calls.push({ method, path, body, headers: (init?.headers ?? {}) as Record<string, string> })
 
     const route = routes[`${method} ${path}`]
     const response = typeof route === 'function' ? route(body) : (route ?? { status: 404, body: { error: { code: 'not_found', message: 'Route introuvable.' } } })

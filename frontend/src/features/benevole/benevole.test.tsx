@@ -85,7 +85,8 @@ describe('Fonctionnement hors ligne', () => {
     renderApp('/')
 
     expect(await screen.findByText(/Hors ligne · 1 en attente/)).toBeInTheDocument()
-    expect(within(screen.getAllByRole('banner')[0]!).getByText('Carrefour Market · Centre')).toBeInTheDocument()
+    // L'indicateur peut s'afficher avant la lecture du référentiel local : on attend le magasin
+    expect(await screen.findByText('Carrefour Market · Centre')).toBeInTheDocument()
   })
 
   it('indique que tout est à jour après une synchronisation réussie', async () => {

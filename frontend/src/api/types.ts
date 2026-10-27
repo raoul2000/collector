@@ -179,3 +179,67 @@ export interface CorrectionSaisie {
   quantite: number
   contenanceUnitaire: number | null
 }
+
+// --- Bilans --------------------------------------------------------------------------------------
+
+/** Totaux : poids en grammes (catégories en kg), volumes en millilitres (catégories en L) */
+export interface TotauxBilan {
+  nbSaisies: number
+  nbArticles: number
+  grammes: number
+  millilitres: number
+  /** Articles en kg ou en L saisis sans contenance (non comptés dans les poids et volumes) */
+  sansContenance: number
+}
+
+export interface BilanCategorie {
+  categorieId: number
+  nom: string
+  unite: Unite
+  nbSaisies: number
+  nbArticles: number
+  /** Total en g ou en ml ; null pour une catégorie à l'unité */
+  contenance: number | null
+  sansContenance: number
+}
+
+export interface BilanHeure {
+  /** AAAA-MM-JJ */
+  jour: string
+  heure: number
+  nbSaisies: number
+  nbArticles: number
+  grammes: number
+  millilitres: number
+}
+
+export interface BilanMagasin extends TotauxBilan {
+  magasinId: number
+  nom: string
+  ville: string
+}
+
+export interface CampagneBilan {
+  id: number
+  nom: string
+  dateDebut: string
+  dateFin: string
+}
+
+export interface BilanAdmin {
+  campagne: CampagneBilan
+  magasinId: number | null
+  totaux: TotauxBilan
+  categories: BilanCategorie[]
+  heures: BilanHeure[]
+  magasins: BilanMagasin[]
+}
+
+export type BilanPublic =
+  | { campagne: null }
+  | {
+      campagne: CampagneBilan
+      magasin: { magasinId: number; totaux: TotauxBilan; categories: BilanCategorie[] } | null
+      general: TotauxBilan
+      classement: BilanMagasin[]
+    }

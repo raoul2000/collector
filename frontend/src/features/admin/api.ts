@@ -2,6 +2,7 @@ import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tansta
 import { api, ApiError } from '../../api/client'
 import type {
   AdminSession,
+  BilanAdmin,
   Campagne,
   CampagneInput,
   Categorie,
@@ -170,6 +171,27 @@ export function useReorderCategories() {
       }
     },
     onSuccess: (categories) => queryClient.setQueryData(CATEGORIES_KEY, categories),
+  })
+}
+
+// --- Bilans --------------------------------------------------------------------------------------
+
+/** Fréquence d'actualisation des bilans pendant la collecte */
+export const BILAN_REFRESH_MS = 30_000
+
+/**
+ * Bilan d'une campagne (la campagne active si non précisée), éventuellement limité à un magasin.
+ */
+export function useBilan(campagne: number | undefined, magasin: number | undefined) {
+  const params = new URLSearchParams()
+  if (campagne) params.set('campagne', String(campagne))
+  if (magasin) params.set('magasin', String(magasin))
+
+  return useQuery({
+    queryKey: ['admin', 'bilans', { campagne, magasin }],
+    queryFn: ({ signal }) => api.get<BilanAdmin>(`admin/bilans?${params}`, signal),
+    refetchInterval: BILAN_REFRESH_MS,
+    placeholderData: keepPreviousData,
   })
 }
 

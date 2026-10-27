@@ -167,9 +167,12 @@ Objectif : suivre la collecte en temps réel et motiver les bénévoles.
 - ✅ `GET /api/bilans?magasin=` (bénévoles, sans prénom) : totaux et catégories du magasin, total général, classement des magasins par nombre d'articles
 - ✅ Saisies supprimées et autres campagnes exclues ; poids et volumes totalisés en g / ml, jamais additionnés entre eux — 110 tests OK
 
-### 3.2 Bilans responsables ⬜
-- Tableaux et graphiques (Recharts) par catégorie et par heure, choix du magasin et de la campagne
-- Rafraîchissement automatique (~30 s)
+### 3.2 Bilans responsables ✅
+- ✅ Écran « Bilans » (page d'accueil de l'espace responsable) : choix de la campagne (active par défaut) et du magasin, actualisation automatique toutes les 30 s (l'affichage précédent reste visible pendant le rechargement)
+- ✅ Chiffres clés : articles (et saisies), poids avec les articles sans poids ni volume, volume
+- ✅ Graphiques Recharts (une seule série, une seule teinte validée, graduations rondes, infobulles, valeur au bout des barres) : par catégorie (trié), par heure (un graphique par jour, même échelle), par magasin ; chaque graphique a son tableau (« Voir le tableau »)
+- ✅ Rendu vérifié par capture d'écran sur un jeu de 759 saisies ; Recharts n'est chargé que dans l'espace responsable
+- ✅ Test instable du lot 2 élucidé et corrigé (assertion trop tôt sur l'en-tête) — 102 tests OK
 
 ### 3.3 Bilans bénévoles ⬜
 - Écran « Notre collecte » accessible depuis la saisie : magasin, catégories, total général, classement des magasins
@@ -229,3 +232,4 @@ Objectif : suivre la collecte en temps réel et motiver les bénévoles.
 | 27/10/2026 | Étape 2.5 terminée : mes saisies |
 | 27/10/2026 | Étape 2.9 terminée : gestion des saisies par les responsables — **lot 2 terminé** |
 | 27/10/2026 | Étape 3.1 terminée : API des bilans |
+| 27/10/2026 | Étape 3.2 terminée : bilans des responsables |

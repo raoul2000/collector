@@ -1,0 +1,81 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.filtres {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 18rem));
+  align-items: end;
+  gap: var(--space-3) var(--space-4);
+}
+
+/* Pendant l'actualisation, l'affichage précédent reste en place, atténué */
+.rechargement {
+  opacity: 0.6;
+  transition: opacity 0.2s;
+}
+
+.miseAJour {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.multiples {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+  gap: var(--space-4);
+}
+
+.multiple {
+  margin: 0;
+}
+
+.multipleTitre {
+  margin-bottom: var(--space-2);
+  font-weight: var(--font-weight-medium);
+}
+
+.tableau {
+  margin-top: var(--space-4);
+}
+
+.tableau summary {
+  color: var(--color-info);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+}
+
+.tableau[open] summary {
+  margin-bottom: var(--space-3);
+}
+
+.vide {
+  color: var(--color-text-muted);
+}
+
+.infobulle {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-md);
+  font-size: var(--font-size-sm);
+}
+
+.infobulleValeur {
+  font-size: var(--font-size-md);
+  color: var(--color-text);
+}
+
+.infobulleLibelle {
+  color: var(--color-text);
+}
+
+.infobulleDetail {
+  color: var(--color-text-muted);
+}

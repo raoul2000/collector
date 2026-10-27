@@ -69,3 +69,16 @@
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
 }
+
+/*
+ * Graphiques : une seule série par graphique, donc une seule teinte (bleu de référence, contraste ≥ 3:1
+ * sur la surface blanche, vérifié avec le validateur de palette). Le rouge de la marque n'est pas utilisé
+ * pour les données (il évoquerait une alerte).
+ */
+:root {
+  --chart-series-1: #2a78d6;
+  --chart-series-1-hover: #1c5cab;
+  --chart-grid: #e6e3df;
+  --chart-axis: #8a847d;
+  --chart-surface: #ffffff;
+}

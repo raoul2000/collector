@@ -23,3 +23,17 @@ describe('formatDate', () => {
     expect(formatDate('2026-11-27')).toBe('27/11/2026')
   })
 })
+
+describe('totaux', () => {
+  it('formate les nombres, poids et volumes', async () => {
+    const { formatNombre, formatKg, formatLitres, pluriel } = await import('./format')
+    // Intl sépare les milliers par une espace fine insécable (U+202F)
+    expect(formatNombre(1234)).toBe('1 234')
+    expect(formatKg(1234500)).toBe('1 234,5 kg')
+    expect(formatKg(250)).toBe('0,3 kg')
+    expect(formatLitres(12500)).toBe('12,5 L')
+    expect(pluriel(1, 'article')).toBe('1 article')
+    expect(pluriel(0, 'article')).toBe('0 article')
+    expect(pluriel(1500, 'article')).toBe('1 500 articles')
+  })
+})

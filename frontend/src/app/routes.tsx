@@ -29,7 +29,11 @@ export const routes: RouteObject[] = [
     path: '/admin',
     lazy: async () => ({ Component: (await import('../features/admin/AdminLayout')).AdminLayout }),
     children: [
-      { index: true, element: <Navigate to="campagnes" replace /> },
+      { index: true, element: <Navigate to="bilans" replace /> },
+      {
+        path: 'bilans',
+        lazy: async () => ({ Component: (await import('../features/admin/bilans/BilansPage')).BilansPage }),
+      },
       {
         path: 'campagnes',
         lazy: async () => ({ Component: (await import('../features/admin/campagnes/CampagnesPage')).CampagnesPage }),

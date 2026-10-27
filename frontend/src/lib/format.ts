@@ -37,3 +37,26 @@ export function formatDate(isoDate: string): string {
   const [annee, mois, jour] = isoDate.split('-')
   return `${jour}/${mois}/${annee}`
 }
+
+const entier = new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 0 })
+const unDecimal = new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 1 })
+
+/** Nombre entier avec séparateur de milliers (« 1 234 ») */
+export function formatNombre(n: number): string {
+  return entier.format(n)
+}
+
+/** Total en grammes affiché en kilogrammes (« 1 234,5 kg ») */
+export function formatKg(grammes: number): string {
+  return `${unDecimal.format(grammes / 1000)} kg`
+}
+
+/** Total en millilitres affiché en litres (« 12,5 L ») */
+export function formatLitres(millilitres: number): string {
+  return `${unDecimal.format(millilitres / 1000)} L`
+}
+
+/** Accord simple : pluriel(3, 'article') → « 3 articles » */
+export function pluriel(n: number, mot: string): string {
+  return `${formatNombre(n)} ${mot}${Math.abs(n) > 1 ? 's' : ''}`
+}

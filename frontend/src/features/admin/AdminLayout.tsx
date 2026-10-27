@@ -6,6 +6,7 @@ import { useAdminSession, useLogout } from './api'
 import styles from './AdminLayout.module.css'
 
 const NAVIGATION = [
+  { to: 'bilans', label: 'Bilans' },
   { to: 'campagnes', label: 'Campagnes' },
   { to: 'magasins', label: 'Magasins' },
   { to: 'categories', label: 'Catégories' },

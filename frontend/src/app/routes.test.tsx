@@ -14,14 +14,18 @@ describe('routes', () => {
     expect(screen.getByText('Collector')).toBeInTheDocument()
   })
 
-  it('redirige /admin vers la gestion des campagnes', async () => {
-    fakeApi({ ...SESSION_OK, 'GET /api/admin/campagnes': { body: [] } })
+  it('redirige /admin vers les bilans', async () => {
+    fakeApi({
+      ...SESSION_OK,
+      'GET /api/admin/campagnes': { body: [] },
+      'GET /api/admin/magasins': { body: [] },
+    })
 
     const { router } = renderApp('/admin')
 
-    expect(await screen.findByRole('heading', { name: 'Campagnes' })).toBeInTheDocument()
-    expect(router.state.location.pathname).toBe('/admin/campagnes')
-    expect(screen.getByRole('link', { name: 'Campagnes' })).toHaveAttribute('aria-current', 'page')
+    expect(await screen.findByRole('heading', { name: 'Bilans' })).toBeInTheDocument()
+    expect(router.state.location.pathname).toBe('/admin/bilans')
+    expect(screen.getByRole('link', { name: 'Bilans' })).toHaveAttribute('aria-current', 'page')
   })
 
   it('affiche une page introuvable pour une adresse inconnue', () => {

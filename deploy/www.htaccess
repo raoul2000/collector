@@ -1,0 +1,42 @@
+# Racine web de Collector (copié en www/.htaccess par scripts/preparer-deploiement.mjs)
+Options -Indexes
+DirectoryIndex index.html
+
+AddType application/manifest+json .webmanifest
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # HTTPS obligatoire (indispensable au service worker et au fonctionnement hors ligne)
+    RewriteCond %{HTTPS} !=on
+    RewriteCond %{HTTP:X-Forwarded-Proto} !=https
+    RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
+
+    # Fichiers cachés (.htaccess, .user.ini…) jamais servis
+    RewriteRule (^|/)\. - [F]
+
+    # Les fichiers existants sont servis tels quels ; l'API (dossier api/) a son propre .htaccess
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^ - [L]
+
+    # Toute autre adresse (/mes-saisies, /admin/bilans…) est une page de l'application
+    RewriteRule ^ index.html [L]
+</IfModule>
+
+<IfModule mod_headers.c>
+    # Fichiers qui doivent toujours être vérifiés auprès du serveur (sinon les mises à jour ne passent pas)
+    <FilesMatch "^(index\.html|sw\.js|registerSW\.js|manifest\.webmanifest)$">
+        Header set Cache-Control "no-cache"
+    </FilesMatch>
+
+    # Fichiers compilés : leur nom change à chaque version, ils peuvent être gardés longtemps
+    <If "%{REQUEST_URI} =~ m#^/assets/#">
+        Header set Cache-Control "public, max-age=31536000, immutable"
+    </If>
+
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    Header always set X-Frame-Options "DENY"
+    Header always set Strict-Transport-Security "max-age=31536000"
+</IfModule>

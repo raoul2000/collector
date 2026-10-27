@@ -1,0 +1,3 @@
+# Dossier applicatif (code PHP, configuration) : jamais accessible depuis le web.
+# Il est normalement placé hors de la racine web ; cette règle est une protection supplémentaire.
+Require all denied

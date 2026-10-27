@@ -16,7 +16,7 @@ Référence fonctionnelle et technique : [specifications.md](specifications.md).
 | 1 | Socle : base de données, API référentiel, administration minimale | ✅ |
 | 2 | Saisie bénévole, hors ligne et synchronisation | ✅ |
 | 3 | Bilans | ✅ |
-| 4 | Déploiement et recette | ⬜ |
+| 4 | Déploiement et recette | 🔄 |
 
 ---
 
@@ -188,12 +188,14 @@ Objectif : suivre la collecte en temps réel et motiver les bénévoles.
 
 ---
 
-## Lot 4 — Déploiement et recette ⬜
+## Lot 4 — Déploiement et recette 🔄
 
-### 4.1 Déploiement Ionos ⏸️ (en attente du nom de domaine)
-- Procédure de déploiement documentée (`docs/deploiement.md`) : build, arborescence serveur, `.htaccess`, configuration de production, installation SQL
-- Script d'aide au déploiement
-- HTTPS et vérification du service worker en production
+### 4.1 Déploiement Ionos 🔄 (préparé ; installation en attente du nom de domaine et des accès)
+- ✅ Procédure documentée : [deploiement.md](deploiement.md) (préparation de l'hébergement, première installation avec ou sans SSH, mise à jour, retour arrière, sauvegardes, dépannage)
+- ✅ Script `scripts/preparer-deploiement.mjs` : vérifications (lint, tests), compilation, paquet `deploy/package` (`www/`, `app/` avec dépendances de production uniquement, scripts SQL pour phpMyAdmin)
+- ✅ `.htaccess` de production : HTTPS obligatoire, pages de l'application, en-têtes de cache (mises à jour du service worker), en-têtes de sécurité, dossier `app` interdit
+- ✅ Vérifié en local : import de `installation.sql` sur une base vide, reconnaissance par `migrate.php`, API du paquet fonctionnelle ; correction de l'encodage des accents à l'import en ligne de commande (`SET NAMES utf8mb4`)
+- ⏸️ Installation sur Ionos, HTTPS et vérification du service worker en production
 
 ### 4.2 Référentiel définitif ⏸️ (en attente de la liste Croix-Rouge)
 - Import de la liste de référence des catégories, unités et formats
@@ -240,3 +242,4 @@ Objectif : suivre la collecte en temps réel et motiver les bénévoles.
 | 27/10/2026 | Étape 3.1 terminée : API des bilans |
 | 27/10/2026 | Étape 3.2 terminée : bilans des responsables |
 | 27/10/2026 | Étape 3.3 terminée : bilans des bénévoles — **lot 3 terminé** |
+| 27/10/2026 | Étape 4.1 préparée : procédure et script de déploiement |

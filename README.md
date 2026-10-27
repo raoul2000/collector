@@ -22,6 +22,8 @@ composer serve                                   # API sur http://localhost:8000
 composer test                                    # tests PHPUnit (base collector_test recréée)
 ```
 
+Vérification : http://localhost:8000/api/health
+
 En production, `php bin/migrate.php` applique uniquement les migrations en attente.
 
 Mot de passe des responsables : générer son hash avec `php bin/hash-password.php "mot de passe"` et le copier dans `config/config.php` (`admin.password_hash`).
@@ -42,4 +44,10 @@ npm run build        # vérification TypeScript + compilation dans dist/
 - Espace bénévole : http://localhost:5173/
 - Espace responsable : http://localhost:5173/admin (mot de passe de développement : `responsable-dev`)
 
-Vérification : http://localhost:8000/api/health
+## Déploiement
+
+```sh
+node scripts/preparer-deploiement.mjs   # vérifie, compile et prépare deploy/package
+```
+
+Procédure complète (Ionos) : [docs/deploiement.md](docs/deploiement.md)

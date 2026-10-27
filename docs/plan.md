@@ -107,9 +107,12 @@ Objectif : un bénévole saisit des articles depuis son téléphone, y compris s
 - ✅ Nouvelle version : bandeau « Mettre à jour » (vérification toutes les heures)
 - ✅ Espace responsable chargé à la demande : ~115 Ko compressés au démarrage côté bénévole
 - ➡️ Invitation à l'ajout à l'écran d'accueil : intégrée aux paramètres du bénévole (2.3)
-### 2.2 Stockage local (Dexie) ⬜
-- Tables locales : référentiel, saisies, file d'opérations, métadonnées (dernière synchronisation)
-- Mise en cache du référentiel pour un fonctionnement hors ligne complet
+
+### 2.2 Stockage local (Dexie) ✅
+- ✅ Base IndexedDB `collector` : saisies (indicateur `aEnvoyer`, version serveur `baseMajLe`, motif de refus), référentiel, métadonnées (curseur, dernière synchronisation)
+- ✅ Création, modification, suppression logique des saisies ; lectures réactives (`useMesSaisies`, `useNbAEnvoyer`, `useReferentiel`)
+- ✅ Référentiel mis en cache, réécrit seulement si sa version change ; dates ISO avec le fuseau du téléphone
+- ✅ Tests sur IndexedDB simulée (`fake-indexeddb`) — 56 tests OK
 
 ### 2.3 Premier lancement et identification ⬜
 - Génération et mémorisation de l'identifiant d'appareil (UUID)
@@ -213,3 +216,4 @@ Objectif : suivre la collecte en temps réel et motiver les bénévoles.
 | 27/10/2026 | Étapes 1.7 et 1.8 terminées : écrans d'administration et tests — **lot 1 terminé** |
 | 27/10/2026 | Étape 2.6 terminée : API de synchronisation |
 | 27/10/2026 | Étape 2.1 terminée : PWA |
+| 27/10/2026 | Étape 2.2 terminée : stockage local |

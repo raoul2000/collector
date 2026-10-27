@@ -71,6 +71,12 @@ final class App
     public function handle(Request $request): JsonResponse
     {
         try {
+            // Protection CSRF : un en-tête personnalisé ne peut pas être envoyé par un autre site sans
+            // autorisation CORS (que l'API n'accorde pas). Exigé sur toutes les requêtes qui modifient des données.
+            if (!in_array($request->method, ['GET', 'HEAD'], true) && $request->header('X-Requested-With') === null) {
+                throw new HttpException(403, 'csrf', 'En-tête X-Requested-With manquant.');
+            }
+
             return $this->router->dispatch($request);
         } catch (HttpException $e) {
             return $e->toResponse();

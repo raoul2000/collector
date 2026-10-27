@@ -240,7 +240,9 @@ L'identifiant d'appareil est transmis dans un en-tête `X-Device-Id`.
 ### 5.6 Sécurité
 
 - Mot de passe responsable stocké **haché** (`password_hash`) dans un fichier de configuration placé hors de la racine web, ou protégé par `.htaccess`.
-- Session PHP (cookie `HttpOnly`, `Secure`, `SameSite=Strict`) pour l'espace responsable ; limitation des tentatives de connexion.
+- Sessions de l'espace responsable stockées en base (table `session_admin`, empreinte SHA-256 du jeton uniquement), jeton dans un cookie `HttpOnly`, `Secure`, `SameSite=Strict` ; expiration après 12 h d'inactivité.
+- Limitation des tentatives de connexion : 5 échecs par adresse IP sur 15 minutes.
+- Protection CSRF : toute requête modifiant des données doit porter l'en-tête `X-Requested-With` (un autre site ne peut pas l'envoyer sans autorisation CORS).
 - Validation stricte de toutes les entrées côté serveur ; requêtes préparées uniquement.
 - L'identifiant d'appareil n'est **pas une authentification forte** : il empêche les erreurs, pas une usurpation volontaire. Risque jugé acceptable dans ce contexte.
 - Limite de taille des lots de synchronisation.

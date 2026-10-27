@@ -19,7 +19,7 @@ final class AppTest extends TestCase
         $app = $this->app();
         $app->router->post('/api/test', static fn () => throw HttpException::validation(['nom' => 'Obligatoire.']));
 
-        $response = $app->handle(new Request('POST', '/api/test'));
+        $response = $app->handle(new Request('POST', '/api/test', headers: ['X-Requested-With' => 'Collector']));
 
         self::assertSame(422, $response->status);
         self::assertSame(
@@ -30,6 +30,19 @@ final class AppTest extends TestCase
             ]],
             $response->data,
         );
+    }
+
+    public function testMutatingRequestWithoutCsrfHeaderIsRejected(): void
+    {
+        $app = $this->app();
+        $app->router->post('/api/test', static fn () => new JsonResponse('ok'));
+        $app->router->get('/api/test', static fn () => new JsonResponse('ok'));
+
+        $response = $app->handle(new Request('POST', '/api/test'));
+        self::assertSame(403, $response->status);
+        self::assertSame('csrf', $response->data['error']['code']);
+
+        self::assertSame(200, $app->handle(new Request('GET', '/api/test'))->status);
     }
 
     public function testUnknownRouteGives404(): void

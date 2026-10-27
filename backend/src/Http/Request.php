@@ -17,7 +17,9 @@ final class Request
     /**
      * @param array<string, mixed>  $query
      * @param array<string, string> $headers
-     * @param array<string, string> $params paramètres extraits de l'URL par le routeur
+     * @param array<string, string> $cookies
+     * @param string                $ip      adresse IP du client
+     * @param array<string, string> $params  paramètres extraits de l'URL par le routeur
      */
     public function __construct(
         public readonly string $method,
@@ -25,6 +27,8 @@ final class Request
         private readonly array $query = [],
         array $headers = [],
         private readonly string $rawBody = '',
+        private readonly array $cookies = [],
+        public readonly string $ip = '',
         private readonly array $params = [],
     ) {
         $this->headers = array_change_key_case($headers, CASE_LOWER);
@@ -50,6 +54,8 @@ final class Request
             $_GET,
             $headers,
             (string) file_get_contents('php://input'),
+            array_filter($_COOKIE, is_string(...)),
+            (string) ($_SERVER['REMOTE_ADDR'] ?? ''),
         );
     }
 
@@ -61,6 +67,11 @@ final class Request
     public function header(string $name): ?string
     {
         return $this->headers[strtolower($name)] ?? null;
+    }
+
+    public function cookie(string $name): ?string
+    {
+        return $this->cookies[$name] ?? null;
     }
 
     public function query(string $name, ?string $default = null): ?string
@@ -80,7 +91,16 @@ final class Request
      */
     public function withParams(array $params): self
     {
-        return new self($this->method, $this->path, $this->query, $this->headers, $this->rawBody, $params);
+        return new self(
+            $this->method,
+            $this->path,
+            $this->query,
+            $this->headers,
+            $this->rawBody,
+            $this->cookies,
+            $this->ip,
+            $params,
+        );
     }
 
     /**

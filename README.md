@@ -24,4 +24,8 @@ composer test                                    # tests PHPUnit (base collector
 
 En production, `php bin/migrate.php` applique uniquement les migrations en attente.
 
+Mot de passe des responsables : générer son hash avec `php bin/hash-password.php "mot de passe"` et le copier dans `config/config.php` (`admin.password_hash`).
+
+Toute requête API modifiant des données (POST, PUT, PATCH, DELETE) doit porter l'en-tête `X-Requested-With: Collector`.
+
 Vérification : http://localhost:8000/api/health

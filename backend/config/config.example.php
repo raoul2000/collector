@@ -12,6 +12,8 @@ return [
         // true uniquement en développement : ajoute le détail des erreurs internes dans les réponses
         'debug' => false,
         'timezone' => 'Europe/Paris',
+        // Cookie de session réservé à HTTPS : laisser true en production
+        'secure_cookies' => true,
     ],
     'db' => [
         'host' => '127.0.0.1',

@@ -15,6 +15,8 @@ final class Config
         'app' => [
             'debug' => false,
             'timezone' => 'Europe/Paris',
+            // Cookie de session responsable réservé à HTTPS (à désactiver uniquement en développement local)
+            'secure_cookies' => true,
         ],
         'db' => [
             'host' => '127.0.0.1',

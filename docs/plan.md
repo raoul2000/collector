@@ -51,8 +51,10 @@ Objectif : une base de données en place, une API qui expose le référentiel, e
 - ✅ `backend/sql/seed_dev.sql` : 2 campagnes, 5 magasins, **19 catégories provisoires** et 32 formats
 - ✅ Base de test `collector_test` recréée à chaque exécution de PHPUnit, tests en transaction — 32 tests OK
 
-### 1.3 API référentiel ⬜
-- `GET /api/referentiel` : campagne active, magasins de la campagne, catégories actives (ordonnées) et leurs formats
+### 1.3 API référentiel ✅
+- ✅ `GET /api/referentiel` : campagne active, magasins actifs de la campagne, catégories actives (ordonnées) et leurs formats (liste de contenances en g ou ml)
+- ✅ Champ `version` (empreinte du contenu) pour que le téléphone sache si sa copie locale est à jour
+- ✅ Repositories `CampagneRepository`, `MagasinRepository`, `CategorieRepository` ; base de tests d'API (`ApiTestCase`) — 35 tests OK
 
 ### 1.4 Authentification responsable ⬜
 - `POST /api/admin/login` (prénom + mot de passe partagé), `POST /api/admin/logout`, `GET /api/admin/session`
@@ -196,3 +198,4 @@ Objectif : suivre la collecte en temps réel et motiver les bénévoles.
 | 27/10/2026 | Spécifications v0.3 validées, environnement prêt, plan établi |
 | 27/10/2026 | Étape 1.1 terminée : squelette du backend PHP |
 | 27/10/2026 | Étape 1.2 terminée : schéma de la base, migrations, données de développement |
+| 27/10/2026 | Étape 1.3 terminée : API du référentiel |

@@ -14,14 +14,14 @@ use Throwable;
 
 final class App
 {
-    private ?PDO $pdo = null;
-
     /**
      * @param array<string, mixed> $config configuration complète (cf. Config)
+     * @param PDO|null             $pdo    connexion à utiliser (tests) ; sinon ouverte à la demande
      */
     public function __construct(
         private readonly array $config,
         public readonly Router $router = new Router(),
+        private ?PDO $pdo = null,
     ) {
     }
 
@@ -55,10 +55,17 @@ final class App
         $config = Config::load($appDir);
         date_default_timezone_set($config['app']['timezone']);
 
-        $app = new self($config);
-        (require $appDir . '/src/routes.php')($app);
+        return new self($config)->withRoutes();
+    }
 
-        return $app;
+    /**
+     * Enregistre les routes de l'API (src/routes.php).
+     */
+    public function withRoutes(): self
+    {
+        (require __DIR__ . '/routes.php')($this);
+
+        return $this;
     }
 
     public function handle(Request $request): JsonResponse

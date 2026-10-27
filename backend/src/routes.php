@@ -4,7 +4,11 @@ declare(strict_types=1);
 
 use App\App;
 use App\Controller\HealthController;
+use App\Controller\ReferentielController;
 use App\Http\Request;
+use App\Repository\CampagneRepository;
+use App\Repository\CategorieRepository;
+use App\Repository\MagasinRepository;
 
 /**
  * Déclaration des routes de l'API.
@@ -15,4 +19,10 @@ return static function (App $app): void {
     $db = $app->db(...);
 
     $r->get('/api/health', static fn (Request $q) => new HealthController($db)->show($q));
+
+    $r->get('/api/referentiel', static fn (Request $q) => new ReferentielController(
+        new CampagneRepository($db()),
+        new MagasinRepository($db()),
+        new CategorieRepository($db()),
+    )->show($q));
 };

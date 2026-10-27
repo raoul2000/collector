@@ -10,12 +10,16 @@ use App\Controller\Admin\MagasinController;
 use App\Controller\AdminAuthController;
 use App\Controller\HealthController;
 use App\Controller\ReferentielController;
+use App\Controller\SyncController;
 use App\Http\JsonResponse;
 use App\Http\Request;
+use App\Repository\AppareilRepository;
 use App\Repository\CampagneRepository;
 use App\Repository\CategorieRepository;
 use App\Repository\JournalRepository;
 use App\Repository\MagasinRepository;
+use App\Repository\SaisieRepository;
+use App\Saisie\SaisieRules;
 
 /**
  * Déclaration des routes de l'API.
@@ -53,6 +57,13 @@ return static function (App $app): void {
         new MagasinRepository($db()),
         new CategorieRepository($db()),
     )->show($q));
+
+    $r->post('/api/sync', static fn (Request $q) => new SyncController(
+        $db(),
+        new AppareilRepository($db()),
+        new SaisieRepository($db()),
+        new SaisieRules($db()),
+    )->sync($q));
 
     // --- Espace responsable ---------------------------------------------------------------------
 

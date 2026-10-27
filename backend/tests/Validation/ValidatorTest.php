@@ -91,6 +91,41 @@ final class ValidatorTest extends TestCase
         self::assertSame(['a', 'b', 'c'], array_keys($v->errors()));
     }
 
+    public function testUuidIsNormalizedToLowercase(): void
+    {
+        $v = new Validator(['a' => 'A1A1A1A1-0000-4000-8000-00000000000F', 'b' => 'a1a1a1a1-0000-4000-8000', 'c' => 12]);
+
+        self::assertSame('a1a1a1a1-0000-4000-8000-00000000000f', $v->uuid('a'));
+        self::assertNull($v->uuid('b'));
+        self::assertNull($v->uuid('c'));
+        self::assertSame(['b', 'c'], array_keys($v->errors()));
+    }
+
+    public function testDatetimeIsConvertedToApplicationTimezone(): void
+    {
+        $v = new Validator([
+            'utc' => '2026-11-27T09:15:00Z',
+            'ms' => '2026-11-27T10:15:00.123+01:00',
+            'ete' => '2026-07-01T12:00:00Z',
+        ]);
+
+        self::assertSame('2026-11-27 10:15:00', $v->datetime('utc')?->format('Y-m-d H:i:s'));
+        self::assertSame('2026-11-27 10:15:00.123', $v->datetime('ms')?->format('Y-m-d H:i:s.v'));
+        self::assertSame('2026-07-01 14:00:00', $v->datetime('ete')?->format('Y-m-d H:i:s'));
+        self::assertSame([], $v->errors());
+    }
+
+    public function testInvalidDatetimesAreRejected(): void
+    {
+        $values = ['2026-02-30T10:00:00Z', '2026-11-27 10:00:00', '2026-11-27T10:00:00', '2026-11-27T24:00:00Z', 'demain', 1700000000];
+        $v = new Validator($values);
+
+        foreach (array_keys($values) as $field) {
+            self::assertNull($v->datetime((string) $field));
+        }
+        self::assertCount(count($values), $v->errors());
+    }
+
     public function testFirstErrorOfAFieldIsKept(): void
     {
         $v = new Validator([]);

@@ -216,9 +216,14 @@ Volumétrie estimée : quelques dizaines de milliers de lignes par campagne, ce 
 ### 5.4 Synchronisation
 
 - Chaque saisie reçoit un **UUID généré sur le téléphone** à sa création. L'envoi est donc **idempotent** : renvoyer deux fois la même saisie ne crée pas de doublon.
-- Le téléphone tient une **file d'opérations** (création, modification, suppression) dans IndexedDB, envoyée par lots.
-- Le serveur applique chaque opération en vérifiant que la saisie appartient bien à l'appareil émetteur. En cas de conflit, la version la plus récente (`modifie_le`) l'emporte, avec une exception : une modification faite hors ligne par le bénévole n'écrase pas une correction de responsable postérieure à la dernière synchronisation de l'appareil.
-- À chaque synchronisation, le téléphone récupère les corrections faites par un responsable sur ses saisies.
+- Chaque saisie locale (IndexedDB) porte un indicateur **« à envoyer »**. Le téléphone envoie l'**état courant** de ces saisies, par lots de 200 au plus (plutôt qu'une file d'opérations : pas de problème d'ordre, renvoi sans effet de bord).
+- Chaque saisie envoyée porte la version serveur connue du téléphone (`baseMajLe`). Le serveur vérifie que la saisie appartient à l'appareil émetteur, puis :
+  - si un responsable l'a corrigée après cette version → la correction l'emporte (statut `conflit`, la version serveur est renvoyée) ;
+  - si la version reçue est plus ancienne que celle enregistrée (`modifieLe`, renvoi tardif) → elle est ignorée ;
+  - sinon → elle est enregistrée (statut `ok`) ;
+  - une saisie invalide est refusée (statut `rejete` avec un message) sans bloquer les autres.
+- À chaque synchronisation, le téléphone transmet un **curseur** et reçoit les saisies de l'appareil modifiées côté serveur depuis (corrections des responsables). Sans curseur, il reçoit toutes ses saisies (restauration).
+- Dates échangées au format ISO 8601 avec fuseau ; `majLe` est un marqueur opaque de version.
 - La suppression est **logique** (`supprime_le`) afin qu'une suppression faite hors ligne soit propagée correctement.
 - L'heure retenue pour les bilans est `saisie_le` (heure du don), et non l'heure de réception par le serveur. Fuseau horaire : Europe/Paris.
 
@@ -227,9 +232,7 @@ Volumétrie estimée : quelques dizaines de milliers de lignes par campagne, ce 
 | Méthode | URL | Rôle |
 |---|---|---|
 | GET | `/api/referentiel` | Campagne active, magasins, catégories, formats |
-| POST | `/api/appareils` | Enregistre ou met à jour l'appareil (UUID, prénom) |
-| POST | `/api/sync` | Envoie un lot d'opérations, renvoie leur statut |
-| GET | `/api/mes-saisies` | Saisies de l'appareil (restauration après réinstallation) |
+| POST | `/api/sync` | Enregistre l'appareil et son prénom, applique les saisies envoyées, renvoie leur statut et les changements depuis le curseur |
 | GET | `/api/bilans/public?magasin=` | Bilans « motivation » |
 | POST | `/api/admin/login` | Connexion responsable (prénom + mot de passe) |
 | POST | `/api/admin/logout` | Déconnexion |

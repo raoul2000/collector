@@ -102,6 +102,46 @@ final class Validator
     }
 
     /**
+     * Identifiant UUID (forme canonique, minuscules ou majuscules), renvoyé en minuscules.
+     */
+    public function uuid(string $field): ?string
+    {
+        if (!$this->has($field)) {
+            return $this->fail($field, 'Ce champ est obligatoire.');
+        }
+        $value = $this->data[$field];
+        if (!is_string($value) || !self::isUuid($value)) {
+            return $this->fail($field, 'Identifiant invalide.');
+        }
+
+        return strtolower($value);
+    }
+
+    public static function isUuid(string $value): bool
+    {
+        return preg_match('/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i', $value) === 1;
+    }
+
+    /**
+     * Date et heure ISO 8601 avec fuseau (ex. 2026-11-27T10:15:00.123+01:00 ou …Z),
+     * renvoyée dans le fuseau de l'application.
+     */
+    public function datetime(string $field): ?DateTimeImmutable
+    {
+        if (!$this->has($field)) {
+            return $this->fail($field, 'Ce champ est obligatoire.');
+        }
+        $value = $this->data[$field];
+        $pattern = '/^(\d{4})-(\d{2})-(\d{2})T([01]\d|2[0-3]):[0-5]\d:[0-5]\d(\.\d{1,6})?(Z|[+-]\d{2}:\d{2})$/';
+        // checkdate rejette les dates impossibles (ex. 31 février) que PHP corrigerait silencieusement
+        if (!is_string($value) || preg_match($pattern, $value, $m) !== 1 || !checkdate((int) $m[2], (int) $m[3], (int) $m[1])) {
+            return $this->fail($field, 'Date et heure invalides (format ISO 8601 attendu).');
+        }
+
+        return new DateTimeImmutable($value)->setTimezone(new \DateTimeZone(date_default_timezone_get()));
+    }
+
+    /**
      * @template T of string
      * @param list<T> $allowed
      * @return T|null

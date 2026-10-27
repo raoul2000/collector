@@ -14,7 +14,7 @@ Référence fonctionnelle et technique : [specifications.md](specifications.md).
 |---|---|---|
 | 0 | Environnement de développement | ✅ |
 | 1 | Socle : base de données, API référentiel, administration minimale | ✅ |
-| 2 | Saisie bénévole, hors ligne et synchronisation | ⬜ |
+| 2 | Saisie bénévole, hors ligne et synchronisation | 🔄 |
 | 3 | Bilans | ⬜ |
 | 4 | Déploiement et recette | ⬜ |
 
@@ -98,7 +98,7 @@ Objectif : une base de données en place, une API qui expose le référentiel, e
 
 ---
 
-## Lot 2 — Saisie bénévole, hors ligne et synchronisation ⬜
+## Lot 2 — Saisie bénévole, hors ligne et synchronisation 🔄
 
 Objectif : un bénévole saisit des articles depuis son téléphone, y compris sans réseau, et retrouve et corrige ses saisies.
 
@@ -127,10 +127,10 @@ Objectif : un bénévole saisit des articles depuis son téléphone, y compris s
 - Modification et suppression
 - Mention « corrigée par un responsable »
 
-### 2.6 API de synchronisation ⬜
-- `POST /api/appareils` (enregistrement de l'appareil et du prénom)
-- `POST /api/sync` : lot d'opérations idempotent (UUID client), contrôle d'appartenance, résolution des conflits (cf. spécifications 5.4), suppression logique
-- `GET /api/mes-saisies` : saisies de l'appareil, y compris corrections des responsables
+### 2.6 API de synchronisation ✅ (réalisée en premier : c'est le contrat utilisé par le téléphone)
+- ✅ `POST /api/sync` (en-tête `X-Device-Id`) en un seul appel : enregistrement de l'appareil et de son prénom, envoi de l'état courant des saisies modifiées (200 max.), changements depuis le curseur (corrections des responsables, restauration sans curseur). Les routes `/api/appareils` et `/api/mes-saisies` initialement prévues sont devenues inutiles.
+- ✅ Idempotence (UUID client), contrôle d'appartenance, suppression logique, renvois tardifs ignorés, corrections des responsables prioritaires (`conflit`), saisies invalides refusées une par une (`rejete`)
+- ✅ Règles de validité communes (`SaisieRules`) : catégorie, quantité 1–999, contenance selon l'unité (25 kg / 10 L), magasin et campagne existants ; dates ISO 8601 converties en Europe/Paris — 94 tests OK
 
 ### 2.7 Moteur de synchronisation ⬜
 - Module TypeScript indépendant de React
@@ -211,3 +211,4 @@ Objectif : suivre la collecte en temps réel et motiver les bénévoles.
 | 27/10/2026 | Étape 1.5 terminée : API d'administration |
 | 27/10/2026 | Étape 1.6 terminée : squelette du frontend |
 | 27/10/2026 | Étapes 1.7 et 1.8 terminées : écrans d'administration et tests — **lot 1 terminé** |
+| 27/10/2026 | Étape 2.6 terminée : API de synchronisation |

@@ -1,15 +1,13 @@
 import { Navigate, type RouteObject } from 'react-router'
-import { AdminLayout } from '../features/admin/AdminLayout'
-import { CampagnesPage } from '../features/admin/campagnes/CampagnesPage'
-import { CategoriesPage } from '../features/admin/categories/CategoriesPage'
-import { LoginPage } from '../features/admin/LoginPage'
-import { MagasinsPage } from '../features/admin/magasins/MagasinsPage'
 import { BenevoleLayout } from '../features/benevole/BenevoleLayout'
 import { SaisiePage } from '../features/saisie/SaisiePage'
 import { NotFoundPage } from './NotFoundPage'
 
 /**
  * Une seule application : espace bénévole sur « / », espace responsable sur « /admin ».
+ *
+ * L'espace responsable est chargé à la demande : les bénévoles ne téléchargent pas son code
+ * au démarrage (il reste disponible hors ligne grâce au service worker).
  */
 export const routes: RouteObject[] = [
   {
@@ -17,15 +15,27 @@ export const routes: RouteObject[] = [
     element: <BenevoleLayout />,
     children: [{ index: true, element: <SaisiePage /> }],
   },
-  { path: '/admin/connexion', element: <LoginPage /> },
+  {
+    path: '/admin/connexion',
+    lazy: async () => ({ Component: (await import('../features/admin/LoginPage')).LoginPage }),
+  },
   {
     path: '/admin',
-    element: <AdminLayout />,
+    lazy: async () => ({ Component: (await import('../features/admin/AdminLayout')).AdminLayout }),
     children: [
       { index: true, element: <Navigate to="campagnes" replace /> },
-      { path: 'campagnes', element: <CampagnesPage /> },
-      { path: 'magasins', element: <MagasinsPage /> },
-      { path: 'categories', element: <CategoriesPage /> },
+      {
+        path: 'campagnes',
+        lazy: async () => ({ Component: (await import('../features/admin/campagnes/CampagnesPage')).CampagnesPage }),
+      },
+      {
+        path: 'magasins',
+        lazy: async () => ({ Component: (await import('../features/admin/magasins/MagasinsPage')).MagasinsPage }),
+      },
+      {
+        path: 'categories',
+        lazy: async () => ({ Component: (await import('../features/admin/categories/CategoriesPage')).CategoriesPage }),
+      },
     ],
   },
   { path: '*', element: <NotFoundPage /> },

@@ -4,6 +4,7 @@ import { createRoot } from 'react-dom/client'
 import { createBrowserRouter, RouterProvider } from 'react-router'
 import { createQueryClient } from './app/queryClient'
 import { routes } from './app/routes'
+import { UpdatePrompt } from './app/UpdatePrompt'
 import { Toaster } from './components/Toaster'
 import './styles/global.css'
 
@@ -15,6 +16,7 @@ createRoot(document.getElementById('root')!).render(
     <QueryClientProvider client={queryClient}>
       <RouterProvider router={router} />
       <Toaster />
+      <UpdatePrompt />
     </QueryClientProvider>
   </StrictMode>,
 )

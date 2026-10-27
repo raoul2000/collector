@@ -206,9 +206,10 @@ Objectif : suivre la collecte en temps réel et motiver les bénévoles.
 - Vérification des exigences : saisie < 5 s, chargement initial < 300 Ko, lisibilité en extérieur
 - Corrections
 
-### 4.4 Documentation utilisateurs ⬜
-- Fiche bénévole (1 page) : installation et saisie
-- Guide responsable : préparation d'une campagne, suivi, corrections
+### 4.4 Documentation utilisateurs 🔄
+- ✅ [Fiche bénévole](fiche-benevole.md) (une page) : installation, saisie, correction, voyant de synchronisation, bons réflexes
+- ✅ [Guide du responsable](guide-responsable.md) : préparation (magasins, catégories, campagne, essai), suivi et corrections pendant la collecte, clôture, questions fréquentes
+- ⏸️ Version imprimable de la fiche bénévole avec l'adresse et le QR code (en attente du nom de domaine)
 
 ---
 
@@ -243,3 +244,4 @@ Objectif : suivre la collecte en temps réel et motiver les bénévoles.
 | 27/10/2026 | Étape 3.2 terminée : bilans des responsables |
 | 27/10/2026 | Étape 3.3 terminée : bilans des bénévoles — **lot 3 terminé** |
 | 27/10/2026 | Étape 4.1 préparée : procédure et script de déploiement |
+| 27/10/2026 | Étape 4.4 : fiche bénévole et guide du responsable |

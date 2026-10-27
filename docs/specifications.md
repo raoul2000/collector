@@ -160,7 +160,7 @@ Smartphone (PWA)                         Serveur Ionos
 
 | Besoin | Choix |
 |---|---|
-| Outillage | Vite, TypeScript (mode strict), ESLint |
+| Outillage | Vite, TypeScript (mode strict), oxlint |
 | Interface | React, React Router |
 | PWA / hors ligne | `vite-plugin-pwa` (Workbox) : service worker, cache, manifeste |
 | Données locales (source de vérité côté bénévole) | Dexie.js + `dexie-react-hooks` (`useLiveQuery`) |

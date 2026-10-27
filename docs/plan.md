@@ -72,13 +72,14 @@ Objectif : une base de données en place, une API qui expose le référentiel, e
 - ✅ Garde-fous : suppression impossible si des saisies existent (désactivation proposée), unité non modifiable après saisies, magasin non détachable d'une campagne où il a des saisies
 - ✅ Validation des entrées, journalisation avant/après dans `journal_admin` — 78 tests OK
 
-### 1.6 Squelette du frontend ⬜
-- Projet Vite + React + TypeScript (mode strict), ESLint
-- React Router : routes `/` (bénévole) et `/admin` (responsable)
-- TanStack Query, Zustand
-- Thème CSS (variables : couleurs, espacements, typographie) et styles globaux
-- Composants de base : `Button`, `TextField`, `Select`, `Dialog` (`<dialog>` natif), `Toast`, `Table`, `Card`
-- Client HTTP typé pour l'API ; proxy Vite `/api` → `localhost:8000`
+### 1.6 Squelette du frontend ✅
+- ✅ Projet Vite 8 + React 19 + TypeScript 7 (mode strict, `noUncheckedIndexedAccess`), linter **oxlint** (proposé par défaut par Vite, équivalent plus rapide d'ESLint)
+- ✅ React Router 8 : `/` (bénévole), `/admin/*` (responsable), `/admin/connexion`, page introuvable
+- ✅ TanStack Query (pas de nouvel essai sur les erreurs 4xx), Zustand (messages)
+- ✅ Thème CSS (variables : couleurs à fort contraste, espacements, typographie, zones tactiles, encoches) et styles globaux
+- ✅ Composants : `Button`, `TextField`, `Select`, `Checkbox`, `Dialog` (`<dialog>` natif), `ConfirmDialog`, `Toaster`, `Table`, `Card`, `Alert`
+- ✅ Client HTTP typé (`ApiError`, erreurs par champ, détection d'absence de réseau) et types de l'API ; proxy Vite `/api` → `localhost:8000`
+- ✅ Vitest + Testing Library — 26 tests OK ; build : 108 Ko compressés
 
 ### 1.7 Écrans d'administration ⬜
 - Connexion responsable
@@ -205,3 +206,4 @@ Objectif : suivre la collecte en temps réel et motiver les bénévoles.
 | 27/10/2026 | Étape 1.3 terminée : API du référentiel |
 | 27/10/2026 | Étape 1.4 terminée : authentification des responsables |
 | 27/10/2026 | Étape 1.5 terminée : API d'administration |
+| 27/10/2026 | Étape 1.6 terminée : squelette du frontend |

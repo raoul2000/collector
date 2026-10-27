@@ -28,4 +28,18 @@ Mot de passe des responsables : générer son hash avec `php bin/hash-password.p
 
 Toute requête API modifiant des données (POST, PUT, PATCH, DELETE) doit porter l'en-tête `X-Requested-With: Collector`.
 
+## Frontend (application React)
+
+```sh
+cd frontend
+npm install
+npm run dev          # http://localhost:5173 (les appels /api sont relayés vers http://localhost:8000)
+npm test             # tests Vitest
+npm run lint         # oxlint
+npm run build        # vérification TypeScript + compilation dans dist/
+```
+
+- Espace bénévole : http://localhost:5173/
+- Espace responsable : http://localhost:5173/admin (mot de passe de développement : `responsable-dev`)
+
 Vérification : http://localhost:8000/api/health

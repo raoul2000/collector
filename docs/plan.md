@@ -15,7 +15,7 @@ Référence fonctionnelle et technique : [specifications.md](specifications.md).
 | 0 | Environnement de développement | ✅ |
 | 1 | Socle : base de données, API référentiel, administration minimale | ✅ |
 | 2 | Saisie bénévole, hors ligne et synchronisation | ✅ |
-| 3 | Bilans | ⬜ |
+| 3 | Bilans | 🔄 |
 | 4 | Déploiement et recette | ⬜ |
 
 ---
@@ -158,14 +158,14 @@ Objectif : un bénévole saisit des articles depuis son téléphone, y compris s
 
 ---
 
-## Lot 3 — Bilans ⬜
+## Lot 3 — Bilans 🔄
 
 Objectif : suivre la collecte en temps réel et motiver les bénévoles.
 
-### 3.1 API des bilans ⬜
-- `GET /api/admin/bilans/magasin` : par catégorie (articles, kg, L, articles sans contenance) et par heure, pour un magasin ou tous
-- `GET /api/bilans/public` : totaux du magasin, répartition par catégorie, total général, classement des magasins
-- Tests des calculs (conversions g → kg, ml → L, exclusion des saisies supprimées)
+### 3.1 API des bilans ✅
+- ✅ `GET /api/admin/bilans?campagne=&magasin=` (campagne active par défaut) : totaux, par catégorie (articles, kg ou L, articles sans contenance), par jour et par heure, par magasin (y compris sans saisie)
+- ✅ `GET /api/bilans?magasin=` (bénévoles, sans prénom) : totaux et catégories du magasin, total général, classement des magasins par nombre d'articles
+- ✅ Saisies supprimées et autres campagnes exclues ; poids et volumes totalisés en g / ml, jamais additionnés entre eux — 110 tests OK
 
 ### 3.2 Bilans responsables ⬜
 - Tableaux et graphiques (Recharts) par catégorie et par heure, choix du magasin et de la campagne
@@ -228,3 +228,4 @@ Objectif : suivre la collecte en temps réel et motiver les bénévoles.
 | 27/10/2026 | Étape 2.4 terminée : écran de saisie |
 | 27/10/2026 | Étape 2.5 terminée : mes saisies |
 | 27/10/2026 | Étape 2.9 terminée : gestion des saisies par les responsables — **lot 2 terminé** |
+| 27/10/2026 | Étape 3.1 terminée : API des bilans |

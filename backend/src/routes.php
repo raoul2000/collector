@@ -9,12 +9,14 @@ use App\Controller\Admin\CategorieController;
 use App\Controller\Admin\MagasinController;
 use App\Controller\Admin\SaisieController;
 use App\Controller\AdminAuthController;
+use App\Controller\BilanController;
 use App\Controller\HealthController;
 use App\Controller\ReferentielController;
 use App\Controller\SyncController;
 use App\Http\JsonResponse;
 use App\Http\Request;
 use App\Repository\AppareilRepository;
+use App\Repository\BilanRepository;
 use App\Repository\CampagneRepository;
 use App\Repository\CategorieRepository;
 use App\Repository\JournalRepository;
@@ -58,6 +60,9 @@ return static function (App $app): void {
         new MagasinRepository($db()),
         new CategorieRepository($db()),
     )->show($q));
+
+    $bilans = static fn (): BilanController => new BilanController(new CampagneRepository($db()), new BilanRepository($db()));
+    $r->get('/api/bilans', static fn (Request $q) => $bilans()->public($q));
 
     $r->post('/api/sync', static fn (Request $q) => new SyncController(
         $db(),
@@ -113,6 +118,8 @@ return static function (App $app): void {
         new SaisieRules($db()),
         new JournalRepository($db()),
     );
+    $r->get('/api/admin/bilans', $admin(static fn ($q, $p) => $bilans()->admin($q, $p)));
+
     $r->get('/api/admin/saisies', $admin(static fn ($q, $p) => $saisies()->list($q, $p)));
     $r->put('/api/admin/saisies/{id}', $admin(static fn ($q, $p) => $saisies()->update($q, $p)));
     $r->delete('/api/admin/saisies/{id}', $admin(static fn ($q, $p) => $saisies()->delete($q, $p)));

@@ -233,7 +233,7 @@ Volumétrie estimée : quelques dizaines de milliers de lignes par campagne, ce 
 |---|---|---|
 | GET | `/api/referentiel` | Campagne active, magasins, catégories, formats |
 | POST | `/api/sync` | Enregistre l'appareil et son prénom, applique les saisies envoyées, renvoie leur statut et les changements depuis le curseur |
-| GET | `/api/bilans/public?magasin=` | Bilans « motivation » |
+| GET | `/api/bilans?magasin=` | Bilans « motivation » (campagne active) : magasin, total général, classement |
 | POST | `/api/admin/login` | Connexion responsable (prénom + mot de passe) |
 | POST | `/api/admin/logout` | Déconnexion |
 | GET | `/api/admin/session` | Responsable connecté |
@@ -245,7 +245,7 @@ Volumétrie estimée : quelques dizaines de milliers de lignes par campagne, ce 
 | GET, POST | `/api/admin/categories` | Liste (avec formats), création |
 | PUT | `/api/admin/categories/ordre` | Nouvel ordre d'affichage |
 | PUT, DELETE | `/api/admin/categories/{id}` | Modification (dont formats), suppression si aucune saisie |
-| GET | `/api/admin/bilans/magasin?id=` | Bilan par catégorie et par heure |
+| GET | `/api/admin/bilans?campagne=&magasin=` | Bilan complet : totaux, par catégorie, par heure, par magasin |
 | GET | `/api/admin/saisies?campagne=&magasin=&categorie=&prenom=&supprimees=1&page=&parPage=` | Saisies des bénévoles (paginées) |
 | PUT, DELETE | `/api/admin/saisies/{id}` | Correction, suppression logique (transmises au téléphone) |
 

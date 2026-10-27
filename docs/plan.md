@@ -127,10 +127,10 @@ Objectif : un bénévole saisit des articles depuis son téléphone, y compris s
 - ✅ Saisie courante en 3 touches (catégorie, format, Valider), retour immédiat à la grille, bandeau « ✓ 1 × Pâtes 500 g » avec « Annuler » pendant 8 s
 - ✅ Saisie bloquée (message) sans collecte active ou sans catégorie — 88 tests OK
 
-### 2.5 Mes saisies ⬜
-- Liste des saisies de l'appareil avec état de synchronisation
-- Modification et suppression
-- Mention « corrigée par un responsable »
+### 2.5 Mes saisies ✅
+- ✅ Saisies du téléphone par jour (plus récentes en premier), résumé (saisies, articles), magasin indiqué s'il diffère du magasin courant
+- ✅ État de chaque saisie : envoyée, en attente, corrigée par un responsable, refusée (avec le motif)
+- ✅ Modification (catégorie, contenance, quantité) et suppression avec confirmation — 91 tests OK
 
 ### 2.6 API de synchronisation ✅ (réalisée en premier : c'est le contrat utilisé par le téléphone)
 - ✅ `POST /api/sync` (en-tête `X-Device-Id`) en un seul appel : enregistrement de l'appareil et de son prénom, envoi de l'état courant des saisies modifiées (200 max.), changements depuis le curseur (corrections des responsables, restauration sans curseur). Les routes `/api/appareils` et `/api/mes-saisies` initialement prévues sont devenues inutiles.
@@ -224,3 +224,4 @@ Objectif : suivre la collecte en temps réel et motiver les bénévoles.
 | 27/10/2026 | Étape 2.7 terminée : moteur de synchronisation |
 | 27/10/2026 | Étapes 2.3 et 2.8 terminées : identification du bénévole, indicateur de synchronisation |
 | 27/10/2026 | Étape 2.4 terminée : écran de saisie |
+| 27/10/2026 | Étape 2.5 terminée : mes saisies |

@@ -13,7 +13,7 @@ Référence fonctionnelle et technique : [specifications.md](specifications.md).
 | Lot | Contenu | Statut |
 |---|---|---|
 | 0 | Environnement de développement | ✅ |
-| 1 | Socle : base de données, API référentiel, administration minimale | ⬜ |
+| 1 | Socle : base de données, API référentiel, administration minimale | 🔄 |
 | 2 | Saisie bénévole, hors ligne et synchronisation | ⬜ |
 | 3 | Bilans | ⬜ |
 | 4 | Déploiement et recette | ⬜ |
@@ -31,17 +31,18 @@ Référence fonctionnelle et technique : [specifications.md](specifications.md).
 
 ---
 
-## Lot 1 — Socle ⬜
+## Lot 1 — Socle 🔄
 
 Objectif : une base de données en place, une API qui expose le référentiel, et un espace responsable permettant de configurer une campagne (magasins, catégories, formats).
 
-### 1.1 Squelette du backend PHP ⬜
-- `backend/composer.json` : autoload PSR-4 (`App\`), PHPUnit en dépendance de développement
-- Point d'entrée `backend/public/index.php` et `.htaccess` (réécriture vers `index.php`)
-- Noyau HTTP maison : `Router`, `Request`, `JsonResponse`, gestion centralisée des erreurs (réponses JSON, codes HTTP)
-- Connexion PDO (mode exceptions, `utf8mb4`, fuseau Europe/Paris)
-- Configuration : `config.example.php` versionné, `config.php` local ignoré par Git
-- Commande de développement : `php -S localhost:8000 -t backend/public`
+### 1.1 Squelette du backend PHP ✅
+- ✅ `backend/composer.json` : autoload PSR-4 (`App\`), PHPUnit 12 en dépendance de développement
+- ✅ Point d'entrée `backend/public/index.php` (recherche du dossier applicatif en dev et en prod) et `.htaccess`
+- ✅ Noyau HTTP maison : `Router` (paramètres `{id}`, 404/405), `Request`, `JsonResponse`, `HttpException`, gestion centralisée des erreurs (réponses JSON ; détail des erreurs internes seulement en mode debug)
+- ✅ Connexion PDO paresseuse (mode exceptions, `utf8mb4`, fuseau Europe/Paris)
+- ✅ Configuration : `config.example.php` versionné, `config.php` local ignoré par Git
+- ✅ Route `GET /api/health` (état de l'API et de la base)
+- ✅ Commandes : `composer serve`, `composer test` — 23 tests OK
 
 ### 1.2 Schéma de la base de données ⬜
 - `backend/sql/001_schema.sql` : tables `campagne`, `magasin`, `campagne_magasin`, `categorie`, `format`, `appareil`, `saisie`, `journal_admin` et index
@@ -192,3 +193,4 @@ Objectif : suivre la collecte en temps réel et motiver les bénévoles.
 | Date | Événement |
 |---|---|
 | 27/10/2026 | Spécifications v0.3 validées, environnement prêt, plan établi |
+| 27/10/2026 | Étape 1.1 terminée : squelette du backend PHP |

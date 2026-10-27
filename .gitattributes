@@ -1,0 +1,7 @@
+# Fins de ligne normalisées en LF dans le dépôt (fichiers déployés sur un serveur Linux)
+* text=auto eol=lf
+
+*.png binary
+*.jpg binary
+*.ico binary
+*.woff2 binary

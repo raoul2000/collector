@@ -16,6 +16,9 @@ backend/config/config.php
 *.log
 npm-debug.log*
 
+# Claude Code (réglages locaux)
+.claude/settings.local.json
+
 # Éditeurs / système
 .vscode/*
 !.vscode/extensions.json

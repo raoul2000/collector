@@ -65,11 +65,12 @@ Objectif : une base de données en place, une API qui expose le référentiel, e
 - ✅ Garde `$admin(...)` pour protéger les routes `/api/admin/*` ; connexions journalisées
 - ✅ Validateur générique des entrées (`Validator`, messages en français) — 53 tests OK
 
-### 1.5 API d'administration ⬜
-- CRUD **campagnes** (dont activation d'une campagne, une seule active à la fois)
-- CRUD **magasins** et rattachement à une campagne
-- CRUD **catégories** (unité kg / L / unité, ordre, activation) et de leurs **formats**
-- Validation des entrées, journalisation dans `journal_admin`
+### 1.5 API d'administration ✅
+- ✅ CRUD **campagnes**, rattachement des magasins, activation / désactivation (une seule active à la fois)
+- ✅ CRUD **magasins** (même nom autorisé dans des villes différentes)
+- ✅ CRUD **catégories** (unité kg / L / unité, ordre, activation, code de référence) et de leurs **formats** (max. 8, bornes 25 kg / 10 L) ; réordonnancement
+- ✅ Garde-fous : suppression impossible si des saisies existent (désactivation proposée), unité non modifiable après saisies, magasin non détachable d'une campagne où il a des saisies
+- ✅ Validation des entrées, journalisation avant/après dans `journal_admin` — 78 tests OK
 
 ### 1.6 Squelette du frontend ⬜
 - Projet Vite + React + TypeScript (mode strict), ESLint
@@ -203,3 +204,4 @@ Objectif : suivre la collecte en temps réel et motiver les bénévoles.
 | 27/10/2026 | Étape 1.2 terminée : schéma de la base, migrations, données de développement |
 | 27/10/2026 | Étape 1.3 terminée : API du référentiel |
 | 27/10/2026 | Étape 1.4 terminée : authentification des responsables |
+| 27/10/2026 | Étape 1.5 terminée : API d'administration |

@@ -38,51 +38,41 @@ final class SchemaTest extends DatabaseTestCase
 
     public function testSaisieQuantityMustBeBetween1And999(): void
     {
-        $this->insertSaisie(['id' => 'a0000000-0000-4000-8000-000000000001', 'quantite' => 999]);
+        $this->saisie(['quantite' => 999]);
 
         $this->expectException(PDOException::class);
-        $this->insertSaisie(['id' => 'a0000000-0000-4000-8000-000000000002', 'quantite' => 1000]);
+        $this->saisie(['quantite' => 1000]);
     }
 
     public function testSaisieWithoutContenanceIsAllowed(): void
     {
-        $this->insertSaisie(['contenance_unitaire' => null]);
+        $this->saisie(['contenance_unitaire' => null]);
 
         self::assertSame(1, (int) $this->db->query('SELECT COUNT(*) FROM saisie')->fetchColumn());
     }
 
     public function testStoreWithSaisiesCannotBeDeleted(): void
     {
-        $this->insertSaisie([]);
+        $this->saisie();
 
         $this->expectException(PDOException::class);
         $this->db->exec('DELETE FROM magasin');
     }
 
-    /** @var array<string, int|string>|null clés étrangères communes aux saisies du test */
+    /** @var array{int, int, int}|null campagne, magasin et catégorie communs aux saisies du test */
     private ?array $refs = null;
 
     /**
      * @param array<string, mixed> $overrides
      */
-    private function insertSaisie(array $overrides): void
+    private function saisie(array $overrides = []): void
     {
-        if ($this->refs === null) {
-            $this->refs = [
-                'campagne_id' => $this->insert('campagne', ['nom' => 'C', 'date_debut' => '2026-11-27', 'date_fin' => '2026-11-28']),
-                'magasin_id' => $this->insert('magasin', ['nom' => 'Lidl']),
-                'categorie_id' => $this->insert('categorie', ['nom' => 'Pâtes', 'unite' => 'kg']),
-                'appareil_id' => 'd0000000-0000-4000-8000-000000000001',
-            ];
-            $this->insert('appareil', ['id' => $this->refs['appareil_id'], 'prenom' => 'Marie']);
-        }
+        $this->refs ??= [
+            $this->insert('campagne', ['nom' => 'C', 'date_debut' => '2026-11-27', 'date_fin' => '2026-11-28']),
+            $this->insert('magasin', ['nom' => 'Lidl']),
+            $this->insert('categorie', ['nom' => 'Pâtes', 'unite' => 'kg']),
+        ];
 
-        $this->insert('saisie', array_merge($this->refs, [
-            'id' => 'a0000000-0000-4000-8000-000000000000',
-            'quantite' => 2,
-            'contenance_unitaire' => 500,
-            'saisie_le' => '2026-11-27 10:15:00',
-            'modifie_le' => '2026-11-27 10:15:00.000',
-        ], $overrides));
+        $this->insertSaisie(...$this->refs, overrides: $overrides);
     }
 }

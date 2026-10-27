@@ -27,8 +27,8 @@ abstract class ApiTestCase extends DatabaseTestCase
      */
     protected function app(array $config = []): App
     {
-        // Hash calculé une seule fois (password_hash est volontairement lent)
-        self::$adminPasswordHash ??= password_hash(self::ADMIN_PASSWORD, PASSWORD_DEFAULT);
+        // Coût minimal : bcrypt est volontairement lent, ce qui ralentirait chaque connexion des tests
+        self::$adminPasswordHash ??= password_hash(self::ADMIN_PASSWORD, PASSWORD_BCRYPT, ['cost' => 4]);
 
         return new App(
             Config::withDefaults(array_replace_recursive(

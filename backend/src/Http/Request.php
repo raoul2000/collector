@@ -87,6 +87,19 @@ final class Request
     }
 
     /**
+     * Paramètre de route numérique (identifiant). Une valeur non numérique donne une erreur 404.
+     */
+    public function intParam(string $name): int
+    {
+        $value = $this->param($name);
+        if (preg_match('/^[1-9]\d{0,9}$/', $value) !== 1) {
+            throw HttpException::notFound();
+        }
+
+        return (int) $value;
+    }
+
+    /**
      * @param array<string, string> $params
      */
     public function withParams(array $params): self

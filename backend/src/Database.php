@@ -37,6 +37,31 @@ final class Database
     }
 
     /**
+     * Exécute $fn dans une transaction (ou dans la transaction déjà ouverte, le cas échéant).
+     *
+     * @template T
+     * @param callable(): T $fn
+     * @return T
+     */
+    public static function transaction(PDO $pdo, callable $fn): mixed
+    {
+        if ($pdo->inTransaction()) {
+            return $fn();
+        }
+
+        $pdo->beginTransaction();
+        try {
+            $result = $fn();
+            $pdo->commit();
+
+            return $result;
+        } catch (\Throwable $e) {
+            $pdo->rollBack();
+            throw $e;
+        }
+    }
+
+    /**
      * Crée la base si elle n'existe pas (en la supprimant d'abord si $dropFirst). Réservé au développement et aux tests.
      *
      * @param array{host: string, port: int, name: string, user: string, password: string} $db

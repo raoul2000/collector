@@ -232,8 +232,20 @@ Volumétrie estimée : quelques dizaines de milliers de lignes par campagne, ce 
 | GET | `/api/mes-saisies` | Saisies de l'appareil (restauration après réinstallation) |
 | GET | `/api/bilans/public?magasin=` | Bilans « motivation » |
 | POST | `/api/admin/login` | Connexion responsable (prénom + mot de passe) |
+| POST | `/api/admin/logout` | Déconnexion |
+| GET | `/api/admin/session` | Responsable connecté |
+| GET, POST | `/api/admin/campagnes` | Liste, création |
+| PUT, DELETE | `/api/admin/campagnes/{id}` | Modification (dont magasins rattachés), suppression si aucune saisie |
+| POST | `/api/admin/campagnes/{id}/activer`, `/desactiver` | Campagne active (une seule à la fois) |
+| GET, POST | `/api/admin/magasins` | Liste, création |
+| PUT, DELETE | `/api/admin/magasins/{id}` | Modification, suppression si aucune saisie |
+| GET, POST | `/api/admin/categories` | Liste (avec formats), création |
+| PUT | `/api/admin/categories/ordre` | Nouvel ordre d'affichage |
+| PUT, DELETE | `/api/admin/categories/{id}` | Modification (dont formats), suppression si aucune saisie |
 | GET | `/api/admin/bilans/magasin?id=` | Bilan par catégorie et par heure |
-| … | `/api/admin/{campagnes,magasins,categories,saisies}` | Administration (CRUD) |
+| … | `/api/admin/saisies` | Consultation et correction des saisies |
+
+Erreurs : `{"error": {"code": "...", "message": "...", "details": {"fields": {"champ": "message"}}}}` avec les codes HTTP 400, 401, 403, 404, 405, 409, 422, 429, 500, 503.
 
 L'identifiant d'appareil est transmis dans un en-tête `X-Device-Id`.
 

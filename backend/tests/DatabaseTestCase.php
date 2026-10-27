@@ -59,6 +59,41 @@ abstract class DatabaseTestCase extends TestCase
     }
 
     /**
+     * Insère une saisie (et l'appareil de test si besoin) ; renvoie son identifiant.
+     *
+     * @param array<string, mixed> $overrides
+     */
+    protected function insertSaisie(int $campagneId, int $magasinId, int $categorieId, array $overrides = []): string
+    {
+        $appareil = 'd0000000-0000-4000-8000-000000000001';
+        $this->db->prepare('INSERT IGNORE INTO appareil (id, prenom) VALUES (?, ?)')->execute([$appareil, 'Marie']);
+
+        $row = array_merge([
+            'id' => self::uuid(),
+            'campagne_id' => $campagneId,
+            'magasin_id' => $magasinId,
+            'appareil_id' => $appareil,
+            'categorie_id' => $categorieId,
+            'quantite' => 1,
+            'contenance_unitaire' => 500,
+            'saisie_le' => '2026-11-27 10:00:00',
+            'modifie_le' => '2026-11-27 10:00:00.000',
+        ], $overrides);
+        $this->insert('saisie', $row);
+
+        return $row['id'];
+    }
+
+    protected static function uuid(): string
+    {
+        $bytes = random_bytes(16);
+        $bytes[6] = chr((ord($bytes[6]) & 0x0f) | 0x40);
+        $bytes[8] = chr((ord($bytes[8]) & 0x3f) | 0x80);
+
+        return vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($bytes), 4));
+    }
+
+    /**
      * Insère une ligne et renvoie son identifiant auto-incrémenté.
      *
      * @param array<string, mixed> $row

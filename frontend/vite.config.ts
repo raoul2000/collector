@@ -2,6 +2,11 @@ import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 import { defineConfig } from 'vitest/config'
 
+// Fuseau fixe pour les tests : les tests de dates ne dépendent pas de la machine
+if (process.env.VITEST) {
+  process.env.TZ = 'Europe/Paris'
+}
+
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [

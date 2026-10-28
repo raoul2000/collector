@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import type { FiltresSaisies, SaisieAdmin } from '../../../api/types'
+import type { Categorie, FiltresSaisies, SaisieAdmin } from '../../../api/types'
 import { Alert } from '../../../components/Alert'
 import { Badge } from '../../../components/Badge'
 import { Button } from '../../../components/Button'
@@ -12,6 +12,7 @@ import { toast } from '../../../components/toast'
 import { libelleSaisie } from '../../saisie/libelle'
 import styles from '../admin.module.css'
 import { PAR_PAGE, useAdminSaisies, useCampagnes, useCategories, useMagasins, useSupprimerSaisie } from '../api'
+import { CategorieFormDialog } from '../categories/CategorieFormDialog'
 import { handleMutationError } from '../errors'
 import { PageHeader } from '../PageHeader'
 import { CorrigerSaisieDialog } from './CorrigerSaisieDialog'
@@ -39,8 +40,11 @@ export function SaisiesPage() {
 
   const [filtres, setFiltres] = useState<FiltresSaisies>({ page: 1 })
   const [prenom, setPrenom] = useState('')
+  const [code, setCode] = useState('')
   const [corrigee, setCorrigee] = useState<SaisieAdmin | null>(null)
   const [aSupprimer, setASupprimer] = useState<SaisieAdmin | null>(null)
+  // Catégorie ouverte depuis la colonne « Code » pour lui ajouter un code de référence
+  const [categorieACompleter, setCategorieACompleter] = useState<Categorie | null>(null)
 
   // Campagne active sélectionnée par défaut
   const active = campagnes.data?.find((c) => c.active)
@@ -55,6 +59,12 @@ export function SaisiesPage() {
     const minuteur = setTimeout(() => setFiltres((f) => (f.prenom === prenom ? f : { ...f, prenom, page: 1 })), 300)
     return () => clearTimeout(minuteur)
   }, [prenom])
+
+  // Idem pour le code de référence
+  useEffect(() => {
+    const minuteur = setTimeout(() => setFiltres((f) => ((f.code ?? '') === code ? f : { ...f, code, page: 1 })), 300)
+    return () => clearTimeout(minuteur)
+  }, [code])
 
   // Pas de chargement avant que la campagne par défaut soit connue
   const saisies = useAdminSaisies(filtres, campagneInitialisee)
@@ -114,6 +124,18 @@ export function SaisiesPage() {
           ))}
         </Select>
         <TextField label="Bénévole" placeholder="Prénom" value={prenom} onChange={(e) => setPrenom(e.target.value)} />
+        <TextField
+          label="Code"
+          placeholder="Code de référence"
+          value={code}
+          disabled={filtres.sansCode}
+          onChange={(e) => setCode(e.target.value)}
+        />
+        <Checkbox
+          label="Sans code de référence"
+          checked={filtres.sansCode ?? false}
+          onChange={(e) => filtrer({ sansCode: e.target.checked })}
+        />
         <Checkbox
           label="Afficher les saisies supprimées"
           checked={filtres.supprimees ?? false}
@@ -134,6 +156,7 @@ export function SaisiesPage() {
                 <th>Date</th>
                 <th>Magasin</th>
                 <th>Bénévole</th>
+                <th>Code</th>
                 <th>Saisie</th>
                 <th>Statut</th>
                 <th>
@@ -144,7 +167,7 @@ export function SaisiesPage() {
             <tbody>
               {saisies.data.saisies.length === 0 && (
                 <tr>
-                  <td colSpan={6} className={styles.empty}>
+                  <td colSpan={7} className={styles.empty}>
                     Aucune saisie ne correspond à ces critères.
                   </td>
                 </tr>
@@ -154,6 +177,9 @@ export function SaisiesPage() {
                   <td className={pageStyles.date}>{dateHeure(saisie.saisieLe)}</td>
                   <td>{saisie.magasinNom}</td>
                   <td>{saisie.prenom}</td>
+                  <td className={pageStyles.code}>
+                    {saisie.codeReference ?? <SansCode saisie={saisie} categories={categories.data} onOuvrir={setCategorieACompleter} />}
+                  </td>
                   <td>{libelleAdmin(saisie)}</td>
                   <td>
                     {saisie.supprime ? (
@@ -209,6 +235,10 @@ export function SaisiesPage() {
         <CorrigerSaisieDialog saisie={corrigee} categories={categories.data} onClose={() => setCorrigee(null)} />
       )}
 
+      {categorieACompleter && (
+        <CategorieFormDialog categorie={categorieACompleter} onClose={() => setCategorieACompleter(null)} />
+      )}
+
       <ConfirmDialog
         open={aSupprimer !== null}
         title="Supprimer la saisie ?"
@@ -221,5 +251,34 @@ export function SaisiesPage() {
         {aSupprimer && `${libelleAdmin(aSupprimer)} (${aSupprimer.prenom}, ${aSupprimer.magasinNom}) ne sera plus comptée dans la collecte.`}
       </ConfirmDialog>
     </>
+  )
+}
+
+/**
+ * Tiret d'une saisie dont la catégorie n'a pas de code : ouvre la catégorie pour le compléter.
+ */
+function SansCode({
+  saisie,
+  categories,
+  onOuvrir,
+}: {
+  saisie: SaisieAdmin
+  categories: Categorie[] | undefined
+  onOuvrir: (categorie: Categorie) => void
+}) {
+  const categorie = categories?.find((c) => c.id === saisie.categorieId)
+  if (!categorie || saisie.supprime) {
+    return <span className={styles.muted}>—</span>
+  }
+  return (
+    <button
+      type="button"
+      className={pageStyles.ajouterCode}
+      onClick={() => onOuvrir(categorie)}
+      aria-label={`Ajouter un code de référence à « ${categorie.nom} »`}
+      title="Ajouter un code de référence à la catégorie"
+    >
+      —
+    </button>
   )
 }

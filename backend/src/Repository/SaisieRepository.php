@@ -126,7 +126,7 @@ final readonly class SaisieRepository
     // --- Administration ------------------------------------------------------------------------
 
     private const string SELECT_DETAIL =
-        'SELECT s.*, a.prenom, m.nom AS magasin_nom, c.nom AS categorie_nom, c.unite
+        'SELECT s.*, a.prenom, m.nom AS magasin_nom, c.nom AS categorie_nom, c.unite, c.code_reference
          FROM saisie s
          JOIN appareil a ON a.id = s.appareil_id
          JOIN magasin m ON m.id = s.magasin_id
@@ -135,7 +135,7 @@ final readonly class SaisieRepository
     /**
      * Recherche paginée pour l'espace responsable, de la plus récente à la plus ancienne.
      *
-     * @param array{campagneId?: int|null, magasinId?: int|null, categorieId?: int|null, prenom?: string|null, supprimees?: bool} $filtres
+     * @param array{campagneId?: int|null, magasinId?: int|null, categorieId?: int|null, prenom?: string|null, code?: string|null, sansCode?: bool, supprimees?: bool} $filtres
      * @return array{saisies: list<array<string, mixed>>, total: int}
      */
     public function search(array $filtres, int $page, int $parPage): array
@@ -152,13 +152,19 @@ final readonly class SaisieRepository
             $where[] = 'a.prenom LIKE ?';
             $params[] = '%' . addcslashes((string) $filtres['prenom'], '%_\\') . '%';
         }
+        if ($filtres['sansCode'] ?? false) {
+            $where[] = 'c.code_reference IS NULL';
+        } elseif (($filtres['code'] ?? '') !== '') {
+            $where[] = 'c.code_reference LIKE ?';
+            $params[] = '%' . addcslashes((string) $filtres['code'], '%_\\') . '%';
+        }
         if (!($filtres['supprimees'] ?? false)) {
             $where[] = 's.supprime_le IS NULL';
         }
         $clause = $where === [] ? '' : ' WHERE ' . implode(' AND ', $where);
 
         $count = $this->db->prepare(
-            'SELECT COUNT(*) FROM saisie s JOIN appareil a ON a.id = s.appareil_id' . $clause,
+            'SELECT COUNT(*) FROM saisie s JOIN appareil a ON a.id = s.appareil_id JOIN categorie c ON c.id = s.categorie_id' . $clause,
         );
         $count->execute($params);
 
@@ -219,6 +225,7 @@ final readonly class SaisieRepository
             'magasinNom' => (string) $row['magasin_nom'],
             'categorieNom' => (string) $row['categorie_nom'],
             'unite' => (string) $row['unite'],
+            'codeReference' => $row['code_reference'] === null ? null : (string) $row['code_reference'],
         ];
     }
 

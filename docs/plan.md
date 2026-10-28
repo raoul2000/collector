@@ -190,12 +190,12 @@ Objectif : suivre la collecte en temps réel et motiver les bénévoles.
 
 ## Lot 4 — Déploiement et recette 🔄
 
-### 4.1 Déploiement Ionos 🔄 (préparé ; installation en attente du nom de domaine et des accès)
+### 4.1 Déploiement Ionos ✅
 - ✅ Procédure documentée : [deploiement.md](deploiement.md) (préparation de l'hébergement, première installation avec ou sans SSH, mise à jour, retour arrière, sauvegardes, dépannage)
 - ✅ Script `scripts/preparer-deploiement.mjs` : vérifications (lint, tests), compilation, paquet `deploy/package` (`www/`, `app/` avec dépendances de production uniquement, scripts SQL pour phpMyAdmin)
 - ✅ `.htaccess` de production : HTTPS obligatoire, pages de l'application, en-têtes de cache (mises à jour du service worker), en-têtes de sécurité, dossier `app` interdit
 - ✅ Vérifié en local : import de `installation.sql` sur une base vide, reconnaissance par `migrate.php`, API du paquet fonctionnelle ; correction de l'encodage des accents à l'import en ligne de commande (`SET NAMES utf8mb4`)
-- ⏸️ Installation sur Ionos, HTTPS et vérification du service worker en production
+- ✅ Installation sur Ionos le 28/10/2026 : https://collecte.exdata.info (SFTP seulement, pas de SSH) ; `RewriteBase` ajouté aux `.htaccess` (sans lui, erreur 500 sur toute adresse réécrite) ; premiers essais réels concluants (campagne, saisies)
 
 ### 4.2 Référentiel définitif ⏸️ (en attente de la liste Croix-Rouge)
 - Import de la liste de référence des catégories, unités et formats
@@ -209,7 +209,17 @@ Objectif : suivre la collecte en temps réel et motiver les bénévoles.
 ### 4.4 Documentation utilisateurs 🔄
 - ✅ [Fiche bénévole](fiche-benevole.md) (une page) : installation, saisie, correction, voyant de synchronisation, bons réflexes
 - ✅ [Guide du responsable](guide-responsable.md) : préparation (magasins, catégories, campagne, essai), suivi et corrections pendant la collecte, clôture, questions fréquentes
-- ⏸️ Version imprimable de la fiche bénévole avec l'adresse et le QR code (en attente du nom de domaine)
+- ⬜ Version imprimable de la fiche bénévole avec l'adresse et le QR code
+
+---
+
+## Évolutions après la mise en production
+
+### Code de référence dans les saisies ✅
+- ✅ Colonne « Code » (code de référence actuel de la catégorie) dans l'onglet *Saisies* des responsables
+- ✅ Filtres « Code » (recherche « contient », sans tenir compte des majuscules) et « Sans code de référence »
+- ✅ Pour une saisie sans code, le tiret ouvre la catégorie pour lui ajouter un code ; la liste se met à jour à l'enregistrement
+- La liste déroulante « Catégorie » du filtre reste sans code (choix de l'utilisateur : le nom est plus parlant)
 
 ---
 
@@ -218,20 +228,17 @@ Objectif : suivre la collecte en temps réel et motiver les bénévoles.
 | Élément | Nécessaire pour |
 |---|---|
 | Liste de référence des catégories Croix-Rouge | 4.2 (une liste provisoire est utilisée d'ici là) |
-| Nom de domaine / sous-domaine | 4.1, version imprimable de la fiche bénévole (4.4) |
-| Accès Ionos : SFTP, SSH si disponible, base MySQL, PHP 8.4, certificat SSL | 4.1 |
 
 ## Reprise du travail
 
-État au 27/10/2026 : lots 1, 2 et 3 terminés ; lot 4 préparé (procédure et script de déploiement, fiche bénévole, guide du responsable).
+État au 28/10/2026 : lots 1, 2 et 3 terminés ; application en production sur https://collecte.exdata.info ; première évolution (code de référence dans les saisies) réalisée.
 
 Prochaines étapes possibles :
-1. **Installation sur Ionos** dès réception du domaine et des accès (suivre [deploiement.md](deploiement.md), vérifier les `.htaccess` sur le vrai serveur Apache).
-2. **Recette sur de vrais téléphones** (4.3), une fois le site en HTTPS.
-3. **Version imprimable de la fiche bénévole** avec l'adresse et un QR code.
-4. **Import de la liste Croix-Rouge** (4.2) quand elle sera disponible.
-5. Évolution proposée, en attente de décision : permettre au responsable de **corriger le magasin d'une saisie** (aujourd'hui : supprimer puis ressaisir).
-6. Évolutions ultérieures prévues : export Excel, comparaison entre années.
+1. **Recette sur de vrais téléphones** (4.3).
+2. **Version imprimable de la fiche bénévole** avec l'adresse et un QR code.
+3. **Import de la liste Croix-Rouge** (4.2) quand elle sera disponible.
+4. Évolution proposée, en attente de décision : permettre au responsable de **corriger le magasin d'une saisie** (aujourd'hui : supprimer puis ressaisir).
+5. Évolutions ultérieures prévues : export Excel, comparaison entre années.
 
 Environnement de développement : voir le [README](../README.md). La base locale `collector` contient un jeu de démonstration d'environ 760 saisies (pour voir les bilans) ; `php bin/migrate.php --fresh --seed` la remet à zéro.
 
@@ -262,3 +269,4 @@ Environnement de développement : voir le [README](../README.md). La base locale
 | 27/10/2026 | Étape 4.4 : fiche bénévole et guide du responsable |
 | 27/10/2026 | Fin de la session de travail : état et prochaines étapes notés dans « Reprise du travail » |
 | 28/10/2026 | Installation sur Ionos (https://collecte.exdata.info) ; correctif `RewriteBase` dans les `.htaccess` (erreur 500) |
+| 28/10/2026 | Évolution : code de référence dans les saisies (colonne, filtres « Code » et « Sans code ») |

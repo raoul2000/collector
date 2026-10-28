@@ -31,6 +31,7 @@ const SAISIE: SaisieAdmin = {
   magasinNom: 'Lidl',
   categorieNom: 'Pâtes',
   unite: 'kg',
+  codeReference: null,
 }
 
 function page(saisies: SaisieAdmin[], total = saisies.length): { body: PageSaisies } {
@@ -76,6 +77,58 @@ describe('Saisies (responsable)', () => {
 
     expect(await screen.findByText('Aucune saisie ne correspond à ces critères.')).toBeInTheDocument()
     expect(api.calls.filter((c) => c.path.includes('prenom='))).toHaveLength(1)
+  })
+
+  it('affiche le code de référence et filtre sur le code', async () => {
+    const user = userEvent.setup()
+    const api = fakeApi({
+      ...SESSION_OK,
+      'GET /api/admin/campagnes': { body: CAMPAGNES },
+      'GET /api/admin/magasins': { body: [] },
+      'GET /api/admin/categories': { body: [PATES] },
+      'GET /api/admin/saisies?page=1&parPage=50&campagne=2': page([{ ...SAISIE, codeReference: 'EPI-01' }, SAISIE]),
+      'GET /api/admin/saisies?page=1&parPage=50&campagne=2&code=EPI': page([{ ...SAISIE, codeReference: 'EPI-01' }]),
+      'GET /api/admin/saisies?page=1&parPage=50&campagne=2&sansCode=1': page([SAISIE]),
+    })
+    renderApp('/admin/saisies')
+
+    expect(await screen.findByRole('columnheader', { name: 'Code' })).toBeInTheDocument()
+    const lignes = screen.getAllByRole('row').slice(1)
+    expect(lignes[0]).toHaveTextContent('EPI-01')
+    expect(within(lignes[1]!).getByRole('button', { name: 'Ajouter un code de référence à « Pâtes »' })).toBeInTheDocument()
+
+    await user.type(screen.getByLabelText('Code'), 'EPI')
+    await waitFor(() => expect(api.calls.some((c) => c.path.endsWith('&code=EPI'))).toBe(true))
+    expect(api.calls.filter((c) => c.path.includes('code='))).toHaveLength(1)
+
+    // « Sans code » remplace la recherche sur le code, qui est désactivée
+    await user.click(screen.getByLabelText('Sans code de référence'))
+    await waitFor(() => expect(api.calls.some((c) => c.path.endsWith('&sansCode=1'))).toBe(true))
+    expect(screen.getByLabelText('Code')).toBeDisabled()
+  })
+
+  it('ouvre la catégorie depuis une saisie sans code pour lui en ajouter un', async () => {
+    const user = userEvent.setup()
+    const api = fakeApi({
+      ...SESSION_OK,
+      'GET /api/admin/campagnes': { body: CAMPAGNES },
+      'GET /api/admin/magasins': { body: [] },
+      'GET /api/admin/categories': { body: [PATES] },
+      'GET /api/admin/saisies?page=1&parPage=50&campagne=2': page([SAISIE]),
+      'PUT /api/admin/categories/1': (body) => ({ body: { ...PATES, ...(body as object) } }),
+    })
+    renderApp('/admin/saisies')
+
+    await user.click(await screen.findByRole('button', { name: 'Ajouter un code de référence à « Pâtes »' }))
+    const dialog = screen.getByRole('dialog', { name: 'Modifier la catégorie' })
+    await user.type(within(dialog).getByLabelText('Code de référence'), 'EPI-01')
+    await user.click(within(dialog).getByRole('button', { name: /Enregistrer/ }))
+
+    expect(await screen.findByText('Catégorie « Pâtes » enregistrée.')).toBeInTheDocument()
+    expect(api.calls.find((c) => c.method === 'PUT')?.body).toMatchObject({ codeReference: 'EPI-01' })
+    // La liste des saisies est rechargée pour afficher le nouveau code
+    const put = api.calls.findIndex((c) => c.method === 'PUT')
+    await waitFor(() => expect(api.calls.slice(put).some((c) => c.path.includes('admin/saisies'))).toBe(true))
   })
 
   it('corrige une saisie', async () => {

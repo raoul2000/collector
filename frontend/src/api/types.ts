@@ -156,6 +156,8 @@ export interface SaisieAdmin {
   magasinNom: string
   categorieNom: string
   unite: Unite
+  /** Code de référence actuel de la catégorie */
+  codeReference: string | null
 }
 
 export interface PageSaisies {
@@ -170,6 +172,10 @@ export interface FiltresSaisies {
   magasin?: number
   categorie?: number
   prenom?: string
+  /** Recherche « contient » dans le code de référence de la catégorie */
+  code?: string
+  /** Saisies dont la catégorie n'a pas de code de référence */
+  sansCode?: boolean
   supprimees?: boolean
   page: number
 }

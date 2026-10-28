@@ -65,6 +65,33 @@ final class SaisieControllerTest extends ApiTestCase
         self::assertSame(400, $this->request('GET', '/api/admin/saisies', query: ['parPage' => '1000'])->status);
     }
 
+    public function testCodeReferenceColumnAndFilters(): void
+    {
+        $this->loginAsAdmin();
+        $this->insert('appareil', ['id' => self::APPAREIL, 'prenom' => 'Marie']);
+        $riz = $this->insert('categorie', ['nom' => 'Riz', 'unite' => 'kg', 'code_reference' => 'EPI-02']);
+        $this->db->prepare('UPDATE categorie SET code_reference = ? WHERE id = ?')->execute(['EPI-01', $this->pates]);
+        $a = $this->saisieDe(self::APPAREIL, $this->lidl, '2026-11-27 10:00:00');
+        $b = $this->saisieDe(self::APPAREIL, $this->lidl, '2026-11-27 11:00:00', ['categorie_id' => $riz]);
+        $c = $this->saisieDe(self::APPAREIL, $this->lidl, '2026-11-27 12:00:00', ['categorie_id' => $this->savon]);
+
+        $tout = $this->request('GET', '/api/admin/saisies')->data;
+        self::assertSame([null, 'EPI-02', 'EPI-01'], array_column($tout['saisies'], 'codeReference'));
+
+        $epi = $this->request('GET', '/api/admin/saisies', query: ['code' => 'epi'])->data;
+        self::assertSame([$b, $a], array_column($epi['saisies'], 'id'));
+        self::assertSame(2, $epi['total']);
+
+        $epi02 = $this->request('GET', '/api/admin/saisies', query: ['code' => '-02'])->data;
+        self::assertSame([$b], array_column($epi02['saisies'], 'id'));
+
+        $sansCode = $this->request('GET', '/api/admin/saisies', query: ['sansCode' => '1'])->data;
+        self::assertSame([$c], array_column($sansCode['saisies'], 'id'));
+        self::assertSame(1, $sansCode['total']);
+
+        self::assertSame(0, $this->request('GET', '/api/admin/saisies', query: ['code' => '%'])->data['total']);
+    }
+
     public function testPrenomFilterEscapesWildcards(): void
     {
         $this->loginAsAdmin();

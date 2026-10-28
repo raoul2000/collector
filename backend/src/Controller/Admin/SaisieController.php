@@ -49,6 +49,8 @@ final readonly class SaisieController
             'magasinId' => $entier($request->query('magasin'), 1, PHP_INT_MAX, null),
             'categorieId' => $entier($request->query('categorie'), 1, PHP_INT_MAX, null),
             'prenom' => mb_substr(trim((string) $request->query('prenom', '')), 0, 50),
+            'code' => mb_substr(trim((string) $request->query('code', '')), 0, 50),
+            'sansCode' => $request->query('sansCode') === '1',
             'supprimees' => $request->query('supprimees') === '1',
         ], $page, $parPage);
 

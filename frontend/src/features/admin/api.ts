@@ -144,7 +144,12 @@ export function useSaveCategorie() {
       id === undefined
         ? api.post<Categorie>('admin/categories', input)
         : api.put<Categorie>(`admin/categories/${id}`, input),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: CATEGORIES_KEY }),
+    // Les saisies affichent le nom et le code de référence de leur catégorie
+    onSuccess: () =>
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: CATEGORIES_KEY }),
+        queryClient.invalidateQueries({ queryKey: SAISIES_KEY }),
+      ]),
   })
 }
 
@@ -205,6 +210,8 @@ export function useAdminSaisies(filtres: FiltresSaisies, enabled = true) {
   if (filtres.magasin) params.set('magasin', String(filtres.magasin))
   if (filtres.categorie) params.set('categorie', String(filtres.categorie))
   if (filtres.prenom) params.set('prenom', filtres.prenom)
+  if (filtres.sansCode) params.set('sansCode', '1')
+  else if (filtres.code) params.set('code', filtres.code)
   if (filtres.supprimees) params.set('supprimees', '1')
 
   return useQuery({

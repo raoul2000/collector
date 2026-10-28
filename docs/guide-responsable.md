@@ -56,7 +56,9 @@ Les bénévoles voient de leur côté (onglet **Collecte**) les chiffres de leur
 
 ### 2.2 Corriger une erreur
 
-Onglet **Saisies** : filtrez par magasin, catégorie ou prénom du bénévole.
+Onglet **Saisies** : filtrez par magasin, catégorie, prénom du bénévole ou **code** de référence (il suffit d'en taper une partie).
+
+La colonne **Code** affiche le code de référence de la catégorie. Pour retrouver les saisies dont la catégorie n'a pas encore de code, cochez **Sans code de référence**. Cliquer sur le tiret **—** d'une saisie ouvre sa catégorie pour lui ajouter un code : il s'applique alors à toutes les saisies de cette catégorie.
 
 - **Corriger** une erreur évidente (ex. *500 × Pâtes*) : la correction est transmise au téléphone du bénévole et l'emporte sur ses éventuelles modifications ; la saisie y apparaît « Corrigée par *votre prénom* ».
 - **Supprimer** un doublon : la saisie n'est plus comptée (elle reste visible avec « Afficher les saisies supprimées »).

@@ -183,6 +183,7 @@ Voir le [guide du responsable](guide-responsable.md) : créer la campagne, les m
 | `"database":"unavailable"` | Paramètres `db` de `config.php` (hôte, nom, utilisateur, mot de passe) |
 | Erreur 404 en rechargeant une page (ex. `/mes-saisies`) | `www/.htaccess` absent (fichier caché non déposé) |
 | Erreur 404 sur `/api/…` | `www/api/.htaccess` absent |
+| Erreur 500 sur `/api/…` ou en rechargeant une page | `RewriteBase` absent des `.htaccess` (ancienne version du paquet) |
 | La connexion responsable ne tient pas (retour à la connexion) | Le site n'est pas en HTTPS ; `secure_cookies` doit rester à `true` avec HTTPS |
 | « Trop de tentatives de connexion » | 5 mots de passe erronés en 15 minutes depuis la même connexion : patienter 15 minutes |
 | Les téléphones ne voient pas la nouvelle version | Vérifier que `sw.js` et `index.html` ont bien été remplacés ; fermer et rouvrir l'application |

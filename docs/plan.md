@@ -261,3 +261,4 @@ Environnement de développement : voir le [README](../README.md). La base locale
 | 27/10/2026 | Étape 4.1 préparée : procédure et script de déploiement |
 | 27/10/2026 | Étape 4.4 : fiche bénévole et guide du responsable |
 | 27/10/2026 | Fin de la session de travail : état et prochaines étapes notés dans « Reprise du travail » |
+| 28/10/2026 | Installation sur Ionos (https://collecte.exdata.info) ; correctif `RewriteBase` dans les `.htaccess` (erreur 500) |

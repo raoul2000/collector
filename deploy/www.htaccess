@@ -6,6 +6,8 @@ AddType application/manifest+json .webmanifest
 
 <IfModule mod_rewrite.c>
     RewriteEngine On
+    # Indispensable chez Ionos (sinon erreur 500 sur toute adresse réécrite)
+    RewriteBase /
 
     # HTTPS obligatoire (indispensable au service worker et au fonctionnement hors ligne)
     RewriteCond %{HTTPS} !=on

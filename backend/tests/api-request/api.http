@@ -1,0 +1,9 @@
+
+@host =  https://collecte.exdata.info
+
+@contentType = application/json
+
+
+###
+
+GET {{host}}/api/health

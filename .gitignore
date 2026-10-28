@@ -8,6 +8,8 @@ frontend/dev-dist/
 
 # Configuration locale (contient des secrets)
 backend/config/config.php
+backend/config/config.prod.php
+backend/config/config.dev.php
 .env
 .env.local
 

@@ -121,6 +121,7 @@ return static function (App $app): void {
     $r->get('/api/admin/bilans', $admin(static fn ($q, $p) => $bilans()->admin($q, $p)));
 
     $r->get('/api/admin/saisies', $admin(static fn ($q, $p) => $saisies()->list($q, $p)));
-    $r->put('/api/admin/saisies/{id}', $admin(static fn ($q, $p) => $saisies()->update($q, $p)));
+    $r->post('/api/admin/saisies/magasin', $admin(static fn ($q, $p) => $saisies()->changeMagasin($q, $p)));
+    $r->put('/api/admin/saisies/{id}',$admin(static fn ($q, $p) => $saisies()->update($q, $p)));
     $r->delete('/api/admin/saisies/{id}', $admin(static fn ($q, $p) => $saisies()->delete($q, $p)));
 };

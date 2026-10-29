@@ -72,6 +72,22 @@ final class SaisieRules
     }
 
     /**
+     * Magasin actif et participant à la campagne : seule destination possible d'un changement de magasin
+     * par un responsable.
+     */
+    public function magasinDisponible(int $magasinId, int $campagneId): bool
+    {
+        $stmt = $this->db->prepare(
+            'SELECT 1 FROM magasin m
+             JOIN campagne_magasin cm ON cm.magasin_id = m.id
+             WHERE m.id = ? AND cm.campagne_id = ? AND m.actif = 1',
+        );
+        $stmt->execute([$magasinId, $campagneId]);
+
+        return $stmt->fetchColumn() !== false;
+    }
+
+    /**
      * @return array<int, string>
      */
     private function unites(): array

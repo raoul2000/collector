@@ -7,6 +7,7 @@ import type {
   CampagneInput,
   Categorie,
   CategorieInput,
+  ChangementMagasin,
   CorrectionSaisie,
   FiltresSaisies,
   Magasin,
@@ -228,6 +229,14 @@ export function useCorrigerSaisie() {
   return useMutation({
     mutationFn: ({ id, correction }: { id: string; correction: CorrectionSaisie }) =>
       api.put<SaisieAdmin>(`admin/saisies/${id}`, correction),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: SAISIES_KEY }),
+  })
+}
+
+export function useChangerMagasin() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (changement: ChangementMagasin) => api.post<{ nbModifiees: number }>('admin/saisies/magasin', changement),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: SAISIES_KEY }),
   })
 }

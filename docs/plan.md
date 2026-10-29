@@ -150,7 +150,7 @@ Objectif : un bénévole saisit des articles depuis son téléphone, y compris s
 
 ### 2.9 Gestion des saisies par les responsables ✅
 - ✅ `GET /api/admin/saisies` : filtres campagne, magasin, catégorie, prénom (recherche partielle), saisies supprimées ; pagination (50 par page)
-- ✅ `PUT /api/admin/saisies/{id}` (correction de la catégorie, de la contenance, de la quantité) et `DELETE` (suppression logique), journalisés avant/après ; la correction redescend sur le téléphone et l'emporte sur ses modifications hors ligne
+- ✅ `PUT /api/admin/saisies/{id}` (correction du magasin, de la catégorie, de la contenance, de la quantité) et `DELETE` (suppression logique), journalisés avant/après ; la correction redescend sur le téléphone et l'emporte sur ses modifications hors ligne
 - ✅ Écran « Saisies » : campagne active par défaut, filtres, statut (corrigée, supprimée), correction avec le même formulaire que les bénévoles, suppression confirmée
 - ✅ Règle de synchronisation affinée : une modification faite par le téléphone après réception d'une correction est acceptée même si l'horloge du téléphone retarde
 
@@ -231,14 +231,13 @@ Objectif : suivre la collecte en temps réel et motiver les bénévoles.
 
 ## Reprise du travail
 
-État au 28/10/2026 : lots 1, 2 et 3 terminés ; application en production sur https://collecte.exdata.info ; première évolution (code de référence dans les saisies) réalisée.
+État au 29/10/2026 : lots 1, 2 et 3 terminés ; application en production sur https://collecte.exdata.info ; évolutions réalisées : code de référence dans les saisies, correction du magasin des saisies par le responsable.
 
 Prochaines étapes possibles :
 1. **Recette sur de vrais téléphones** (4.3).
-2. **Version imprimable de la fiche bénévole** avec l'adresse et un QR code.
-3. **Import de la liste Croix-Rouge** (4.2) quand elle sera disponible.
-4. Évolution proposée, en attente de décision : permettre au responsable de **corriger le magasin d'une saisie** (aujourd'hui : supprimer puis ressaisir).
-5. Évolutions ultérieures prévues : export Excel, comparaison entre années.
+2. **Import de la liste Croix-Rouge** (4.2) quand elle sera disponible.
+3. Évolutions ultérieures prévues : export Excel, comparaison entre années.
+4. **En dernier** (décision du 29/10/2026), une fois toutes les fonctionnalités réalisées et validées : **version imprimable de la fiche bénévole** avec l'adresse et un QR code, pour ne pas avoir à la refaire après chaque évolution.
 
 Environnement de développement : voir le [README](../README.md). La base locale `collector` contient un jeu de démonstration d'environ 760 saisies (pour voir les bilans) ; `php bin/migrate.php --fresh --seed` la remet à zéro.
 
@@ -270,3 +269,4 @@ Environnement de développement : voir le [README](../README.md). La base locale
 | 27/10/2026 | Fin de la session de travail : état et prochaines étapes notés dans « Reprise du travail » |
 | 28/10/2026 | Installation sur Ionos (https://collecte.exdata.info) ; correctif `RewriteBase` dans les `.htaccess` (erreur 500) |
 | 28/10/2026 | Évolution : code de référence dans les saisies (colonne, filtres « Code » et « Sans code ») |
+| 29/10/2026 | Évolution : correction du magasin des saisies par le responsable, une à une ou par sélection (`POST /api/admin/saisies/magasin`) ; magasins actifs participant à la campagne uniquement |

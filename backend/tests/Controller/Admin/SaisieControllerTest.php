@@ -133,6 +133,131 @@ final class SaisieControllerTest extends ApiTestCase
         self::assertSame(['quantite', 'contenanceUnitaire'], array_keys($response->data['error']['details']['fields']));
     }
 
+    public function testCorrectionCanChangeTheMagasin(): void
+    {
+        $this->loginAsAdmin('Paul');
+        $this->participent($this->lidl, $this->auchan);
+        $this->insert('appareil', ['id' => self::APPAREIL, 'prenom' => 'Marie']);
+        $id = $this->saisieDe(self::APPAREIL, $this->lidl, '2026-11-27 10:00:00');
+        $contenu = ['categorieId' => $this->pates, 'quantite' => 1, 'contenanceUnitaire' => 500];
+
+        $response = $this->request('PUT', "/api/admin/saisies/{$id}", $contenu + ['magasinId' => $this->auchan]);
+
+        self::assertSame(200, $response->status);
+        self::assertSame(['magasinId' => $this->auchan, 'corrigeParResponsable' => 'Paul', 'magasinNom' => 'Auchan'], array_intersect_key(
+            $response->data,
+            array_flip(['magasinId', 'magasinNom', 'corrigeParResponsable']),
+        ));
+        $details = json_decode((string) $this->db->query("SELECT details FROM journal_admin WHERE action = 'correction'")->fetchColumn(), true);
+        self::assertSame([$this->lidl, $this->auchan], [$details['avant']['magasinId'], $details['apres']['magasinId']]);
+
+        // Sans magasinId, le magasin est conservé
+        self::assertSame($this->auchan, $this->request('PUT', "/api/admin/saisies/{$id}", $contenu)->data['magasinId']);
+    }
+
+    public function testCorrectionRejectsAnUnavailableMagasin(): void
+    {
+        $this->loginAsAdmin();
+        $inactif = $this->insert('magasin', ['nom' => 'Casino', 'actif' => 0]);
+        $this->participent($this->lidl, $inactif);
+        $this->insert('appareil', ['id' => self::APPAREIL, 'prenom' => 'Marie']);
+        $id = $this->saisieDe(self::APPAREIL, $this->lidl, '2026-11-27 10:00:00');
+        $contenu = ['categorieId' => $this->pates, 'quantite' => 1, 'contenanceUnitaire' => 500];
+
+        // Auchan ne participe pas à la campagne ; Casino y participe mais est désactivé
+        foreach ([$this->auchan, $inactif] as $magasin) {
+            $response = $this->request('PUT', "/api/admin/saisies/{$id}", $contenu + ['magasinId' => $magasin]);
+            self::assertSame(422, $response->status);
+            self::assertSame(['magasinId'], array_keys($response->data['error']['details']['fields']));
+        }
+        self::assertSame($this->lidl, (int) $this->db->query('SELECT magasin_id FROM saisie')->fetchColumn());
+    }
+
+    public function testMagasinOfSeveralSaisiesIsChangedAtOnce(): void
+    {
+        $this->loginAsAdmin('Paul');
+        $this->participent($this->lidl, $this->auchan);
+        $this->insert('appareil', ['id' => self::APPAREIL, 'prenom' => 'Marie']);
+        $a = $this->saisieDe(self::APPAREIL, $this->lidl, '2026-11-27 10:00:00');
+        $b = $this->saisieDe(self::APPAREIL, $this->lidl, '2026-11-27 11:00:00');
+        $dejaBon = $this->saisieDe(self::APPAREIL, $this->auchan, '2026-11-27 12:00:00');
+        $autre = $this->saisieDe(self::APPAREIL, $this->lidl, '2026-11-27 13:00:00');
+
+        $response = $this->request('POST', '/api/admin/saisies/magasin', [
+            'ids' => [$a, strtoupper($b), $dejaBon],
+            'magasinId' => $this->auchan,
+        ]);
+
+        self::assertSame(200, $response->status);
+        self::assertSame(['nbModifiees' => 2], $response->data);
+        $magasins = $this->db->query('SELECT id, magasin_id FROM saisie')->fetchAll(\PDO::FETCH_KEY_PAIR);
+        $magasins = array_map(intval(...), $magasins);
+        ksort($magasins);
+        $attendus = [$a => $this->auchan, $b => $this->auchan, $dejaBon => $this->auchan, $autre => $this->lidl];
+        ksort($attendus);
+        self::assertSame($attendus, $magasins);
+        $corrigees = $this->db->query('SELECT id FROM saisie WHERE modifie_par_responsable = \'Paul\' AND corrige_le IS NOT NULL ORDER BY saisie_le')->fetchAll(\PDO::FETCH_COLUMN);
+        self::assertSame([$a, $b], $corrigees);
+        $journal = $this->db->query("SELECT entite_id FROM journal_admin WHERE action = 'correction' ORDER BY id")->fetchAll(\PDO::FETCH_COLUMN);
+        self::assertSame([$a, $b], $journal);
+    }
+
+    public function testMagasinChangeIsAllOrNothing(): void
+    {
+        $this->loginAsAdmin();
+        $this->participent($this->lidl);
+        $this->insert('appareil', ['id' => self::APPAREIL, 'prenom' => 'Marie']);
+        $a = $this->saisieDe(self::APPAREIL, $this->lidl, '2026-11-27 10:00:00');
+        $supprimee = $this->saisieDe(self::APPAREIL, $this->lidl, '2026-11-27 11:00:00', ['supprime_le' => '2026-11-27 11:05:00.000']);
+        $changer = fn (array $body) => $this->request('POST', '/api/admin/saisies/magasin', $body);
+
+        // Auchan ne participe pas à la campagne
+        $refus = $changer(['ids' => [$a], 'magasinId' => $this->auchan]);
+        self::assertSame(422, $refus->status);
+        self::assertSame(['magasinId'], array_keys($refus->data['error']['details']['fields']));
+
+        $this->participent($this->auchan);
+        self::assertSame(404, $changer(['ids' => [$a, $supprimee], 'magasinId' => $this->auchan])->status);
+        self::assertSame(404, $changer(['ids' => [self::uuid()], 'magasinId' => $this->auchan])->status);
+
+        foreach ([[], ['pas-un-uuid'], [$a, $a], array_fill(0, 201, $a)] as $ids) {
+            $response = $changer(['ids' => $ids, 'magasinId' => $this->auchan]);
+            self::assertSame(422, $response->status);
+            self::assertSame(['ids'], array_keys($response->data['error']['details']['fields']));
+        }
+
+        self::assertSame(0, (int) $this->db->query("SELECT COUNT(*) FROM saisie WHERE magasin_id = {$this->auchan}")->fetchColumn());
+        self::assertSame(0, (int) $this->db->query('SELECT COUNT(*) FROM journal_admin WHERE action = \'correction\'')->fetchColumn());
+    }
+
+    public function testMagasinChangeReachesThePhone(): void
+    {
+        $this->loginAsAdmin('Paul');
+        $this->participent($this->lidl, $this->auchan);
+        $id = self::uuid();
+        $sync = fn (array $saisies, ?string $curseur = null) => $this->request(
+            'POST',
+            '/api/sync',
+            ['prenom' => 'Marie', 'curseur' => $curseur, 'saisies' => $saisies],
+            ['X-Device-Id' => self::APPAREIL],
+        )->data;
+        $saisie = [
+            'id' => $id, 'campagneId' => $this->campagne, 'magasinId' => $this->lidl, 'categorieId' => $this->pates,
+            'quantite' => 2, 'contenanceUnitaire' => 500, 'saisieLe' => '2026-11-27T10:00:00+01:00',
+            'modifieLe' => '2026-11-27T10:00:00.000+01:00', 'supprime' => false, 'baseMajLe' => null,
+        ];
+        $envoi = $sync([$saisie]);
+
+        $this->request('POST', '/api/admin/saisies/magasin', ['ids' => [$id], 'magasinId' => $this->auchan]);
+
+        // Le téléphone renvoie ensuite une modification fondée sur sa version antérieure : la correction l'emporte
+        $baseMajLe = $envoi['resultats'][0]['saisie']['majLe'];
+        $retour = $sync([['quantite' => 4, 'modifieLe' => '2026-11-27T10:30:00.000+01:00', 'baseMajLe' => $baseMajLe] + $saisie]);
+        self::assertSame('conflit', $retour['resultats'][0]['statut']);
+        self::assertSame($this->auchan, $retour['resultats'][0]['saisie']['magasinId']);
+        self::assertSame('Paul', $retour['resultats'][0]['saisie']['corrigeParResponsable']);
+    }
+
     public function testDeletionIsLogicalAndJournaled(): void
     {
         $this->loginAsAdmin('Paul');
@@ -170,6 +295,13 @@ final class SaisieControllerTest extends ApiTestCase
         self::assertSame(3, $changements[0]['quantite']);
         self::assertSame('Paul', $changements[0]['corrigeParResponsable']);
         self::assertNotSame($envoi['resultats'][0]['saisie']['majLe'], $changements[0]['majLe']);
+    }
+
+    private function participent(int ...$magasins): void
+    {
+        foreach ($magasins as $magasin) {
+            $this->insert('campagne_magasin', ['campagne_id' => $this->campagne, 'magasin_id' => $magasin]);
+        }
     }
 
     /**

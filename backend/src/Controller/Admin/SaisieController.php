@@ -21,6 +21,8 @@ final readonly class SaisieController
 {
     public const int PAR_PAGE_MAX = 200;
 
+    private const string MAGASIN_INDISPONIBLE = 'Ce magasin n\'est pas actif ou ne participe pas à la campagne de la saisie.';
+
     public function __construct(
         private PDO $db,
         private SaisieRepository $saisies,
@@ -63,12 +65,18 @@ final readonly class SaisieController
 
         $v = new Validator($request->json());
         $contenu = $this->rules->contenu($v);
+        // Magasin facultatif : inchangé s'il est absent
+        $magasinId = $v->int('magasinId', 1, PHP_INT_MAX, optional: true) ?? $avant['magasinId'];
+        if ($magasinId !== $avant['magasinId'] && !$this->rules->magasinDisponible($magasinId, $avant['campagneId'])) {
+            $v->addError('magasinId', self::MAGASIN_INDISPONIBLE);
+        }
         $v->validate();
 
-        Database::transaction($this->db, function () use ($avant, $contenu, $prenom): void {
+        Database::transaction($this->db, function () use ($avant, $contenu, $magasinId, $prenom): void {
             $this->saisies->correct(
                 $avant['id'],
                 $prenom,
+                $magasinId,
                 (int) $contenu['categorieId'],
                 (int) $contenu['quantite'],
                 $contenu['contenanceUnitaire'],
@@ -80,6 +88,48 @@ final readonly class SaisieController
         });
 
         return new JsonResponse($this->saisies->findDetail($avant['id']));
+    }
+
+    /**
+     * Changement de magasin d'un ensemble de saisies (bénévole qui s'est trompé de magasin).
+     * Tout ou rien : la moindre saisie introuvable ou le moindre magasin indisponible annule l'ensemble.
+     * Les saisies déjà dans le magasin demandé sont laissées telles quelles.
+     */
+    public function changeMagasin(Request $request, string $prenom): JsonResponse
+    {
+        $v = new Validator($request->json());
+        $ids = $v->uuidList('ids', self::PAR_PAGE_MAX);
+        $magasinId = $v->int('magasinId', 1, PHP_INT_MAX);
+        $v->validate();
+
+        $aDeplacer = [];
+        foreach ((array) $ids as $id) {
+            $saisie = $this->saisies->findDetail($id);
+            if ($saisie === null || $saisie['supprime']) {
+                throw HttpException::notFound('Saisie introuvable ou supprimée : rechargez la liste.');
+            }
+            if ($saisie['magasinId'] !== $magasinId) {
+                $aDeplacer[] = $saisie;
+            }
+        }
+        foreach (array_unique(array_column($aDeplacer, 'campagneId')) as $campagneId) {
+            if (!$this->rules->magasinDisponible((int) $magasinId, $campagneId)) {
+                $v->addError('magasinId', self::MAGASIN_INDISPONIBLE);
+            }
+        }
+        $v->validate();
+
+        Database::transaction($this->db, function () use ($aDeplacer, $magasinId, $prenom): void {
+            foreach ($aDeplacer as $avant) {
+                $this->saisies->changeMagasin($avant['id'], $prenom, (int) $magasinId);
+                $this->journal->log($prenom, 'correction', 'saisie', $avant['id'], [
+                    'avant' => $avant,
+                    'apres' => $this->saisies->findDetail($avant['id']),
+                ]);
+            }
+        });
+
+        return new JsonResponse(['nbModifiees' => count($aDeplacer)]);
     }
 
     public function delete(Request $request, string $prenom): JsonResponse

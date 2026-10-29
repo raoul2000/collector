@@ -1,7 +1,7 @@
 import { screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import type { Campagne, Categorie, PageSaisies, SaisieAdmin } from '../../../api/types'
+import type { Campagne, Categorie, Magasin, PageSaisies, SaisieAdmin } from '../../../api/types'
 import { fakeApi, SESSION_OK } from '../../../test/fakeApi'
 import { renderApp } from '../../../test/renderApp'
 
@@ -12,6 +12,16 @@ afterEach(() => {
 const CAMPAGNES: Campagne[] = [
   { id: 2, nom: 'Collecte 2026', dateDebut: '2026-11-27', dateFin: '2026-11-28', active: true, magasinIds: [], nbSaisies: 2 },
   { id: 1, nom: 'Collecte 2025', dateDebut: '2025-11-28', dateFin: '2025-11-29', active: false, magasinIds: [], nbSaisies: 0 },
+]
+
+// Lidl et Auchan participent à la collecte 2026 ; Casino aussi mais il est désactivé ; Carrefour n'y participe pas
+const CAMPAGNES_AVEC_MAGASINS: Campagne[] = [{ ...CAMPAGNES[0]!, magasinIds: [4, 5, 6] }, CAMPAGNES[1]!]
+
+const MAGASINS: Magasin[] = [
+  { id: 5, nom: 'Auchan', ville: '', actif: true, nbSaisies: 0 },
+  { id: 7, nom: 'Carrefour', ville: '', actif: true, nbSaisies: 0 },
+  { id: 6, nom: 'Casino', ville: '', actif: false, nbSaisies: 0 },
+  { id: 4, nom: 'Lidl', ville: 'Centre', actif: true, nbSaisies: 2 },
 ]
 
 const PATES: Categorie = { id: 1, nom: 'Pâtes', unite: 'kg', ordre: 10, active: true, codeReference: null, formats: [250, 500], nbSaisies: 1 }
@@ -150,7 +160,65 @@ describe('Saisies (responsable)', () => {
     await user.click(within(dialog).getByRole('button', { name: 'Enregistrer la correction' }))
 
     expect(await screen.findByText('Saisie corrigée.')).toBeInTheDocument()
-    expect(api.calls.find((c) => c.method === 'PUT')?.body).toEqual({ categorieId: 1, quantite: 2, contenanceUnitaire: 250 })
+    expect(api.calls.find((c) => c.method === 'PUT')?.body).toEqual({ magasinId: 4, categorieId: 1, quantite: 2, contenanceUnitaire: 250 })
+  })
+
+  it('corrige le magasin d’une saisie parmi les magasins actifs de sa campagne', async () => {
+    const user = userEvent.setup()
+    const api = fakeApi({
+      ...SESSION_OK,
+      'GET /api/admin/campagnes': { body: CAMPAGNES_AVEC_MAGASINS },
+      'GET /api/admin/magasins': { body: MAGASINS },
+      'GET /api/admin/categories': { body: [PATES] },
+      'GET /api/admin/saisies?page=1&parPage=50&campagne=2': page([SAISIE]),
+      [`PUT /api/admin/saisies/${SAISIE.id}`]: (body) => ({ body: { ...SAISIE, ...(body as object) } }),
+    })
+    renderApp('/admin/saisies')
+
+    await user.click(await screen.findByRole('button', { name: 'Corriger' }))
+    const dialog = screen.getByRole('dialog', { name: 'Corriger la saisie de Marie' })
+    const magasin = within(dialog).getByLabelText('Magasin')
+    expect(magasin).toHaveValue('4')
+    expect(within(magasin).getAllByRole('option').map((o) => o.textContent)).toEqual(['Auchan', 'Lidl – Centre'])
+    await user.selectOptions(magasin, 'Auchan')
+    await user.click(within(dialog).getByRole('button', { name: 'Enregistrer la correction' }))
+
+    await waitFor(() => expect(api.calls.find((c) => c.method === 'PUT')?.body).toMatchObject({ magasinId: 5 }))
+  })
+
+  it('déplace les saisies sélectionnées vers un autre magasin', async () => {
+    const user = userEvent.setup()
+    const autre = { ...SAISIE, id: 'b2b2b2b2-0000-4000-8000-000000000002' }
+    const supprimee = { ...SAISIE, id: 'c3c3c3c3-0000-4000-8000-000000000003', supprime: true }
+    const api = fakeApi({
+      ...SESSION_OK,
+      'GET /api/admin/campagnes': { body: CAMPAGNES_AVEC_MAGASINS },
+      'GET /api/admin/magasins': { body: MAGASINS },
+      'GET /api/admin/categories': { body: [PATES] },
+      'GET /api/admin/saisies?page=1&parPage=50&campagne=2': page([SAISIE, autre, supprimee]),
+      'POST /api/admin/saisies/magasin': { body: { nbModifiees: 2 } },
+    })
+    renderApp('/admin/saisies')
+
+    // Aucune case pour une saisie supprimée ; « tout cocher » ne prend que les autres
+    await screen.findByText('3 saisies')
+    expect(screen.getAllByRole('checkbox', { name: /^Sélectionner la saisie/ })).toHaveLength(2)
+    await user.click(screen.getByRole('checkbox', { name: 'Sélectionner toutes les saisies de la page' }))
+    expect(screen.getByText('2 sélectionnées')).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Changer de magasin…' }))
+    const dialog = screen.getByRole('dialog', { name: 'Changer de magasin' })
+    expect(dialog).toHaveTextContent('2 saisies à Lidl')
+    expect(within(dialog).getByRole('button', { name: 'Déplacer 2 saisies' })).toBeDisabled()
+    await user.selectOptions(within(dialog).getByLabelText('Nouveau magasin'), 'Auchan')
+    await user.click(within(dialog).getByRole('button', { name: 'Déplacer 2 saisies' }))
+
+    expect(await screen.findByText('2 saisies déplacées vers Auchan.')).toBeInTheDocument()
+    expect(api.calls.find((c) => c.method === 'POST' && c.path.endsWith('/magasin'))?.body).toEqual({
+      ids: [SAISIE.id, autre.id],
+      magasinId: 5,
+    })
+    expect(screen.queryByText('2 sélectionnées')).not.toBeInTheDocument()
   })
 
   it('supprime une saisie après confirmation', async () => {

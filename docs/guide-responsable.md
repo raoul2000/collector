@@ -60,10 +60,10 @@ Onglet **Saisies** : filtrez par magasin, catégorie, prénom du bénévole ou *
 
 La colonne **Code** affiche le code de référence de la catégorie. Pour retrouver les saisies dont la catégorie n'a pas encore de code, cochez **Sans code de référence**. Cliquer sur le tiret **—** d'une saisie ouvre sa catégorie pour lui ajouter un code : il s'applique alors à toutes les saisies de cette catégorie.
 
-- **Corriger** une erreur évidente (ex. *500 × Pâtes*) : la correction est transmise au téléphone du bénévole et l'emporte sur ses éventuelles modifications ; la saisie y apparaît « Corrigée par *votre prénom* ».
+- **Corriger** une erreur évidente (ex. *500 × Pâtes*, mauvais magasin) : la correction est transmise au téléphone du bénévole et l'emporte sur ses éventuelles modifications ; la saisie y apparaît « Corrigée par *votre prénom* ».
 - **Supprimer** un doublon : la saisie n'est plus comptée (elle reste visible avec « Afficher les saisies supprimées »).
 
-Le magasin d'une saisie ne peut pas être modifié : en cas d'erreur de magasin, supprimer la saisie et demander au bénévole de la refaire après avoir choisi le bon magasin (onglet **Réglages**).
+**Bénévole qui s'est trompé de magasin** : filtrez sur son prénom (et le magasin erroné), cochez ses saisies (la case de l'en-tête coche toute la page), puis **Changer de magasin…** et choisissez le bon. Seuls les magasins actifs participant à la campagne sont proposés. Les saisies déplacées apparaissent « Corrigées par *votre prénom* » sur le téléphone. Demandez aussi au bénévole de choisir le bon magasin (onglet **Réglages**) pour ses saisies suivantes.
 
 ### 2.3 Aider un bénévole
 
@@ -72,7 +72,7 @@ Le magasin d'une saisie ne peut pas être modifié : en cas d'erreur de magasin,
 | Voyant **Hors ligne** | Normal sans réseau : il peut continuer, les saisies partiront seules. |
 | Voyant **Erreur d'envoi** qui persiste | Vérifier que le site répond (`https://<adresse>/api/health`), puis prévenir la personne qui gère l'hébergement. |
 | Saisie marquée **Refusée** dans *Mes saisies* | Rare (catégorie supprimée, par exemple) : la refaire, le motif est affiché sous la saisie. |
-| Mauvais magasin choisi | Onglet **Réglages** → choisir le bon magasin. |
+| Mauvais magasin choisi | Onglet **Réglages** → choisir le bon magasin ; ses saisies déjà faites se corrigent depuis l'onglet **Saisies** (voir 2.2). |
 | Bandeau « Nouvelle version disponible » | Toucher **Mettre à jour**. |
 | Changement de téléphone | Ses saisies déjà envoyées restent comptées ; il ne pourra plus les modifier depuis le nouveau téléphone (le responsable peut les corriger). |
 

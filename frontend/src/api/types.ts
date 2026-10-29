@@ -181,9 +181,15 @@ export interface FiltresSaisies {
 }
 
 export interface CorrectionSaisie {
+  magasinId: number
   categorieId: number
   quantite: number
   contenanceUnitaire: number | null
+}
+
+export interface ChangementMagasin {
+  ids: string[]
+  magasinId: number
 }
 
 // --- Bilans --------------------------------------------------------------------------------------

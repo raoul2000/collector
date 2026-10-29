@@ -15,7 +15,9 @@ import { PAR_PAGE, useAdminSaisies, useCampagnes, useCategories, useMagasins, us
 import { CategorieFormDialog } from '../categories/CategorieFormDialog'
 import { handleMutationError } from '../errors'
 import { PageHeader } from '../PageHeader'
+import { ChangerMagasinDialog } from './ChangerMagasinDialog'
 import { CorrigerSaisieDialog } from './CorrigerSaisieDialog'
+import { magasinsDisponibles, nomMagasin } from './magasins'
 import pageStyles from './SaisiesPage.module.css'
 
 const dateHeure = (iso: string) =>
@@ -43,6 +45,14 @@ export function SaisiesPage() {
   const [code, setCode] = useState('')
   const [corrigee, setCorrigee] = useState<SaisieAdmin | null>(null)
   const [aSupprimer, setASupprimer] = useState<SaisieAdmin | null>(null)
+  // Saisies cochées pour un changement de magasin groupé, limitées à la page affichée
+  const [selection, setSelection] = useState<ReadonlySet<string>>(new Set())
+  const [changementMagasin, setChangementMagasin] = useState(false)
+  const [filtresSelection, setFiltresSelection] = useState(filtres)
+  if (filtresSelection !== filtres) {
+    setFiltresSelection(filtres)
+    setSelection(new Set())
+  }
   // Catégorie ouverte depuis la colonne « Code » pour lui ajouter un code de référence
   const [categorieACompleter, setCategorieACompleter] = useState<Categorie | null>(null)
 
@@ -56,7 +66,7 @@ export function SaisiesPage() {
 
   // Le filtre sur le prénom s'applique quand la frappe s'interrompt
   useEffect(() => {
-    const minuteur = setTimeout(() => setFiltres((f) => (f.prenom === prenom ? f : { ...f, prenom, page: 1 })), 300)
+    const minuteur = setTimeout(() => setFiltres((f) => ((f.prenom ?? '') === prenom ? f : { ...f, prenom, page: 1 })), 300)
     return () => clearTimeout(minuteur)
   }, [prenom])
 
@@ -71,6 +81,19 @@ export function SaisiesPage() {
   const filtrer = (changement: Partial<FiltresSaisies>) => setFiltres((f) => ({ ...f, ...changement, page: 1 }))
   const nombre = (valeur: string) => (valeur === '' ? undefined : Number(valeur))
   const nbPages = saisies.data ? Math.max(1, Math.ceil(saisies.data.total / PAR_PAGE)) : 1
+
+  const selectionnables = saisies.data?.saisies.filter((s) => !s.supprime) ?? []
+  const selectionnees = selectionnables.filter((s) => selection.has(s.id))
+  const toutesSelectionnees = selectionnables.length > 0 && selectionnees.length === selectionnables.length
+  const basculer = (id: string) =>
+    setSelection((ids) => {
+      const suivante = new Set(ids)
+      if (!suivante.delete(id)) {
+        suivante.add(id)
+      }
+      return suivante
+    })
+  const disponibles = (campagneIds: number[]) => magasinsDisponibles(magasins.data ?? [], campagnes.data ?? [], campagneIds)
 
   const confirmerSuppression = () => {
     if (!aSupprimer) {
@@ -107,7 +130,7 @@ export function SaisiesPage() {
           <option value="">Tous</option>
           {magasins.data?.map((m) => (
             <option key={m.id} value={m.id}>
-              {[m.nom, m.ville].filter(Boolean).join(' – ')}
+              {nomMagasin(m)}
             </option>
           ))}
         </Select>
@@ -147,12 +170,36 @@ export function SaisiesPage() {
       {saisies.isError && <Alert kind="error">{saisies.error.message}</Alert>}
       {saisies.data && (
         <>
-          <p className={pageStyles.total}>
-            {saisies.data.total} saisie{saisies.data.total > 1 ? 's' : ''}
-          </p>
+          <div className={pageStyles.barre}>
+            <p className={pageStyles.total}>
+              {saisies.data.total} saisie{saisies.data.total > 1 ? 's' : ''}
+            </p>
+            {selectionnees.length > 0 && (
+              <div className={pageStyles.selection}>
+                <span>
+                  {selectionnees.length} sélectionnée{selectionnees.length > 1 ? 's' : ''}
+                </span>
+                <Button size="sm" onClick={() => setChangementMagasin(true)}>
+                  Changer de magasin…
+                </Button>
+                <Button size="sm" variant="ghost" onClick={() => setSelection(new Set())}>
+                  Annuler la sélection
+                </Button>
+              </div>
+            )}
+          </div>
           <Table>
             <thead>
               <tr>
+                <th className={pageStyles.choix}>
+                  <input
+                    type="checkbox"
+                    aria-label="Sélectionner toutes les saisies de la page"
+                    checked={toutesSelectionnees}
+                    disabled={selectionnables.length === 0}
+                    onChange={() => setSelection(new Set(toutesSelectionnees ? [] : selectionnables.map((s) => s.id)))}
+                  />
+                </th>
                 <th>Date</th>
                 <th>Magasin</th>
                 <th>Bénévole</th>
@@ -167,13 +214,23 @@ export function SaisiesPage() {
             <tbody>
               {saisies.data.saisies.length === 0 && (
                 <tr>
-                  <td colSpan={7} className={styles.empty}>
+                  <td colSpan={8} className={styles.empty}>
                     Aucune saisie ne correspond à ces critères.
                   </td>
                 </tr>
               )}
               {saisies.data.saisies.map((saisie) => (
                 <tr key={saisie.id} className={saisie.supprime ? pageStyles.supprimee : undefined}>
+                  <td className={pageStyles.choix}>
+                    {!saisie.supprime && (
+                      <input
+                        type="checkbox"
+                        aria-label={`Sélectionner la saisie de ${saisie.prenom} du ${dateHeure(saisie.saisieLe)}`}
+                        checked={selection.has(saisie.id)}
+                        onChange={() => basculer(saisie.id)}
+                      />
+                    )}
+                  </td>
                   <td className={pageStyles.date}>{dateHeure(saisie.saisieLe)}</td>
                   <td>{saisie.magasinNom}</td>
                   <td>{saisie.prenom}</td>
@@ -232,7 +289,21 @@ export function SaisiesPage() {
       )}
 
       {corrigee && categories.data && (
-        <CorrigerSaisieDialog saisie={corrigee} categories={categories.data} onClose={() => setCorrigee(null)} />
+        <CorrigerSaisieDialog
+          saisie={corrigee}
+          categories={categories.data}
+          magasins={disponibles([corrigee.campagneId])}
+          onClose={() => setCorrigee(null)}
+        />
+      )}
+
+      {changementMagasin && (
+        <ChangerMagasinDialog
+          saisies={selectionnees}
+          magasins={disponibles([...new Set(selectionnees.map((s) => s.campagneId))])}
+          onDone={() => setSelection(new Set())}
+          onClose={() => setChangementMagasin(false)}
+        />
       )}
 
       {categorieACompleter && (

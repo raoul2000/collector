@@ -189,6 +189,36 @@ final class Validator
     }
 
     /**
+     * Liste non vide d'UUID sans doublon, renvoyés en minuscules.
+     *
+     * @return list<string>|null
+     */
+    public function uuidList(string $field, int $maxItems): ?array
+    {
+        if (!$this->has($field)) {
+            return $this->fail($field, 'Ce champ est obligatoire.');
+        }
+        $value = $this->data[$field];
+        if (!is_array($value) || !array_is_list($value) || $value === []) {
+            return $this->fail($field, 'Ce champ doit être une liste non vide.');
+        }
+        if (count($value) > $maxItems) {
+            return $this->fail($field, "La liste ne doit pas dépasser {$maxItems} éléments.");
+        }
+        foreach ($value as $item) {
+            if (!is_string($item) || !self::isUuid($item)) {
+                return $this->fail($field, 'Identifiant invalide.');
+            }
+        }
+        $ids = array_map(strtolower(...), $value);
+        if (count(array_unique($ids)) !== count($ids)) {
+            return $this->fail($field, 'La liste contient des doublons.');
+        }
+
+        return $ids;
+    }
+
+    /**
      * Ajoute une erreur sur un champ (contrôles spécifiques faits par l'appelant).
      */
     public function addError(string $field, string $message): void

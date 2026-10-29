@@ -192,14 +192,32 @@ final readonly class SaisieRepository
      * Correction par un responsable : elle sera renvoyée au téléphone et l'emportera sur ses modifications
      * antérieures (cf. SyncController).
      */
-    public function correct(string $id, string $prenom, int $categorieId, int $quantite, ?int $contenanceUnitaire): void
+    public function correct(
+        string $id,
+        string $prenom,
+        int $magasinId,
+        int $categorieId,
+        int $quantite,
+        ?int $contenanceUnitaire,
+    ): void {
+        $this->db->prepare(
+            'UPDATE saisie
+             SET magasin_id = ?, categorie_id = ?, quantite = ?, contenance_unitaire = ?,
+                 modifie_le = NOW(3), corrige_le = NOW(3), modifie_par_responsable = ?
+             WHERE id = ?',
+        )->execute([$magasinId, $categorieId, $quantite, $contenanceUnitaire, $prenom, $id]);
+    }
+
+    /**
+     * Changement de magasin par un responsable (même effet sur la synchronisation qu'une correction).
+     */
+    public function changeMagasin(string $id, string $prenom, int $magasinId): void
     {
         $this->db->prepare(
             'UPDATE saisie
-             SET categorie_id = ?, quantite = ?, contenance_unitaire = ?,
-                 modifie_le = NOW(3), corrige_le = NOW(3), modifie_par_responsable = ?
+             SET magasin_id = ?, modifie_le = NOW(3), corrige_le = NOW(3), modifie_par_responsable = ?
              WHERE id = ?',
-        )->execute([$categorieId, $quantite, $contenanceUnitaire, $prenom, $id]);
+        )->execute([$magasinId, $prenom, $id]);
     }
 
     public function deleteByResponsable(string $id, string $prenom): void

@@ -28,6 +28,15 @@ final class Config
         'admin' => [
             'password_hash' => '',
         ],
+        'log' => [
+            'enabled' => true,
+            // info (toutes les requêtes), warning (refus et requêtes lentes) ou error
+            'level' => 'info',
+            // Nombre de jours conservés (un fichier par jour)
+            'retention_days' => 30,
+            // Dossier des fichiers ; null : var/log dans le dossier applicatif
+            'dir' => null,
+        ],
     ];
 
     /**

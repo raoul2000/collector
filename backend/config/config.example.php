@@ -26,4 +26,12 @@ return [
         // Hash du mot de passe partagé des responsables (généré par bin/hash-password.php)
         'password_hash' => '',
     ],
+    'log' => [
+        // Journal technique : un fichier par jour, var/log/collector-AAAA-MM-JJ.log
+        'enabled' => true,
+        // info (toutes les requêtes), warning (refus et requêtes lentes) ou error (erreurs internes)
+        'level' => 'info',
+        // Nombre de jours conservés ; les fichiers plus anciens sont supprimés automatiquement
+        'retention_days' => 30,
+    ],
 ];

@@ -59,6 +59,14 @@ final class Request
         );
     }
 
+    /**
+     * Paramètres de l'URL reconstitués (« campagne=2&page=1 »), pour le journal.
+     */
+    public function queryString(): string
+    {
+        return http_build_query($this->query);
+    }
+
     public static function normalizePath(string $path): string
     {
         return '/' . trim($path, '/');

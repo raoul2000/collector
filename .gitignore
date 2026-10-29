@@ -15,6 +15,7 @@ backend/config/config.dev.php
 
 # Caches et journaux
 .phpunit.cache/
+backend/var/
 *.log
 npm-debug.log*
 

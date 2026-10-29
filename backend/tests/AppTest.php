@@ -61,10 +61,23 @@ final class AppTest extends TestCase
         $response = $this->silently(static fn () => $app->handle(new Request('GET', '/api/boom')));
 
         self::assertSame(500, $response->status);
+        $ref = $response->headers['X-Request-Id'];
+        self::assertMatchesRegularExpression('/^[0-9a-f]{8}$/', $ref);
         self::assertSame(
-            ['error' => ['code' => 'internal_error', 'message' => 'Erreur interne du serveur.']],
+            ['error' => ['code' => 'internal_error', 'message' => "Erreur interne du serveur (réf. {$ref}).", 'ref' => $ref]],
             $response->data,
         );
+    }
+
+    public function testEachResponseCarriesItsOwnRequestId(): void
+    {
+        $app = $this->app();
+        $app->router->get('/api/test', static fn () => new JsonResponse('ok'));
+
+        $a = $app->handle(new Request('GET', '/api/test'))->headers['X-Request-Id'];
+        $b = $app->handle(new Request('GET', '/api/test'))->headers['X-Request-Id'];
+
+        self::assertNotSame($a, $b);
     }
 
     public function testUnexpectedErrorIsDetailedWhenDebugIsOn(): void

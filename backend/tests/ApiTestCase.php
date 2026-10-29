@@ -8,6 +8,7 @@ use App\App;
 use App\Config;
 use App\Http\JsonResponse;
 use App\Http\Request;
+use App\Log\Logger;
 
 /**
  * Base des tests d'API : l'application complète (routes réelles) branchée sur la base de test transactionnelle.
@@ -18,6 +19,9 @@ abstract class ApiTestCase extends DatabaseTestCase
     protected const string ADMIN_PASSWORD = 'mot-de-passe-test';
 
     private static ?string $adminPasswordHash = null;
+
+    /** Journal technique de l'application testée (désactivé par défaut) */
+    protected Logger $logger;
 
     /** @var array<string, string> cookies conservés entre les requêtes, comme le ferait un navigateur */
     protected array $cookies = [];
@@ -36,6 +40,7 @@ abstract class ApiTestCase extends DatabaseTestCase
                 $config,
             )),
             pdo: $this->db,
+            logger: $this->logger ?? Logger::disabled(),
         )->withRoutes();
     }
 

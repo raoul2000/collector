@@ -26,6 +26,11 @@ final class JsonResponse
         return new self(null, 204);
     }
 
+    public function withHeader(string $name, string $value): self
+    {
+        return new self($this->data, $this->status, [$name => $value] + $this->headers);
+    }
+
     public function body(): string
     {
         if ($this->status === 204) {

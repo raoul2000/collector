@@ -46,10 +46,12 @@ return static function (App $app): void {
      * @param callable(Request, string): JsonResponse $handler
      * @return callable(Request): JsonResponse
      */
-    $admin = static fn (callable $handler): callable => static fn (Request $q): JsonResponse => $handler(
-        $q,
-        $auth()->require($q),
-    );
+    $admin = static fn (callable $handler): callable => static function (Request $q) use ($app, $auth, $handler): JsonResponse {
+        $prenom = $auth()->require($q);
+        $app->logContext('responsable', $prenom);
+
+        return $handler($q, $prenom);
+    };
 
     // --- Public ---------------------------------------------------------------------------------
 
@@ -64,12 +66,25 @@ return static function (App $app): void {
     $bilans = static fn (): BilanController => new BilanController(new CampagneRepository($db()), new BilanRepository($db()));
     $r->get('/api/bilans', static fn (Request $q) => $bilans()->public($q));
 
-    $r->post('/api/sync', static fn (Request $q) => new SyncController(
-        $db(),
-        new AppareilRepository($db()),
-        new SaisieRepository($db()),
-        new SaisieRules($db()),
-    )->sync($q));
+    $r->post('/api/sync', static function (Request $q) use ($app, $db): JsonResponse {
+        $app->logContext('appareil', substr((string) $q->header('X-Device-Id'), 0, 8));
+        $response = new SyncController(
+            $db(),
+            new AppareilRepository($db()),
+            new SaisieRepository($db()),
+            new SaisieRules($db()),
+        )->sync($q);
+
+        // Bilan de l'échange, pour le journal
+        $statuts = array_count_values(array_column($response->data['resultats'] ?? [], 'statut'));
+        $app->logContext('envoyees', count($response->data['resultats'] ?? []));
+        foreach (['ok' => 'ok', 'conflit' => 'conflits', 'rejete' => 'rejets'] as $statut => $cle) {
+            $app->logContext($cle, $statuts[$statut] ?? 0);
+        }
+        $app->logContext('recues', count($response->data['changements'] ?? []));
+
+        return $response;
+    });
 
     // --- Espace responsable ---------------------------------------------------------------------
 

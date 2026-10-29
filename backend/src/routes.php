@@ -68,6 +68,11 @@ return static function (App $app): void {
 
     $r->post('/api/sync', static function (Request $q) use ($app, $db): JsonResponse {
         $app->logContext('appareil', substr((string) $q->header('X-Device-Id'), 0, 8));
+        // Prénom au moment de l'échange (la table appareil ne garde que le dernier)
+        $prenom = $q->json()['prenom'] ?? null;
+        if (is_string($prenom) && trim($prenom) !== '') {
+            $app->logContext('benevole', mb_substr(trim($prenom), 0, 50));
+        }
         $response = new SyncController(
             $db(),
             new AppareilRepository($db()),

@@ -64,14 +64,19 @@ final class RequestLogTest extends ApiTestCase
 
     public function testSyncLogsTheDeviceAndTheExchange(): void
     {
-        $this->request('POST', '/api/sync', ['prenom' => 'Marie', 'curseur' => null, 'saisies' => [['id' => 'pas-un-uuid']]], [
+        $this->request('POST', '/api/sync', ['prenom' => ' Marie ', 'curseur' => null, 'saisies' => [['id' => 'pas-un-uuid']]], [
             'X-Device-Id' => 'a1a1a1a1-0000-4000-8000-000000000001',
         ]);
+        $this->request('POST', '/api/sync', ['prenom' => 'Jean Paul', 'curseur' => null, 'saisies' => []], [
+            'X-Device-Id' => 'b2b2b2b2-0000-4000-8000-000000000002',
+        ]);
 
+        $lignes = $this->lignes();
         self::assertMatchesRegularExpression(
-            '/ INFO  \w+ POST \/api\/sync 200 \d+ms appareil=a1a1a1a1 envoyees=1 ok=0 conflits=0 rejets=1 recues=0$/',
-            $this->lignes()[0],
+            '/ INFO  \w+ POST \/api\/sync 200 \d+ms appareil=a1a1a1a1 benevole=Marie envoyees=1 ok=0 conflits=0 rejets=1 recues=0$/',
+            $lignes[0],
         );
+        self::assertStringContainsString(' appareil=b2b2b2b2 benevole="Jean Paul" envoyees=0 ', $lignes[1]);
     }
 
     public function testIpIsTruncated(): void

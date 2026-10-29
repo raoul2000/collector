@@ -174,7 +174,7 @@ Voir le [guide du responsable](guide-responsable.md) : créer la campagne, les m
 L'API écrit une ligne par requête dans `app/var/log/collector-AAAA-MM-JJ.log` (un fichier par jour, conservé 30 jours ; réglages dans la section `log` de `config.php`). Pour le consulter : le télécharger par SFTP ou avec le gestionnaire de fichiers d'Ionos.
 
 ```
-2026-11-27T10:15:02+01:00 INFO  a3f9c1d2 POST /api/sync 200 84ms appareil=7c2e1a0b envoyees=3 ok=3 conflits=0 rejets=0 recues=0
+2026-11-27T10:15:02+01:00 INFO  a3f9c1d2 POST /api/sync 200 84ms appareil=7c2e1a0b benevole=Marie envoyees=3 ok=3 conflits=0 rejets=0 recues=0
 2026-11-27T10:15:09+01:00 WARN  b81d22e4 POST /api/admin/login 401 12ms erreur=invalid_credentials ip=86.212.14.x
 2026-11-27T10:16:40+01:00 ERROR c09e7a51 GET /api/admin/bilans 500 31ms responsable=Sophie
     PDOException: … (trace de l'erreur)
@@ -182,6 +182,7 @@ L'API écrit une ligne par requête dans `app/var/log/collector-AAAA-MM-JJ.log` 
 
 - **INFO** : requête traitée ; **WARN** : requête refusée (4xx) ou lente (plus d'une seconde) ; **ERROR** : erreur interne, suivie de sa trace.
 - Le 2ᵉ champ est la **référence de la requête**, renvoyée au navigateur (en-tête `X-Request-Id`). Une erreur interne l'affiche à l'écran : « Erreur interne du serveur (réf. c09e7a51) ». Il suffit de chercher cette référence dans le fichier du jour.
+- Les lignes de synchronisation donnent le début de l'identifiant du téléphone et le prénom saisi sur le téléphone à ce moment-là. L'identifiant complet et le dernier prénom connu sont dans la table `appareil` (`SELECT * FROM appareil WHERE id LIKE '7c2e1a0b%'`).
 - Ni mots de passe, ni cookies, ni contenu des saisies ne sont écrits ; l'adresse IP (tronquée) n'apparaît que pour les connexions des responsables.
 - Si le dossier `var/log` ne peut pas être créé ou écrit, l'application fonctionne normalement et les erreurs internes partent dans le journal PHP d'Ionos.
 

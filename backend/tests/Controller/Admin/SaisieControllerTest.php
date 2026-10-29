@@ -258,6 +258,41 @@ final class SaisieControllerTest extends ApiTestCase
         self::assertSame('Paul', $retour['resultats'][0]['saisie']['corrigeParResponsable']);
     }
 
+    public function testExportListsTheCampagneSaisiesInChronologicalOrder(): void
+    {
+        $this->loginAsAdmin('Paul');
+        $autreCampagne = $this->insert('campagne', ['nom' => 'Ancienne', 'date_debut' => '2025-11-28', 'date_fin' => '2025-11-29']);
+        $this->db->prepare('UPDATE magasin SET ville = ? WHERE id = ?')->execute(['Centre', $this->lidl]);
+        $this->db->prepare('UPDATE categorie SET code_reference = ? WHERE id = ?')->execute(['EPI-01', $this->pates]);
+        $this->insert('appareil', ['id' => self::APPAREIL, 'prenom' => 'Marie']);
+        $this->saisieDe(self::APPAREIL, $this->auchan, '2026-11-27 11:00:00', [
+            'categorie_id' => $this->savon, 'quantite' => 3, 'contenance_unitaire' => null, 'modifie_par_responsable' => 'Paul',
+        ]);
+        $this->saisieDe(self::APPAREIL, $this->lidl, '2026-11-27 10:00:00');
+        $this->saisieDe(self::APPAREIL, $this->lidl, '2026-11-27 12:00:00', ['supprime_le' => '2026-11-27 12:05:00.000']);
+        $this->saisieDe(self::APPAREIL, $this->lidl, '2025-11-28 10:00:00', ['campagne_id' => $autreCampagne]);
+
+        $response = $this->request('GET', '/api/admin/saisies/export', query: ['campagne' => (string) $this->campagne]);
+
+        self::assertSame(200, $response->status);
+        self::assertSame(['id' => $this->campagne, 'nom' => 'C'], $response->data['campagne']);
+        self::assertSame([
+            [
+                'saisieLe' => '2026-11-27 10:00:00', 'magasin' => 'Lidl', 'ville' => 'Centre', 'prenom' => 'Marie',
+                'categorie' => 'Pâtes', 'codeReference' => 'EPI-01', 'unite' => 'kg', 'quantite' => 1,
+                'contenanceUnitaire' => 500, 'corrigeParResponsable' => null,
+            ],
+            [
+                'saisieLe' => '2026-11-27 11:00:00', 'magasin' => 'Auchan', 'ville' => '', 'prenom' => 'Marie',
+                'categorie' => 'Savon', 'codeReference' => null, 'unite' => 'unite', 'quantite' => 3,
+                'contenanceUnitaire' => null, 'corrigeParResponsable' => 'Paul',
+            ],
+        ], $response->data['saisies']);
+
+        self::assertSame(404, $this->request('GET', '/api/admin/saisies/export', query: ['campagne' => '999999'])->status);
+        self::assertSame(404, $this->request('GET', '/api/admin/saisies/export')->status);
+    }
+
     public function testDeletionIsLogicalAndJournaled(): void
     {
         $this->loginAsAdmin('Paul');

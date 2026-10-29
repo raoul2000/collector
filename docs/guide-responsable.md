@@ -52,6 +52,8 @@ Puis **Activer** la campagne. Une seule campagne est active à la fois ; sans ca
 
 Onglet **Bilans** (actualisé toutes les 30 secondes) : articles, poids, volume, par catégorie, par heure et par magasin. Le choix d'un magasin limite le bilan à ce magasin. Sous chaque graphique, **Voir le tableau** donne les chiffres exacts.
 
+**Exporter la campagne (Excel)** télécharge un fichier avec une ligne par saisie de la campagne affichée (tous magasins, saisies supprimées exclues) : date, heure, magasin, ville, bénévole, catégorie, code, unité, articles, contenance, poids total (kg), volume total (L) et responsable ayant corrigé la saisie. À trier, filtrer ou résumer dans Excel (tableau croisé dynamique).
+
 Les bénévoles voient de leur côté (onglet **Collecte**) les chiffres de leur magasin, le total général et le classement des magasins.
 
 ### 2.2 Corriger une erreur
@@ -90,7 +92,7 @@ Ajouter une catégorie oubliée est possible : elle apparaît sur les téléphon
 
 1. **Laissez la campagne active quelques heures** (ou jusqu'au lendemain) : des téléphones restés hors ligne peuvent encore envoyer leurs dernières saisies. Demandez aux bénévoles d'ouvrir l'application une fois connectés, jusqu'à voir *À jour*.
 2. Quand les chiffres ne bougent plus, **désactivez la campagne** (onglet **Campagnes**).
-3. Consultez les **Bilans** de la campagne (ils restent consultables en choisissant la campagne). Les tableaux peuvent être copiés dans un tableur ; un export Excel est prévu dans une version ultérieure.
+3. Consultez les **Bilans** de la campagne (ils restent consultables en choisissant la campagne). Le bouton **Exporter la campagne (Excel)** fournit le détail des saisies (voir 2.1) ; conservez ce fichier avec la sauvegarde.
 4. Faites (ou faites faire) une **sauvegarde de la base** (voir [déploiement](deploiement.md), section Sauvegardes).
 
 **L'année suivante :** créez une nouvelle campagne, cochez les magasins participants et activez-la. Magasins et catégories sont conservés d'une année sur l'autre ; les bilans des campagnes précédentes restent consultables.

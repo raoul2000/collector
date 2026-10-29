@@ -187,6 +187,25 @@ export interface CorrectionSaisie {
   contenanceUnitaire: number | null
 }
 
+export interface SaisieExport {
+  /** Heure locale du don, sans fuseau : « AAAA-MM-JJ HH:MM:SS » */
+  saisieLe: string
+  magasin: string
+  ville: string
+  prenom: string
+  categorie: string
+  codeReference: string | null
+  unite: Unite
+  quantite: number
+  contenanceUnitaire: number | null
+  corrigeParResponsable: string | null
+}
+
+export interface ExportSaisies {
+  campagne: { id: number; nom: string }
+  saisies: SaisieExport[]
+}
+
 export interface ChangementMagasin {
   ids: string[]
   magasinId: number

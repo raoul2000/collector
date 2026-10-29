@@ -94,6 +94,44 @@ describe('Bilans (responsable)', () => {
 
     expect(await screen.findByText(/Aucune campagne n'est active/)).toBeInTheDocument()
   })
+
+  it('exporte toute la campagne affichée dans un fichier Excel', async () => {
+    const user = userEvent.setup()
+    const createObjectURL = vi.fn((_blob: Blob) => 'blob:export')
+    // Absentes de jsdom (chaque fichier de test a son propre environnement)
+    Object.assign(URL, { createObjectURL, revokeObjectURL: vi.fn() })
+    const telechargements: string[] = []
+    const click = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(function (this: HTMLAnchorElement) {
+      telechargements.push(this.download)
+    })
+    const calls = api({
+      'GET /api/admin/bilans?magasin=5': { body: { ...BILAN, magasinId: 5 } },
+      'GET /api/admin/saisies/export?campagne=2': {
+        body: {
+          campagne: { id: 2, nom: 'Collecte novembre 2026' },
+          saisies: [
+            {
+              saisieLe: '2026-11-27 10:15:00', magasin: 'Lidl', ville: '', prenom: 'Marie', categorie: 'Pâtes',
+              codeReference: null, unite: 'kg', quantite: 2, contenanceUnitaire: 500, corrigeParResponsable: null,
+            },
+          ],
+        },
+      },
+    }).calls
+    renderApp('/admin/bilans')
+
+    // Le choix d'un magasin ne limite pas l'export
+    await screen.findByRole('option', { name: 'Auchan – Nord' })
+    await user.selectOptions(screen.getByLabelText('Magasin'), '5')
+    await screen.findByText(/· Auchan ·/)
+    await user.click(screen.getByRole('button', { name: 'Exporter la campagne (Excel)' }))
+
+    expect(await screen.findByText('1 saisie exportée.')).toBeInTheDocument()
+    expect(calls.map((c) => c.path)).toContain('/api/admin/saisies/export?campagne=2')
+    expect(telechargements).toEqual(['collecte-novembre-2026.xlsx'])
+    expect(createObjectURL.mock.calls[0]![0].type).toBe('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    click.mockRestore()
+  })
 })
 
 describe('Données des graphiques', () => {

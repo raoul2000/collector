@@ -1,16 +1,20 @@
 import { useState } from 'react'
 import { Alert } from '../../../components/Alert'
+import { Button } from '../../../components/Button'
 import { Card } from '../../../components/Card'
 import { Select } from '../../../components/Select'
 import { StatRow, StatTile } from '../../../components/StatTile'
 import { Table } from '../../../components/Table'
+import { toast } from '../../../components/toast'
 import { formatDate, formatKg, formatLitres, formatNombre, pluriel } from '../../../lib/format'
 import adminStyles from '../admin.module.css'
 import { BILAN_REFRESH_MS, useBilan, useCampagnes, useMagasins } from '../api'
+import { handleMutationError } from '../errors'
 import { PageHeader } from '../PageHeader'
 import { BarresHorizontales } from './BarresHorizontales'
 import styles from './bilans.module.css'
 import { ColonnesHeures } from './ColonnesHeures'
+import { exporterCampagne } from './exportExcel'
 import { colonnesParJour, mentionSansContenance, totalContenance } from '../../../lib/bilans'
 
 const heure = (date: Date) => date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
@@ -25,16 +29,37 @@ export function BilansPage() {
   const [campagne, setCampagne] = useState<number>()
   const [magasin, setMagasin] = useState<number>()
   const bilan = useBilan(campagne, magasin)
+  const [exportEnCours, setExportEnCours] = useState(false)
 
   const nombre = (valeur: string) => (valeur === '' ? undefined : Number(valeur))
   const data = bilan.data
   const nomMagasin = magasins.data?.find((m) => m.id === magasin)?.nom
+
+  // Toute la campagne affichée, quel que soit le magasin choisi
+  const exporter = async (campagneId: number) => {
+    setExportEnCours(true)
+    try {
+      const nb = await exporterCampagne(campagneId)
+      toast.success(`${pluriel(nb, 'saisie')} exportée${nb > 1 ? 's' : ''}.`)
+    } catch (error) {
+      handleMutationError(error)
+    } finally {
+      setExportEnCours(false)
+    }
+  }
 
   return (
     <div className={styles.page}>
       <PageHeader
         title="Bilans"
         description={`Actualisés automatiquement toutes les ${BILAN_REFRESH_MS / 1000} secondes.`}
+        actions={
+          data && (
+            <Button variant="secondary" loading={exportEnCours} onClick={() => void exporter(data.campagne.id)}>
+              Exporter la campagne (Excel)
+            </Button>
+          )
+        }
       />
 
       <div className={styles.filtres}>

@@ -189,6 +189,44 @@ final readonly class SaisieRepository
     }
 
     /**
+     * Saisies non supprimées d'une campagne pour l'export Excel, dans l'ordre chronologique.
+     * La date est l'heure locale du don, sans fuseau (« AAAA-MM-JJ HH:MM:SS »), telle qu'Excel l'affichera.
+     *
+     * @return list<array{
+     *     saisieLe: string, magasin: string, ville: string, prenom: string, categorie: string,
+     *     codeReference: string|null, unite: string, quantite: int, contenanceUnitaire: int|null,
+     *     corrigeParResponsable: string|null
+     * }>
+     */
+    public function forExport(int $campagneId): array
+    {
+        $stmt = $this->db->prepare(
+            'SELECT s.saisie_le, m.nom AS magasin, m.ville, a.prenom, c.nom AS categorie, c.code_reference, c.unite,
+                    s.quantite, s.contenance_unitaire, s.modifie_par_responsable
+             FROM saisie s
+             JOIN appareil a ON a.id = s.appareil_id
+             JOIN magasin m ON m.id = s.magasin_id
+             JOIN categorie c ON c.id = s.categorie_id
+             WHERE s.campagne_id = ? AND s.supprime_le IS NULL
+             ORDER BY s.saisie_le, s.id',
+        );
+        $stmt->execute([$campagneId]);
+
+        return array_map(static fn (array $row): array => [
+            'saisieLe' => (string) $row['saisie_le'],
+            'magasin' => (string) $row['magasin'],
+            'ville' => (string) $row['ville'],
+            'prenom' => (string) $row['prenom'],
+            'categorie' => (string) $row['categorie'],
+            'codeReference' => $row['code_reference'] === null ? null : (string) $row['code_reference'],
+            'unite' => (string) $row['unite'],
+            'quantite' => (int) $row['quantite'],
+            'contenanceUnitaire' => $row['contenance_unitaire'] === null ? null : (int) $row['contenance_unitaire'],
+            'corrigeParResponsable' => $row['modifie_par_responsable'] === null ? null : (string) $row['modifie_par_responsable'],
+        ], $stmt->fetchAll());
+    }
+
+    /**
      * Correction par un responsable : elle sera renvoyée au téléphone et l'emportera sur ses modifications
      * antérieures (cf. SyncController).
      */

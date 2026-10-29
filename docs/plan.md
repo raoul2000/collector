@@ -231,12 +231,12 @@ Objectif : suivre la collecte en temps réel et motiver les bénévoles.
 
 ## Reprise du travail
 
-État au 29/10/2026 : lots 1, 2 et 3 terminés ; application en production sur https://collecte.exdata.info ; évolutions réalisées : code de référence dans les saisies, correction du magasin des saisies par le responsable.
+État au 29/10/2026 : lots 1, 2 et 3 terminés ; application en production sur https://collecte.exdata.info ; évolutions réalisées : code de référence dans les saisies, correction du magasin des saisies par le responsable, export Excel d'une campagne.
 
 Prochaines étapes possibles :
 1. **Recette sur de vrais téléphones** (4.3).
 2. **Import de la liste Croix-Rouge** (4.2) quand elle sera disponible.
-3. Évolutions ultérieures prévues : export Excel, comparaison entre années.
+3. Évolution ultérieure prévue : comparaison entre années.
 4. **En dernier** (décision du 29/10/2026), une fois toutes les fonctionnalités réalisées et validées : **version imprimable de la fiche bénévole** avec l'adresse et un QR code, pour ne pas avoir à la refaire après chaque évolution.
 
 Environnement de développement : voir le [README](../README.md). La base locale `collector` contient un jeu de démonstration d'environ 760 saisies (pour voir les bilans) ; `php bin/migrate.php --fresh --seed` la remet à zéro.
@@ -270,3 +270,4 @@ Environnement de développement : voir le [README](../README.md). La base locale
 | 28/10/2026 | Installation sur Ionos (https://collecte.exdata.info) ; correctif `RewriteBase` dans les `.htaccess` (erreur 500) |
 | 28/10/2026 | Évolution : code de référence dans les saisies (colonne, filtres « Code » et « Sans code ») |
 | 29/10/2026 | Évolution : correction du magasin des saisies par le responsable, une à une ou par sélection (`POST /api/admin/saisies/magasin`) ; magasins actifs participant à la campagne uniquement |
+| 29/10/2026 | Évolution : export Excel d'une campagne depuis les Bilans (une feuille « Saisies », fichier construit dans le navigateur avec `write-excel-file`, chargé à la demande ; `GET /api/admin/saisies/export?campagne=`) |

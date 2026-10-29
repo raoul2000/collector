@@ -8,6 +8,7 @@ use App\Database;
 use App\Http\HttpException;
 use App\Http\JsonResponse;
 use App\Http\Request;
+use App\Repository\CampagneRepository;
 use App\Repository\JournalRepository;
 use App\Repository\SaisieRepository;
 use App\Saisie\SaisieRules;
@@ -28,6 +29,7 @@ final readonly class SaisieController
         private SaisieRepository $saisies,
         private SaisieRules $rules,
         private JournalRepository $journal,
+        private CampagneRepository $campagnes,
     ) {
     }
 
@@ -57,6 +59,23 @@ final readonly class SaisieController
         ], $page, $parPage);
 
         return new JsonResponse($resultat + ['page' => $page, 'parPage' => $parPage]);
+    }
+
+    /**
+     * Saisies d'une campagne pour l'export Excel (le fichier est construit dans le navigateur).
+     */
+    public function export(Request $request, string $prenom): JsonResponse
+    {
+        $id = (string) $request->query('campagne', '');
+        $campagne = preg_match('/^\d{1,9}$/', $id) === 1 ? $this->campagnes->find((int) $id) : null;
+        if ($campagne === null) {
+            throw HttpException::notFound('Campagne introuvable.');
+        }
+
+        return new JsonResponse([
+            'campagne' => ['id' => $campagne['id'], 'nom' => $campagne['nom']],
+            'saisies' => $this->saisies->forExport($campagne['id']),
+        ]);
     }
 
     public function update(Request $request, string $prenom): JsonResponse

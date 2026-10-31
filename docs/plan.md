@@ -236,8 +236,7 @@ Objectif : suivre la collecte en temps réel et motiver les bénévoles.
 Prochaines étapes possibles :
 1. **Recette sur de vrais téléphones** (4.3).
 2. **Import de la liste Croix-Rouge** (4.2) quand elle sera disponible.
-3. Évolution ultérieure prévue : comparaison entre années.
-4. **En dernier** (décision du 29/10/2026), une fois toutes les fonctionnalités réalisées et validées : **version imprimable de la fiche bénévole** avec l'adresse et un QR code, pour ne pas avoir à la refaire après chaque évolution.
+3. **En dernier** (décision du 29/10/2026), une fois toutes les fonctionnalités réalisées et validées : **version imprimable de la fiche bénévole** avec l'adresse et un QR code, pour ne pas avoir à la refaire après chaque évolution.
 
 Environnement de développement : voir le [README](../README.md). La base locale `collector` contient un jeu de démonstration d'environ 760 saisies (pour voir les bilans) ; `php bin/migrate.php --fresh --seed` la remet à zéro.
 
@@ -273,3 +272,4 @@ Environnement de développement : voir le [README](../README.md). La base locale
 | 29/10/2026 | Évolution : export Excel d'une campagne depuis les Bilans (une feuille « Saisies », fichier construit dans le navigateur avec `write-excel-file`, chargé à la demande ; `GET /api/admin/saisies/export?campagne=`) |
 | 29/10/2026 | Évolution : onglet « Appareils » (prénom, code, magasin, saisies, dernière synchronisation, badge « Connecté » selon `appareils.connecte_minutes`) ; filtre des saisies par appareil (`GET /api/admin/appareils`, `appareil=` sur `GET /api/admin/saisies`) |
 | 29/10/2026 | Journal technique de l'API : une ligne par requête, un fichier par jour dans `var/log`, conservé 30 jours ; référence de requête (`X-Request-Id`) citée dans les erreurs internes |
+| 31/10/2026 | Décision : la comparaison entre années est retirée du périmètre de l'application |

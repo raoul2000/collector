@@ -112,7 +112,7 @@ Accessibles depuis l'écran de saisie, rafraîchis automatiquement quand le rés
 
 Aucune comparaison entre bénévoles n'est affichée.
 
-Les autres bilans (comparaison entre années, export Excel, etc.) seront ajoutés dans une version ultérieure.
+Les autres bilans (export Excel, etc.) seront ajoutés dans une version ultérieure. La comparaison entre années ne fait pas partie de l'application (décision du 31/10/2026).
 
 ### 4.6 Espace responsable
 
@@ -312,7 +312,7 @@ app/                           hors racine web : backend/src, vendor, config
 2. **Lot 2 – Saisie** : PWA bénévole (premier lancement, saisie, mes saisies, correction/suppression), mode hors ligne et synchronisation.
 3. **Lot 3 – Bilans** : bilan par magasin (catégorie, heure) pour les responsables, bilans « motivation » pour les bénévoles.
 4. **Lot 4 – Recette** : test sur le terrain (simulation de collecte avec plusieurs téléphones, coupure réseau), corrections.
-5. **Évolutions ultérieures** : export Excel, comparaison entre années, autres bilans.
+5. **Évolutions ultérieures** : export Excel, autres bilans.
 
 ## 7. Points ouverts
 

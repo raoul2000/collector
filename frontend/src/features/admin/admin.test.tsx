@@ -136,7 +136,12 @@ describe('Catégories', () => {
 
   it('affiche les formats et réordonne les catégories', async () => {
     const user = userEvent.setup()
-    const liste = [categorie(1, 'Pâtes', { formats: [500, 1000] }), categorie(2, 'Huile', { unite: 'L', formats: [1000] }), categorie(3, 'Savon', { unite: 'unite' })]
+    const f = (id: number, contenance: number | null, libelle: string | null = null) => ({ id, contenance, libelle })
+    const liste = [
+      categorie(1, 'Pâtes', { formats: [f(1, 500), f(2, 1000)] }),
+      categorie(2, 'Huile', { unite: 'L', formats: [f(3, 1000, 'Olive / colza'), f(4, 1000)] }),
+      categorie(3, 'Savon', { unite: 'unite' }),
+    ]
     const api = fakeApi({
       ...SESSION_OK,
       'GET /api/admin/sections': { body: [] },
@@ -148,7 +153,7 @@ describe('Catégories', () => {
     renderApp('/admin/categories')
 
     expect(await screen.findByText('500 g · 1 kg')).toBeInTheDocument()
-    expect(screen.getByText('1 L')).toBeInTheDocument()
+    expect(screen.getByText('Olive / colza 1 L · 1 L')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Monter « Pâtes »' })).toBeDisabled()
 
     await user.click(screen.getByRole('button', { name: 'Monter « Huile »' }))
@@ -194,7 +199,10 @@ describe('Catégories', () => {
       unite: 'kg',
       codeReference: '',
       active: true,
-      formats: [500, 1500],
+      formats: [
+        { contenance: 500, libelle: null },
+        { contenance: 1500, libelle: null },
+      ],
     })
   })
 
@@ -259,6 +267,50 @@ describe('Catégories', () => {
     await user.click(within(dialog).getByRole('button', { name: 'Enregistrer' }))
 
     await waitFor(() => expect(api.calls.find((c) => c.path === '/api/admin/categories' && c.method === 'POST')?.body).toMatchObject({ nom: 'Poisson', sectionId: 5 }))
+  })
+
+  it('ajoute des variantes, avec ou sans contenance selon la mesure', async () => {
+    const user = userEvent.setup()
+    const huile = categorie(2, 'Huile', { unite: 'L', formats: [{ id: 7, contenance: 1000, libelle: null }] })
+    const api = fakeApi({
+      ...SESSION_OK,
+      'GET /api/admin/sections': { body: [] },
+      'GET /api/admin/categories': { body: [huile] },
+      'PUT /api/admin/categories/2': (body) => ({ body: { ...huile, ...(body as object) } }),
+      'POST /api/admin/categories': (body) => ({ status: 201, body: { ...categorie(9, 'Couches'), ...(body as object) } }),
+    })
+    renderApp('/admin/categories')
+
+    await user.click(await screen.findByRole('button', { name: 'Modifier' }))
+    let dialog = screen.getByRole('dialog', { name: 'Modifier la catégorie' })
+    await user.type(within(dialog).getByLabelText('Libellé de la variante (facultatif)'), 'Olive / colza')
+    await user.type(within(dialog).getByLabelText('Contenance à ajouter'), '1')
+    await user.selectOptions(within(dialog).getByLabelText('Unité'), 'L')
+    await user.click(within(dialog).getByRole('button', { name: 'Ajouter' }))
+    expect(within(dialog).getByRole('button', { name: 'Retirer le format Olive / colza 1 L' })).toBeInTheDocument()
+    await user.click(within(dialog).getByRole('button', { name: 'Enregistrer' }))
+
+    await waitFor(() =>
+      expect(api.calls.find((c) => c.method === 'PUT')?.body).toMatchObject({
+        formats: [
+          { id: 7, contenance: 1000, libelle: null },
+          { contenance: 1000, libelle: 'Olive / colza' },
+        ],
+      }),
+    )
+
+    await user.click(screen.getByRole('button', { name: 'Nouvelle catégorie' }))
+    dialog = await screen.findByRole('dialog', { name: 'Nouvelle catégorie' })
+    await user.type(within(dialog).getByLabelText('Nom'), 'Couches')
+    await user.selectOptions(within(dialog).getByLabelText('Mesure'), 'unite')
+    await user.click(within(dialog).getByRole('button', { name: 'Ajouter' }))
+    expect(within(dialog).getByText('Saisissez le libellé de la variante.')).toBeInTheDocument()
+    await user.type(within(dialog).getByLabelText('Libellé de la variante'), 'T4{Enter}')
+    await user.click(within(dialog).getByRole('button', { name: 'Enregistrer' }))
+
+    await waitFor(() =>
+      expect(api.calls.find((c) => c.method === 'POST')?.body).toMatchObject({ unite: 'unite', formats: [{ contenance: null, libelle: 'T4' }] }),
+    )
   })
 
   it('verrouille l’unité d’une catégorie qui a des saisies', async () => {

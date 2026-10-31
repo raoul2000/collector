@@ -23,6 +23,8 @@ final readonly class CategorieController
 
     public const int MAX_FORMATS = 8;
 
+    public const int LIBELLE_MAX = 40;
+
     public function __construct(
         private PDO $db,
         private CategorieRepository $categories,
@@ -136,8 +138,71 @@ final readonly class CategorieController
     }
 
     /**
+     * Boutons proposés à la saisie : une contenance (catégorie au poids ou au volume), avec un libellé de variante
+     * facultatif ; un libellé seul pour une catégorie à l'unité. Un nombre seul est accepté comme contenance
+     * (versions de l'espace responsable antérieures aux variantes).
+     *
+     * @param list<int> $existants identifiants des formats actuels de la catégorie
+     * @return list<array{id: int|null, contenance: int|null, libelle: string|null}>
+     */
+    private function formats(Validator $v, mixed $items, string $unite, array $existants): array
+    {
+        if (!is_array($items) || !array_is_list($items)) {
+            $v->addError('formats', 'Ce champ doit être une liste.');
+
+            return [];
+        }
+        if (count($items) > self::MAX_FORMATS) {
+            $v->addError('formats', 'Au plus ' . self::MAX_FORMATS . ' formats.');
+
+            return [];
+        }
+
+        $formats = [];
+        $vus = [];
+        foreach ($items as $item) {
+            $item = is_int($item) ? ['contenance' => $item] : $item;
+            if (!is_array($item)) {
+                $v->addError('formats', 'Format invalide.');
+
+                return [];
+            }
+            $id = $item['id'] ?? null;
+            $contenance = $item['contenance'] ?? null;
+            $libelle = is_string($item['libelle'] ?? null) ? trim($item['libelle']) : null;
+            $libelle = $libelle === '' ? null : $libelle;
+
+            $erreur = match (true) {
+                $id !== null && !is_int($id) => 'Format invalide.',
+                $id !== null && !in_array($id, $existants, true) => 'Format inconnu pour cette catégorie.',
+                $libelle !== null && mb_strlen($libelle) > self::LIBELLE_MAX => 'Un libellé ne doit pas dépasser ' . self::LIBELLE_MAX . ' caractères.',
+                $unite === 'unite' && $contenance !== null => 'Une catégorie comptée à l\'unité n\'a pas de contenance : indiquez seulement le libellé de la variante.',
+                $unite === 'unite' && $libelle === null => 'Chaque variante doit avoir un libellé.',
+                $unite !== 'unite' && (!is_int($contenance) || $contenance < 1 || $contenance > self::CONTENANCE_MAX[$unite]) => 'Contenance invalide (25 kg ou 10 L au maximum).',
+                default => null,
+            };
+            if ($erreur !== null) {
+                $v->addError('formats', $erreur);
+
+                return [];
+            }
+
+            $cle = $contenance . '|' . mb_strtolower((string) $libelle);
+            if (isset($vus[$cle])) {
+                $v->addError('formats', 'Ce format existe déjà.');
+
+                return [];
+            }
+            $vus[$cle] = true;
+            $formats[] = ['id' => $id, 'contenance' => $contenance, 'libelle' => $libelle];
+        }
+
+        return $formats;
+    }
+
+    /**
      * @param array<string, mixed>|null $existing catégorie modifiée (null pour une création)
-     * @return array{nom: string, sectionId: int|null, unite: string, ordre: int|null, active: bool, codeReference: string|null, formats: list<int>}
+     * @return array{nom: string, sectionId: int|null, unite: string, ordre: int|null, active: bool, codeReference: string|null, formats: list<array{id: int|null, contenance: int|null, libelle: string|null}>}
      */
     private function validate(Request $request, ?array $existing): array
     {
@@ -158,13 +223,7 @@ final readonly class CategorieController
 
         $formats = [];
         if ($unite !== null) {
-            if ($unite === 'unite') {
-                if ($v->has('formats') && $request->json()['formats'] !== []) {
-                    $v->addError('formats', 'Une catégorie comptée à l\'unité n\'a pas de formats.');
-                }
-            } else {
-                $formats = $v->intList('formats', 1, self::CONTENANCE_MAX[$unite], self::MAX_FORMATS, optional: true) ?? [];
-            }
+            $formats = $this->formats($v, $request->json()['formats'] ?? [], $unite, $existing === null ? [] : $this->categories->formatIds($existing['id']));
 
             if ($existing !== null && $unite !== $existing['unite'] && $existing['nbSaisies'] > 0) {
                 $v->addError('unite', 'Impossible de changer l\'unité : des saisies existent pour cette catégorie.');

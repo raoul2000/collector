@@ -4,7 +4,7 @@ import { Badge } from '../../components/Badge'
 import type { SaisieLocale } from '../../db/db'
 import { useMesSaisies } from '../../db/saisies'
 import { formatHeure, formatJour } from '../../lib/dates'
-import { libelleSaisie } from '../saisie/libelle'
+import { libelleSaisie, varianteSaisie } from '../saisie/libelle'
 import { useBenevole } from './context'
 import styles from './MesSaisiesPage.module.css'
 import { ModifierSaisieDialog } from './ModifierSaisieDialog'
@@ -66,7 +66,12 @@ export function MesSaisiesPage() {
                   <span className={styles.heure}>{formatHeure(saisie.saisieLe)}</span>
                   <span className={styles.contenu}>
                     <span className={styles.libelle}>
-                      {libelleSaisie(categories.get(saisie.categorieId), saisie.quantite, saisie.contenanceUnitaire)}
+                      {libelleSaisie(
+                        categories.get(saisie.categorieId),
+                        saisie.quantite,
+                        saisie.contenanceUnitaire,
+                        varianteSaisie(categories.get(saisie.categorieId), saisie.formatId),
+                      )}
                     </span>
                     {saisie.magasinId !== magasin.id && (
                       <span className={styles.magasin}>{magasins.get(saisie.magasinId) ?? 'Autre magasin'}</span>

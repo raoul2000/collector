@@ -190,6 +190,61 @@ describe('Écran de saisie', () => {
     expect(screen.getByRole('heading', { name: 'Pâtes' })).toBeInTheDocument()
   })
 
+  it('distingue deux variantes de même contenance', async () => {
+    const huile = {
+      ...HUILE,
+      boutons: [
+        { id: 21, contenance: 1000, libelle: 'Olive / colza' },
+        { id: 22, contenance: 1000, libelle: 'Tournesol, autres' },
+        { id: 23, contenance: 500, libelle: null },
+      ],
+    }
+    const user = await demarrer({ ...REFERENTIEL, categories: [PATES, huile, SAVON] })
+
+    await user.click(await screen.findByRole('button', { name: /Huile/ }))
+    expect(screen.getByRole('button', { name: '50 cl' })).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: /Tournesol/ }))
+    expect(screen.getByRole('button', { name: /Tournesol/ })).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getByRole('button', { name: /Olive/ })).toHaveAttribute('aria-pressed', 'false')
+    await user.click(screen.getByRole('button', { name: 'Valider' }))
+
+    expect(await screen.findByText('1 × Huile Tournesol, autres 1 L')).toBeInTheDocument()
+    await waitFor(async () => expect(await saisies()).toEqual([expect.objectContaining({ categorieId: 2, contenanceUnitaire: 1000, formatId: 22 })]))
+  })
+
+  it('propose les variantes d’une catégorie à l’unité, sans les imposer', async () => {
+    const couches = { id: 5, nom: 'Couches', unite: 'unite' as const, formats: [], boutons: [{ id: 31, contenance: null, libelle: 'T3' }, { id: 32, contenance: null, libelle: 'T4' }] }
+    const user = await demarrer({ ...REFERENTIEL, categories: [PATES, couches] })
+
+    await user.click(await screen.findByRole('button', { name: /Couches/ }))
+    await user.click(screen.getByRole('button', { name: 'Valider' }))
+    expect(await screen.findByText('1 × Couches')).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: /Couches/ }))
+    await user.click(screen.getByRole('button', { name: 'T3' }))
+    await user.click(screen.getByRole('button', { name: 'T3' }))
+    expect(screen.getByRole('button', { name: 'T3' })).toHaveAttribute('aria-pressed', 'false')
+    await user.click(screen.getByRole('button', { name: 'T4' }))
+    await user.click(screen.getByRole('button', { name: 'Valider' }))
+    expect(await screen.findByText('1 × Couches T4')).toBeInTheDocument()
+
+    await waitFor(async () =>
+      expect((await saisies()).map((s) => s.formatId).sort()).toEqual([32, null]),
+    )
+  })
+
+  it('un poids libre n’est rattaché à aucun bouton', async () => {
+    const pates = { ...PATES, boutons: [{ id: 41, contenance: 500, libelle: null }] }
+    const user = await demarrer({ ...REFERENTIEL, categories: [pates] })
+
+    await user.click(await screen.findByRole('button', { name: /Pâtes/ }))
+    await user.click(screen.getByRole('button', { name: 'Autre…' }))
+    await user.type(screen.getByLabelText('Poids indiqué sur l\'emballage'), '500')
+    await user.click(screen.getByRole('button', { name: 'Valider' }))
+
+    await waitFor(async () => expect(await saisies()).toEqual([expect.objectContaining({ contenanceUnitaire: 500, formatId: null })]))
+  })
+
   it('affiche une grille simple sans sections', async () => {
     await demarrer()
 
@@ -212,6 +267,8 @@ describe('libelleSaisie', () => {
     expect(libelleSaisie(HUILE, 1, null)).toBe('1 × Huile (contenance inconnue)')
     expect(libelleSaisie(SAVON, 4, null)).toBe('4 × Savon')
     expect(libelleSaisie(undefined, 1, 500)).toBe('1 × Catégorie inconnue')
+    expect(libelleSaisie(HUILE, 2, 1000, 'Olive / colza')).toBe('2 × Huile Olive / colza 1 L')
+    expect(libelleSaisie(SAVON, 3, null, 'Parfumé')).toBe('3 × Savon Parfumé')
   })
 })
 

@@ -11,6 +11,7 @@ const PATES: SaisieExport = {
   prenom: 'Marie',
   categorie: 'Pâtes',
   codeReference: 'EPI-01',
+  variante: null,
   unite: 'kg',
   quantite: 3,
   contenanceUnitaire: 500,

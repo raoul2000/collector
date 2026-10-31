@@ -94,7 +94,7 @@ final readonly class SyncController
         $id = $v->uuid('id');
         $campagneId = $v->int('campagneId', 1, PHP_INT_MAX);
         $magasinId = $v->int('magasinId', 1, PHP_INT_MAX);
-        $contenu = $this->rules->contenu($v);
+        $contenu = $this->rules->contenu($v, strict: false);
         $saisieLe = $v->datetime('saisieLe');
         $modifieLe = $v->datetime('modifieLe');
         $supprime = $v->bool('supprime');
@@ -117,6 +117,7 @@ final readonly class SyncController
             'categorieId' => (int) $contenu['categorieId'],
             'quantite' => (int) $contenu['quantite'],
             'contenanceUnitaire' => $contenu['contenanceUnitaire'],
+            'formatId' => $contenu['formatId'],
             'saisieLe' => $saisieLe,
             'modifieLe' => $modifieLe,
             'supprime' => (bool) $supprime,

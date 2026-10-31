@@ -26,11 +26,15 @@ final class CategorieControllerTest extends ApiTestCase
         ]);
 
         self::assertSame(201, $response->status);
+        $formats = $response->data['formats'];
         self::assertSame(
             ['id' => $response->data['id'], 'nom' => 'Pâtes', 'sectionId' => null, 'unite' => 'kg', 'ordre' => 50, 'active' => true,
-                'codeReference' => null, 'formats' => [500, 250, 1000], 'nbSaisies' => 0],
+                'codeReference' => null, 'formats' => $formats, 'nbSaisies' => 0],
             $response->data,
         );
+        // Contenances seules (forme antérieure aux variantes) : acceptées, sans libellé
+        self::assertSame([500, 250, 1000], array_column($formats, 'contenance'));
+        self::assertSame([null, null, null], array_column($formats, 'libelle'));
     }
 
     public function testUnitCategoryHasNoFormats(): void
@@ -74,7 +78,7 @@ final class CategorieControllerTest extends ApiTestCase
         ]);
 
         self::assertSame(200, $response->status);
-        self::assertSame([1000, 500], $response->data['formats']);
+        self::assertSame([1000, 500], array_column($response->data['formats'], 'contenance'));
         self::assertSame(30, $response->data['ordre']);
         self::assertFalse($response->data['active']);
     }
@@ -112,6 +116,67 @@ final class CategorieControllerTest extends ApiTestCase
 
         self::assertSame(422, $this->request('PUT', '/api/admin/categories/ordre', ['ids' => [$a]])->status);
         self::assertSame(422, $this->request('PUT', '/api/admin/categories/ordre', ['ids' => [$a, $a]])->status);
+    }
+
+    public function testVariantsWithLabels(): void
+    {
+        $huile = $this->request('POST', '/api/admin/categories', ['nom' => 'Huile', 'unite' => 'L', 'formats' => [
+            ['contenance' => 1000, 'libelle' => ' Olive / colza '],
+            ['contenance' => 1000, 'libelle' => 'Tournesol, autres'],
+            ['contenance' => 500, 'libelle' => ''],
+        ]]);
+        self::assertSame(201, $huile->status);
+        self::assertSame(
+            [[1000, 'Olive / colza'], [1000, 'Tournesol, autres'], [500, null]],
+            array_map(static fn (array $f): array => [$f['contenance'], $f['libelle']], $huile->data['formats']),
+        );
+
+        $couches = $this->request('POST', '/api/admin/categories', ['nom' => 'Couches', 'unite' => 'unite', 'formats' => [
+            ['libelle' => 'T3'], ['libelle' => 'T4'],
+        ]]);
+        self::assertSame(201, $couches->status);
+        self::assertSame([null, null], array_column($couches->data['formats'], 'contenance'));
+
+        $refus = [
+            ['unite' => 'unite', 'formats' => [['libelle' => 'T3', 'contenance' => 100]]],
+            ['unite' => 'unite', 'formats' => [['libelle' => '']]],
+            ['unite' => 'kg', 'formats' => [['libelle' => 'Sachet']]],
+            ['unite' => 'kg', 'formats' => [['contenance' => 500, 'libelle' => str_repeat('x', 41)]]],
+            ['unite' => 'L', 'formats' => [['contenance' => 1000, 'libelle' => 'Olive'], ['contenance' => 1000, 'libelle' => 'olive']]],
+            ['unite' => 'kg', 'formats' => ['500 g']],
+            ['unite' => 'kg', 'formats' => [['id' => 999, 'contenance' => 500]]],
+        ];
+        foreach ($refus as $index => $donnees) {
+            $response = $this->request('POST', '/api/admin/categories', ['nom' => "Refus {$index}"] + $donnees);
+            self::assertSame(422, $response->status, "Cas {$index}");
+            self::assertArrayHasKey('formats', $response->data['error']['details']['fields']);
+        }
+    }
+
+    public function testFormatsKeepTheirIdWhenUpdated(): void
+    {
+        $huile = $this->request('POST', '/api/admin/categories', ['nom' => 'Huile', 'unite' => 'L', 'formats' => [
+            ['contenance' => 1000, 'libelle' => 'Olive'],
+            ['contenance' => 500],
+        ]])->data;
+        [$olive, $petit] = array_column($huile['formats'], 'id');
+        $autre = $this->insert('categorie', ['nom' => 'Riz', 'unite' => 'kg']);
+        $formatAutre = $this->insert('format', ['categorie_id' => $autre, 'contenance' => 500]);
+
+        // Format d'une autre catégorie : refusé
+        $refus = $this->request('PUT', "/api/admin/categories/{$huile['id']}", ['nom' => 'Huile', 'unite' => 'L', 'formats' => [['id' => $formatAutre, 'contenance' => 500]]]);
+        self::assertSame(422, $refus->status);
+
+        $response = $this->request('PUT', "/api/admin/categories/{$huile['id']}", ['nom' => 'Huile', 'unite' => 'L', 'formats' => [
+            ['contenance' => 750],
+            ['id' => $olive, 'contenance' => 1000, 'libelle' => 'Olive / colza'],
+        ]]);
+
+        self::assertSame(200, $response->status);
+        $formats = $response->data['formats'];
+        self::assertSame([null, 'Olive / colza'], array_column($formats, 'libelle'));
+        self::assertSame($olive, $formats[1]['id'], 'Format modifié sur place');
+        self::assertNotContains($petit, array_column($formats, 'id'), 'Format retiré supprimé');
     }
 
     public function testSectionIsCheckedKeptWhenAbsentAndOrdersTheList(): void

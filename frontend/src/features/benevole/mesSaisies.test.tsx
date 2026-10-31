@@ -95,6 +95,22 @@ describe('Mes saisies', () => {
     )
   })
 
+  it('affiche et conserve la variante d’une saisie', async () => {
+    const huile = { id: 2, nom: 'Huile', unite: 'L' as const, formats: [1000], boutons: [{ id: 21, contenance: 1000, libelle: 'Olive' }, { id: 22, contenance: 1000, libelle: 'Tournesol' }] }
+    await enregistrerReferentiel({ ...REFERENTIEL, categories: [...REFERENTIEL.categories, huile], version: 'v2' })
+    const saisie = await creerSaisie({ ...BASE, categorieId: 2, contenanceUnitaire: 1000, formatId: 22 })
+    const user = userEvent.setup()
+
+    renderApp('/mes-saisies')
+
+    await user.click(await screen.findByText('2 × Huile Tournesol 1 L'))
+    const dialog = screen.getByRole('dialog')
+    expect(within(dialog).getByRole('button', { name: /Tournesol/ })).toHaveAttribute('aria-pressed', 'true')
+    await user.click(within(dialog).getByRole('button', { name: 'Enregistrer' }))
+
+    await waitFor(async () => expect(await db.saisies.get(saisie.id)).toMatchObject({ formatId: 22, contenanceUnitaire: 1000 }))
+  })
+
   it('supprime une saisie après confirmation', async () => {
     const user = userEvent.setup()
     const saisie = await creerSaisie(BASE)

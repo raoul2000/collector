@@ -60,16 +60,38 @@ final class ReferentielControllerTest extends ApiTestCase
             ],
             $data['magasins'],
         );
+        $boutons = array_column($data['categories'], 'boutons');
         self::assertSame(
             [
-                ['id' => $pates, 'nom' => 'Pâtes', 'sectionId' => null, 'unite' => 'kg', 'formats' => [250, 500, 1000]],
-                ['id' => $huile, 'nom' => 'Huile', 'sectionId' => null, 'unite' => 'L', 'formats' => [1000]],
-                ['id' => $savon, 'nom' => 'Savon', 'sectionId' => null, 'unite' => 'unite', 'formats' => []],
+                ['id' => $pates, 'nom' => 'Pâtes', 'sectionId' => null, 'unite' => 'kg', 'formats' => [250, 500, 1000], 'boutons' => $boutons[0]],
+                ['id' => $huile, 'nom' => 'Huile', 'sectionId' => null, 'unite' => 'L', 'formats' => [1000], 'boutons' => $boutons[1]],
+                ['id' => $savon, 'nom' => 'Savon', 'sectionId' => null, 'unite' => 'unite', 'formats' => [], 'boutons' => []],
             ],
             $data['categories'],
         );
+        self::assertSame([250, 500, 1000], array_column($boutons[0], 'contenance'));
         self::assertSame([], $data['sections']);
         self::assertMatchesRegularExpression('/^[0-9a-f]{16}$/', $data['version']);
+    }
+
+    public function testVariantsAreSentAsButtonsAndContenancesForOlderVersions(): void
+    {
+        $huile = $this->insert('categorie', ['nom' => 'Huile', 'unite' => 'L']);
+        $olive = $this->insert('format', ['categorie_id' => $huile, 'contenance' => 1000, 'libelle' => 'Olive / colza', 'ordre' => 1]);
+        $tournesol = $this->insert('format', ['categorie_id' => $huile, 'contenance' => 1000, 'libelle' => 'Tournesol', 'ordre' => 2]);
+        $couches = $this->insert('categorie', ['nom' => 'Couches', 'unite' => 'unite']);
+        $t4 = $this->insert('format', ['categorie_id' => $couches, 'contenance' => null, 'libelle' => 'T4', 'ordre' => 1]);
+
+        $categories = array_column(self::json($this->request('GET', '/api/referentiel'))['categories'], null, 'nom');
+        $categories = [$categories['Huile'], $categories['Couches']];
+
+        self::assertSame([1000], $categories[0]['formats']);
+        self::assertSame([
+            ['id' => $olive, 'contenance' => 1000, 'libelle' => 'Olive / colza'],
+            ['id' => $tournesol, 'contenance' => 1000, 'libelle' => 'Tournesol'],
+        ], $categories[0]['boutons']);
+        self::assertSame([], $categories[1]['formats']);
+        self::assertSame([['id' => $t4, 'contenance' => null, 'libelle' => 'T4']], $categories[1]['boutons']);
     }
 
     public function testCategoriesAreGroupedBySection(): void

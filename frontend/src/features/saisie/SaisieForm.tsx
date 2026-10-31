@@ -1,11 +1,12 @@
 import { useId, useState, type FormEvent } from 'react'
-import type { CategorieRef } from '../../api/types'
+import type { Unite } from '../../api/types'
 import { Button } from '../../components/Button'
 import { ConfirmDialog } from '../../components/ConfirmDialog'
 import { QuantityStepper } from '../../components/QuantityStepper'
 import { Tile } from '../../components/Tile'
 import { CONTENANCE_MAX, parseContenance, UNITES_SAISIE } from '../../lib/contenance'
 import { formatContenance } from '../../lib/format'
+import type { BoutonSaisie } from './libelle'
 import styles from './SaisieForm.module.css'
 
 /** Au-delà, une confirmation est demandée (cf. spécifications 4.2) */
@@ -14,47 +15,58 @@ export const SEUIL_QUANTITE = 50
 export interface ContenuForm {
   quantite: number
   contenanceUnitaire: number | null
+  /** Bouton choisi (null : contenance libre, inconnue, ou aucune variante choisie) */
+  formatId: number | null
 }
 
 export interface SaisieFormProps {
-  categorie: CategorieRef
+  unite: Unite
+  /** Boutons de la catégorie : formats et variantes */
+  boutons: BoutonSaisie[]
   /** Valeurs initiales (modification d'une saisie) */
   initial?: ContenuForm
   submitLabel: string
   onSubmit: (contenu: ContenuForm) => void
 }
 
-type Choix = { type: 'format'; valeur: number } | { type: 'autre' } | { type: 'inconnue' } | null
+/** index : position du bouton (deux variantes peuvent avoir la même contenance) */
+type Choix = { type: 'format'; index: number } | { type: 'autre' } | { type: 'inconnue' } | null
 
-function choixInitial(categorie: CategorieRef, initial?: ContenuForm): Choix {
-  if (!initial || categorie.unite === 'unite') {
+function choixInitial(unite: Unite, boutons: BoutonSaisie[], initial?: ContenuForm): Choix {
+  if (!initial) {
+    return null
+  }
+  const parId = initial.formatId === null ? -1 : boutons.findIndex((b) => b.id === initial.formatId)
+  if (parId >= 0 && boutons[parId]!.contenance === initial.contenanceUnitaire) {
+    return { type: 'format', index: parId }
+  }
+  if (unite === 'unite') {
     return null
   }
   if (initial.contenanceUnitaire === null) {
     return { type: 'inconnue' }
   }
-  return categorie.formats.includes(initial.contenanceUnitaire)
-    ? { type: 'format', valeur: initial.contenanceUnitaire }
-    : { type: 'autre' }
+  // Saisie sans bouton (antérieure aux variantes) : le format simple de même contenance
+  const simple = boutons.findIndex((b) => b.libelle === null && b.contenance === initial.contenanceUnitaire)
+  return simple >= 0 ? { type: 'format', index: simple } : { type: 'autre' }
 }
 
 /**
- * Détail d'une saisie pour une catégorie : contenance (formats prédéfinis, valeur libre ou inconnue) et quantité.
+ * Détail d'une saisie pour une catégorie : contenance (formats et variantes prédéfinis, valeur libre ou inconnue)
+ * et quantité. Pour une catégorie à l'unité, les variantes éventuelles (ex. tailles de couches) sont facultatives.
  */
-export function SaisieForm({ categorie, initial, submitLabel, onSubmit }: SaisieFormProps) {
+export function SaisieForm({ unite, boutons, initial, submitLabel, onSubmit }: SaisieFormProps) {
   const id = useId()
-  const unite = categorie.unite
   const avecContenance = unite !== 'unite'
   const unitesSaisie = avecContenance ? UNITES_SAISIE[unite] : []
 
   const [quantite, setQuantite] = useState(initial?.quantite ?? 1)
-  const [choix, setChoix] = useState<Choix>(() => choixInitial(categorie, initial))
-  const [autreTexte, setAutreTexte] = useState(
-    choixInitial(categorie, initial)?.type === 'autre' ? String(initial?.contenanceUnitaire) : '',
-  )
+  const [choix, setChoix] = useState<Choix>(() => choixInitial(unite, boutons, initial))
+  const autreInitial = choixInitial(unite, boutons, initial)?.type === 'autre'
+  const [autreTexte, setAutreTexte] = useState(autreInitial ? String(initial?.contenanceUnitaire) : '')
   // Une valeur libre initiale est exprimée dans l'unité de base (g ou ml)
   const [autreSymbole, setAutreSymbole] = useState<string>(
-    choixInitial(categorie, initial)?.type === 'autre' ? (unite === 'L' ? 'ml' : 'g') : (unitesSaisie[0]?.symbole ?? ''),
+    autreInitial ? (unite === 'L' ? 'ml' : 'g') : (unitesSaisie[0]?.symbole ?? ''),
   )
   const [erreur, setErreur] = useState<string | null>(null)
   const [confirmation, setConfirmation] = useState<{ messages: string[]; contenu: ContenuForm } | null>(null)
@@ -68,13 +80,14 @@ export function SaisieForm({ categorie, initial, submitLabel, onSubmit }: Saisie
     event.preventDefault()
 
     let contenanceUnitaire: number | null = null
+    const bouton = choix?.type === 'format' ? boutons[choix.index] : undefined
     if (avecContenance) {
       if (choix === null) {
         setErreur(`Choisissez ${unite === 'kg' ? 'le poids' : 'le volume'} de l'article.`)
         return
       }
-      if (choix.type === 'format') {
-        contenanceUnitaire = choix.valeur
+      if (bouton) {
+        contenanceUnitaire = bouton.contenance
       } else if (choix.type === 'autre') {
         const facteur = unitesSaisie.find((u) => u.symbole === autreSymbole)?.facteur ?? 1
         contenanceUnitaire = parseContenance(autreTexte, facteur)
@@ -89,7 +102,7 @@ export function SaisieForm({ categorie, initial, submitLabel, onSubmit }: Saisie
       }
     }
 
-    const contenu = { quantite, contenanceUnitaire }
+    const contenu = { quantite, contenanceUnitaire, formatId: bouton?.id ?? null }
     const messages = [
       ...(avecContenance && choix?.type === 'inconnue'
         ? [`${unite === 'kg' ? 'Le poids' : 'Le volume'} de ces articles ne sera pas comptabilisé.`]
@@ -109,13 +122,14 @@ export function SaisieForm({ categorie, initial, submitLabel, onSubmit }: Saisie
         <fieldset className={styles.fieldset} aria-describedby={erreur ? `${id}-erreur` : undefined}>
           <legend className={styles.legend}>{unite === 'kg' ? 'Poids d\'un article' : 'Volume d\'un article'}</legend>
           <div className={styles.grid}>
-            {categorie.formats.map((format) => (
+            {boutons.map((bouton, index) => (
               <Tile
-                key={format}
-                selected={choix?.type === 'format' && choix.valeur === format}
-                onClick={() => choisir({ type: 'format', valeur: format })}
+                key={bouton.id ?? `c${bouton.contenance}`}
+                selected={choix?.type === 'format' && choix.index === index}
+                onClick={() => choisir({ type: 'format', index })}
+                detail={bouton.libelle && bouton.contenance !== null ? formatContenance(bouton.contenance, unite) : undefined}
               >
-                {formatContenance(format, unite)}
+                {bouton.libelle ?? formatContenance(bouton.contenance!, unite)}
               </Tile>
             ))}
             <Tile selected={choix?.type === 'autre'} onClick={() => choisir({ type: 'autre' })}>
@@ -166,6 +180,27 @@ export function SaisieForm({ categorie, initial, submitLabel, onSubmit }: Saisie
               {erreur}
             </p>
           )}
+        </fieldset>
+      )}
+
+      {!avecContenance && boutons.length > 0 && (
+        <fieldset className={styles.fieldset}>
+          <legend className={styles.legend}>Précision (facultatif)</legend>
+          <div className={styles.grid}>
+            {boutons.map((bouton, index) => {
+              const selectionne = choix?.type === 'format' && choix.index === index
+              return (
+                <Tile
+                  key={bouton.id ?? bouton.libelle}
+                  selected={selectionne}
+                  // Un second appui retire la précision
+                  onClick={() => choisir(selectionne ? null : { type: 'format', index })}
+                >
+                  {bouton.libelle}
+                </Tile>
+              )
+            })}
+          </div>
         </fieldset>
       )}
 

@@ -10,7 +10,8 @@ import type { SaisieLocale } from '../../db/db'
 import { modifierSaisie, supprimerSaisie } from '../../db/saisies'
 import { formatHeure } from '../../lib/dates'
 import { demanderSynchro } from '../../sync/engine'
-import { SaisieForm } from '../saisie/SaisieForm'
+import { boutonsCategorie } from '../saisie/libelle'
+import { SaisieForm, type ContenuForm } from '../saisie/SaisieForm'
 import styles from './benevole.module.css'
 
 export interface ModifierSaisieDialogProps {
@@ -29,7 +30,7 @@ export function ModifierSaisieDialog({ saisie, categories, onClose }: ModifierSa
   // Les valeurs initiales ne s'appliquent qu'à la catégorie d'origine
   const initial = categorieId === saisie.categorieId ? saisie : undefined
 
-  const enregistrer = async (contenu: { quantite: number; contenanceUnitaire: number | null }) => {
+  const enregistrer = async (contenu: ContenuForm) => {
     await modifierSaisie(saisie.id, { categorieId, ...contenu })
     demanderSynchro()
     toast.success('Saisie modifiée.')
@@ -77,8 +78,11 @@ export function ModifierSaisieDialog({ saisie, categories, onClose }: ModifierSa
           {categorie && (
             <SaisieForm
               key={categorie.id}
-              categorie={categorie}
-              initial={initial && { quantite: initial.quantite, contenanceUnitaire: initial.contenanceUnitaire }}
+              unite={categorie.unite}
+              boutons={boutonsCategorie(categorie)}
+              initial={
+                initial && { quantite: initial.quantite, contenanceUnitaire: initial.contenanceUnitaire, formatId: initial.formatId ?? null }
+              }
               submitLabel="Enregistrer"
               onSubmit={(contenu) => void enregistrer(contenu)}
             />

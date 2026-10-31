@@ -25,11 +25,7 @@ const dateHeure = (iso: string) =>
   new Date(iso).toLocaleString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
 
 function libelleAdmin(saisie: SaisieAdmin): string {
-  return libelleSaisie(
-    { id: saisie.categorieId, nom: saisie.categorieNom, unite: saisie.unite, formats: [] },
-    saisie.quantite,
-    saisie.contenanceUnitaire,
-  )
+  return libelleSaisie({ nom: saisie.categorieNom, unite: saisie.unite }, saisie.quantite, saisie.contenanceUnitaire, saisie.formatLibelle)
 }
 
 /**

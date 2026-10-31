@@ -24,7 +24,7 @@ const MAGASINS: Magasin[] = [
   { id: 4, nom: 'Lidl', ville: 'Centre', actif: true, nbSaisies: 2 },
 ]
 
-const PATES: Categorie = { id: 1, nom: 'Pâtes', sectionId: null, unite: 'kg', ordre: 10, active: true, codeReference: null, formats: [250, 500], nbSaisies: 1 }
+const PATES: Categorie = { id: 1, nom: 'Pâtes', sectionId: null, unite: 'kg', ordre: 10, active: true, codeReference: null, formats: [{ id: 11, contenance: 250, libelle: null }, { id: 12, contenance: 500, libelle: null }], nbSaisies: 1 }
 
 const SAISIE: SaisieAdmin = {
   id: 'a1a1a1a1-0000-4000-8000-000000000001',
@@ -42,6 +42,8 @@ const SAISIE: SaisieAdmin = {
   categorieNom: 'Pâtes',
   unite: 'kg',
   codeReference: null,
+  formatId: 12,
+  formatLibelle: null,
 }
 
 function page(saisies: SaisieAdmin[], total = saisies.length): { body: PageSaisies } {
@@ -160,7 +162,7 @@ describe('Saisies (responsable)', () => {
     await user.click(within(dialog).getByRole('button', { name: 'Enregistrer la correction' }))
 
     expect(await screen.findByText('Saisie corrigée.')).toBeInTheDocument()
-    expect(api.calls.find((c) => c.method === 'PUT')?.body).toEqual({ magasinId: 4, categorieId: 1, quantite: 2, contenanceUnitaire: 250 })
+    expect(api.calls.find((c) => c.method === 'PUT')?.body).toEqual({ magasinId: 4, categorieId: 1, quantite: 2, contenanceUnitaire: 250, formatId: 11 })
   })
 
   it('corrige le magasin d’une saisie parmi les magasins actifs de sa campagne', async () => {

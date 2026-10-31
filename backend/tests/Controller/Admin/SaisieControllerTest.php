@@ -133,6 +133,33 @@ final class SaisieControllerTest extends ApiTestCase
         self::assertSame(['quantite', 'contenanceUnitaire'], array_keys($response->data['error']['details']['fields']));
     }
 
+    public function testCorrectionKeepsTheVariantConsistent(): void
+    {
+        $this->loginAsAdmin('Paul');
+        $this->insert('appareil', ['id' => self::APPAREIL, 'prenom' => 'Marie']);
+        $id = $this->saisieDe(self::APPAREIL, $this->lidl, '2026-11-27 10:00:00');
+        $t4 = $this->insert('format', ['categorie_id' => $this->savon, 'contenance' => null, 'libelle' => 'T4']);
+        $kilo = $this->insert('format', ['categorie_id' => $this->pates, 'contenance' => 1000]);
+
+        $incoherents = [
+            ['categorieId' => $this->pates, 'quantite' => 1, 'contenanceUnitaire' => 500, 'formatId' => $t4],
+            ['categorieId' => $this->pates, 'quantite' => 1, 'contenanceUnitaire' => 500, 'formatId' => $kilo],
+            ['categorieId' => $this->pates, 'quantite' => 1, 'contenanceUnitaire' => 500, 'formatId' => 999999],
+        ];
+        foreach ($incoherents as $donnees) {
+            $refus = $this->request('PUT', "/api/admin/saisies/{$id}", $donnees);
+            self::assertSame(422, $refus->status);
+            self::assertArrayHasKey('formatId', $refus->data['error']['details']['fields']);
+        }
+
+        $response = $this->request('PUT', "/api/admin/saisies/{$id}", ['categorieId' => $this->savon, 'quantite' => 2, 'contenanceUnitaire' => null, 'formatId' => $t4]);
+
+        self::assertSame(200, $response->status);
+        self::assertSame([$t4, 'T4'], [$response->data['formatId'], $response->data['formatLibelle']]);
+        $liste = self::json($this->request('GET', '/api/admin/saisies'))['saisies'];
+        self::assertSame('T4', $liste[0]['formatLibelle']);
+    }
+
     public function testCorrectionCanChangeTheMagasin(): void
     {
         $this->loginAsAdmin('Paul');
@@ -268,7 +295,8 @@ final class SaisieControllerTest extends ApiTestCase
         $this->saisieDe(self::APPAREIL, $this->auchan, '2026-11-27 11:00:00', [
             'categorie_id' => $this->savon, 'quantite' => 3, 'contenance_unitaire' => null, 'modifie_par_responsable' => 'Paul',
         ]);
-        $this->saisieDe(self::APPAREIL, $this->lidl, '2026-11-27 10:00:00');
+        $coquillettes = $this->insert('format', ['categorie_id' => $this->pates, 'contenance' => 500, 'libelle' => 'Coquillettes']);
+        $this->saisieDe(self::APPAREIL, $this->lidl, '2026-11-27 10:00:00', ['format_id' => $coquillettes]);
         $this->saisieDe(self::APPAREIL, $this->lidl, '2026-11-27 12:00:00', ['supprime_le' => '2026-11-27 12:05:00.000']);
         $this->saisieDe(self::APPAREIL, $this->lidl, '2025-11-28 10:00:00', ['campagne_id' => $autreCampagne]);
 
@@ -279,12 +307,12 @@ final class SaisieControllerTest extends ApiTestCase
         self::assertSame([
             [
                 'saisieLe' => '2026-11-27 10:00:00', 'magasin' => 'Lidl', 'ville' => 'Centre', 'prenom' => 'Marie',
-                'categorie' => 'Pâtes', 'codeReference' => 'EPI-01', 'unite' => 'kg', 'quantite' => 1,
+                'categorie' => 'Pâtes', 'codeReference' => 'EPI-01', 'variante' => 'Coquillettes', 'unite' => 'kg', 'quantite' => 1,
                 'contenanceUnitaire' => 500, 'corrigeParResponsable' => null,
             ],
             [
                 'saisieLe' => '2026-11-27 11:00:00', 'magasin' => 'Auchan', 'ville' => '', 'prenom' => 'Marie',
-                'categorie' => 'Savon', 'codeReference' => null, 'unite' => 'unite', 'quantite' => 3,
+                'categorie' => 'Savon', 'codeReference' => null, 'variante' => null, 'unite' => 'unite', 'quantite' => 3,
                 'contenanceUnitaire' => null, 'corrigeParResponsable' => 'Paul',
             ],
         ], $response->data['saisies']);

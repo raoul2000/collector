@@ -105,6 +105,7 @@ final readonly class SaisieController
                 (int) $contenu['categorieId'],
                 (int) $contenu['quantite'],
                 $contenu['contenanceUnitaire'],
+                $contenu['formatId'],
             );
             $this->journal->log($prenom, 'correction', 'saisie', $avant['id'], [
                 'avant' => $avant,

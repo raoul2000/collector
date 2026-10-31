@@ -15,7 +15,7 @@ use PDO;
  * @phpstan-type SaisieRow array<string, mixed> ligne brute de la table saisie
  * @phpstan-type Saisie array{
  *     id: string, campagneId: int, magasinId: int, categorieId: int, quantite: int,
- *     contenanceUnitaire: int|null, saisieLe: string, modifieLe: string, supprime: bool,
+ *     contenanceUnitaire: int|null, formatId: int|null, saisieLe: string, modifieLe: string, supprime: bool,
  *     corrigeParResponsable: string|null, majLe: string
  * }
  */
@@ -50,15 +50,16 @@ final readonly class SaisieRepository
     /**
      * @param array{
      *     id: string, campagneId: int, magasinId: int, categorieId: int, quantite: int,
-     *     contenanceUnitaire: int|null, saisieLe: DateTimeImmutable, modifieLe: DateTimeImmutable, supprime: bool
+     *     contenanceUnitaire: int|null, formatId: int|null, saisieLe: DateTimeImmutable, modifieLe: DateTimeImmutable,
+     *     supprime: bool
      * } $saisie
      */
     public function insert(string $appareilId, array $saisie): void
     {
         $this->db->prepare(
             'INSERT INTO saisie (id, campagne_id, magasin_id, appareil_id, categorie_id, quantite, contenance_unitaire,
-                                 saisie_le, modifie_le, supprime_le)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                                 format_id, saisie_le, modifie_le, supprime_le)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
         )->execute([
             $saisie['id'],
             $saisie['campagneId'],
@@ -67,6 +68,7 @@ final readonly class SaisieRepository
             $saisie['categorieId'],
             $saisie['quantite'],
             $saisie['contenanceUnitaire'],
+            $saisie['formatId'],
             self::datetime($saisie['saisieLe']),
             self::datetimeMs($saisie['modifieLe']),
             $saisie['supprime'] ? self::datetimeMs($saisie['modifieLe']) : null,
@@ -78,14 +80,14 @@ final readonly class SaisieRepository
      *
      * @param array{
      *     campagneId: int, magasinId: int, categorieId: int, quantite: int, contenanceUnitaire: int|null,
-     *     saisieLe: DateTimeImmutable, modifieLe: DateTimeImmutable, supprime: bool
+     *     formatId: int|null, saisieLe: DateTimeImmutable, modifieLe: DateTimeImmutable, supprime: bool
      * } $saisie
      */
     public function updateFromDevice(string $id, array $saisie): void
     {
         $this->db->prepare(
             'UPDATE saisie
-             SET campagne_id = ?, magasin_id = ?, categorie_id = ?, quantite = ?, contenance_unitaire = ?,
+             SET campagne_id = ?, magasin_id = ?, categorie_id = ?, quantite = ?, contenance_unitaire = ?, format_id = ?,
                  saisie_le = ?, modifie_le = ?,
                  supprime_le = IF(?, COALESCE(supprime_le, ?), NULL)
              WHERE id = ?',
@@ -95,6 +97,7 @@ final readonly class SaisieRepository
             $saisie['categorieId'],
             $saisie['quantite'],
             $saisie['contenanceUnitaire'],
+            $saisie['formatId'],
             self::datetime($saisie['saisieLe']),
             self::datetimeMs($saisie['modifieLe']),
             (int) $saisie['supprime'],
@@ -126,11 +129,13 @@ final readonly class SaisieRepository
     // --- Administration ------------------------------------------------------------------------
 
     private const string SELECT_DETAIL =
-        'SELECT s.*, a.prenom, m.nom AS magasin_nom, c.nom AS categorie_nom, c.unite, c.code_reference
+        'SELECT s.*, a.prenom, m.nom AS magasin_nom, c.nom AS categorie_nom, c.unite, c.code_reference,
+                f.libelle AS format_libelle
          FROM saisie s
          JOIN appareil a ON a.id = s.appareil_id
          JOIN magasin m ON m.id = s.magasin_id
-         JOIN categorie c ON c.id = s.categorie_id';
+         JOIN categorie c ON c.id = s.categorie_id
+         LEFT JOIN format f ON f.id = s.format_id';
 
     /**
      * Recherche paginée pour l'espace responsable, de la plus récente à la plus ancienne.
@@ -194,19 +199,20 @@ final readonly class SaisieRepository
      *
      * @return list<array{
      *     saisieLe: string, magasin: string, ville: string, prenom: string, categorie: string,
-     *     codeReference: string|null, unite: string, quantite: int, contenanceUnitaire: int|null,
-     *     corrigeParResponsable: string|null
+     *     codeReference: string|null, variante: string|null, unite: string, quantite: int,
+     *     contenanceUnitaire: int|null, corrigeParResponsable: string|null
      * }>
      */
     public function forExport(int $campagneId): array
     {
         $stmt = $this->db->prepare(
             'SELECT s.saisie_le, m.nom AS magasin, m.ville, a.prenom, c.nom AS categorie, c.code_reference, c.unite,
-                    s.quantite, s.contenance_unitaire, s.modifie_par_responsable
+                    f.libelle AS variante, s.quantite, s.contenance_unitaire, s.modifie_par_responsable
              FROM saisie s
              JOIN appareil a ON a.id = s.appareil_id
              JOIN magasin m ON m.id = s.magasin_id
              JOIN categorie c ON c.id = s.categorie_id
+             LEFT JOIN format f ON f.id = s.format_id
              WHERE s.campagne_id = ? AND s.supprime_le IS NULL
              ORDER BY s.saisie_le, s.id',
         );
@@ -219,6 +225,7 @@ final readonly class SaisieRepository
             'prenom' => (string) $row['prenom'],
             'categorie' => (string) $row['categorie'],
             'codeReference' => $row['code_reference'] === null ? null : (string) $row['code_reference'],
+            'variante' => $row['variante'] === null ? null : (string) $row['variante'],
             'unite' => (string) $row['unite'],
             'quantite' => (int) $row['quantite'],
             'contenanceUnitaire' => $row['contenance_unitaire'] === null ? null : (int) $row['contenance_unitaire'],
@@ -237,13 +244,14 @@ final readonly class SaisieRepository
         int $categorieId,
         int $quantite,
         ?int $contenanceUnitaire,
+        ?int $formatId,
     ): void {
         $this->db->prepare(
             'UPDATE saisie
-             SET magasin_id = ?, categorie_id = ?, quantite = ?, contenance_unitaire = ?,
+             SET magasin_id = ?, categorie_id = ?, quantite = ?, contenance_unitaire = ?, format_id = ?,
                  modifie_le = NOW(3), corrige_le = NOW(3), modifie_par_responsable = ?
              WHERE id = ?',
-        )->execute([$magasinId, $categorieId, $quantite, $contenanceUnitaire, $prenom, $id]);
+        )->execute([$magasinId, $categorieId, $quantite, $contenanceUnitaire, $formatId, $prenom, $id]);
     }
 
     /**
@@ -282,6 +290,7 @@ final readonly class SaisieRepository
             'categorieNom' => (string) $row['categorie_nom'],
             'unite' => (string) $row['unite'],
             'codeReference' => $row['code_reference'] === null ? null : (string) $row['code_reference'],
+            'formatLibelle' => $row['format_libelle'] === null ? null : (string) $row['format_libelle'],
         ];
     }
 
@@ -313,6 +322,7 @@ final readonly class SaisieRepository
             'categorieId' => (int) $row['categorie_id'],
             'quantite' => (int) $row['quantite'],
             'contenanceUnitaire' => $row['contenance_unitaire'] === null ? null : (int) $row['contenance_unitaire'],
+            'formatId' => $row['format_id'] === null ? null : (int) $row['format_id'],
             'saisieLe' => new DateTimeImmutable((string) $row['saisie_le'], $tz)->format(DATE_ATOM),
             'modifieLe' => new DateTimeImmutable((string) $row['modifie_le'], $tz)->format('Y-m-d\TH:i:s.vP'),
             'supprime' => $row['supprime_le'] !== null,

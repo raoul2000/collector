@@ -27,6 +27,7 @@ Onglet **Catégories** :
 - **Ordre** : avec les flèches ↑ ↓, placez en tête de leur section les catégories les plus fréquentes. C'est l'ordre des cases sur l'écran des bénévoles.
 - **Mesure** : *Poids (kg)*, *Volume (L)* ou *Quantité seule*. Elle n'est plus modifiable dès qu'une saisie existe dans la catégorie.
 - **Formats** : les contenances proposées en raccourci (ex. 250 g, 500 g, 1 kg). Quelques formats bien choisis accélèrent beaucoup la saisie ; les bénévoles peuvent toujours saisir une autre valeur.
+- **Variantes** : un format peut porter un libellé, pour distinguer deux produits de même contenance (Huile : « Olive / colza » 1 L et « Tournesol, autres » 1 L). Une catégorie en *Quantité seule* peut aussi proposer des variantes, sans contenance (Couches : T1-2, T3, T4…) ; le bénévole peut alors préciser la variante, sans y être obligé. La variante choisie apparaît dans les saisies (« 2 × Huile Olive / colza 1 L ») et dans l'export Excel (colonne *Variante*). Modifier le libellé ou la contenance d'un format existant conserve le lien avec ses saisies ; retirer un format laisse ses saisies sans variante.
 - **Code de référence** : facultatif, pour faire le lien avec la liste de la Croix-Rouge.
 
 ### 1.3 Campagne

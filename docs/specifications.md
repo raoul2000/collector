@@ -198,11 +198,12 @@ magasin       (id, nom, ville, actif)
 campagne_magasin (campagne_id, magasin_id)
 section       (id, nom, ordre)                                  -- groupe de catégories (repère de la grille)
 categorie     (id, nom, section_id NULL, unite ENUM('kg','L','unite'), ordre, active, code_reference)
-format        (id, categorie_id, contenance INT, ordre)          -- g ou ml
+format        (id, categorie_id, contenance INT NULL, libelle NULL, ordre)  -- g ou ml ; libellé de variante
 appareil      (id CHAR(36) UUID, prenom, cree_le, vu_le)
 saisie        (id CHAR(36) UUID généré côté client,
                campagne_id, magasin_id, appareil_id, categorie_id,
                quantite INT, contenance_unitaire INT NULL,      -- g ou ml ; NULL si unité ou contenance inconnue
+               format_id NULL,                                  -- bouton choisi (format ou variante)
                saisie_le DATETIME,                              -- heure de saisie sur le téléphone
                modifie_le DATETIME, supprime_le DATETIME NULL,  -- suppression logique
                modifie_par_responsable VARCHAR NULL,            -- prénom du responsable ayant corrigé

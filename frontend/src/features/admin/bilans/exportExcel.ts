@@ -29,6 +29,7 @@ export const COLONNES: Column<SaisieExport>[] = [
   { header: entete('Ville'), cell: (s) => ({ value: s.ville || undefined }), width: 18 },
   { header: entete('Bénévole'), cell: (s) => ({ value: s.prenom }), width: 14 },
   { header: entete('Catégorie'), cell: (s) => ({ value: s.categorie }), width: 28 },
+  { header: entete('Variante'), cell: (s) => ({ value: s.variante ?? undefined }), width: 16 },
   { header: entete('Code'), cell: (s) => ({ value: s.codeReference ?? undefined }), width: 12 },
   { header: entete('Unité'), cell: (s) => ({ value: LIBELLES_UNITE[s.unite] }), width: 8 },
   { header: entete('Articles'), cell: (s) => ({ value: s.quantite }), width: 9 },

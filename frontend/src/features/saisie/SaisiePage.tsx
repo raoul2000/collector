@@ -6,7 +6,7 @@ import { toast } from '../../components/toast'
 import { creerSaisie, supprimerSaisie } from '../../db/saisies'
 import { demanderSynchro } from '../../sync/engine'
 import { useBenevole } from '../benevole/context'
-import { libelleSaisie } from './libelle'
+import { boutonsCategorie, libelleSaisie, varianteSaisie } from './libelle'
 import { grouperParSection, type GroupeCategories } from './sections'
 import { SaisieForm, type ContenuForm } from './SaisieForm'
 import styles from './SaisiePage.module.css'
@@ -50,7 +50,10 @@ export function SaisiePage() {
       ...contenu,
     })
     demanderSynchro()
-    setDerniere({ id: saisie.id, libelle: libelleSaisie(choisie, contenu.quantite, contenu.contenanceUnitaire) })
+    setDerniere({
+      id: saisie.id,
+      libelle: libelleSaisie(choisie, contenu.quantite, contenu.contenanceUnitaire, varianteSaisie(choisie, contenu.formatId)),
+    })
     setCategorie(null)
     window.scrollTo?.({ top: 0 })
   }
@@ -94,7 +97,8 @@ export function SaisiePage() {
           </div>
           <SaisieForm
             key={categorie.id}
-            categorie={categorie}
+            unite={categorie.unite}
+            boutons={boutonsCategorie(categorie)}
             submitLabel="Valider"
             onSubmit={(contenu) => void enregistrer(categorie, contenu)}
           />

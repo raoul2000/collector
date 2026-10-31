@@ -73,8 +73,9 @@ export function CorrigerSaisieDialog({ saisie, categories, magasins, onClose }: 
         {categorie && (
           <SaisieForm
             key={categorie.id}
-            categorie={categorie}
-            initial={initial && { quantite: initial.quantite, contenanceUnitaire: initial.contenanceUnitaire }}
+            unite={categorie.unite}
+            boutons={categorie.formats}
+            initial={initial && { quantite: initial.quantite, contenanceUnitaire: initial.contenanceUnitaire, formatId: initial.formatId }}
             submitLabel={corriger.isPending ? 'Enregistrement…' : 'Enregistrer la correction'}
             onSubmit={enregistrer}
           />

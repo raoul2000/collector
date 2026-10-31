@@ -17,6 +17,7 @@ describe('saisies locales', () => {
     expect(saisie.id).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/)
     expect(await db.saisies.get(saisie.id)).toEqual({
       ...NOUVELLE,
+      formatId: null,
       id: saisie.id,
       saisieLe: '2026-11-27T10:15:00+01:00',
       modifieLe: '2026-11-27T10:15:00.250+01:00',

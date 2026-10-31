@@ -56,6 +56,28 @@ final class SyncControllerTest extends ApiTestCase
         self::assertSame('Marie', $this->db->query('SELECT prenom FROM appareil')->fetchColumn());
     }
 
+    public function testChosenButtonIsRecordedAndAnInconsistentOneIgnored(): void
+    {
+        $coquillettes = $this->insert('format', ['categorie_id' => $this->pates, 'contenance' => 500, 'libelle' => 'Coquillettes']);
+        $t4 = $this->insert('format', ['categorie_id' => $this->savon, 'contenance' => null, 'libelle' => 'T4']);
+        [$a, $b, $c, $d] = [self::uuid(), self::uuid(), self::uuid(), self::uuid()];
+
+        $response = $this->sync([
+            $this->saisie($a, ['formatId' => $coquillettes]),
+            $this->saisie($b, ['categorieId' => $this->savon, 'contenanceUnitaire' => null, 'formatId' => $t4]),
+            // Bouton supprimé ou modifié depuis la mise à jour du référentiel : la saisie reste valable, sans bouton
+            $this->saisie($c, ['contenanceUnitaire' => 750, 'formatId' => $coquillettes]),
+            $this->saisie($d, ['formatId' => 999999]),
+        ]);
+
+        self::assertSame(['ok', 'ok', 'ok', 'ok'], array_column($response->data['resultats'], 'statut'));
+        self::assertSame(
+            [$coquillettes, $t4, null, null],
+            array_map(static fn (array $r): ?int => $r['saisie']['formatId'], $response->data['resultats']),
+        );
+        self::assertSame(2, (int) $this->db->query('SELECT COUNT(format_id) FROM saisie')->fetchColumn());
+    }
+
     public function testResendingIsIdempotent(): void
     {
         $saisie = $this->saisie(self::uuid());

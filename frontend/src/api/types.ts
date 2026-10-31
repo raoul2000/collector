@@ -26,13 +26,26 @@ export interface SectionRef {
   nom: string
 }
 
+/**
+ * Bouton proposé à la saisie : une contenance (g ou ml) et/ou un libellé de variante
+ * (« Olive / colza » 1 L ; « T4 », sans contenance, pour une catégorie à l'unité).
+ */
+export interface FormatRef {
+  id: number
+  contenance: number | null
+  libelle: string | null
+}
+
 export interface CategorieRef {
   id: number
   nom: string
   /** Absent d'une copie locale enregistrée avant l'arrivée des sections */
   sectionId?: number | null
   unite: Unite
+  /** Contenances seules (versions de l'application antérieures aux variantes) */
   formats: number[]
+  /** Boutons proposés à la saisie (absent d'une copie locale antérieure aux variantes) */
+  boutons?: FormatRef[]
 }
 
 export interface Referentiel {
@@ -92,8 +105,15 @@ export interface Categorie {
   ordre: number
   active: boolean
   codeReference: string | null
-  formats: number[]
+  formats: FormatRef[]
   nbSaisies: number
+}
+
+/** Format envoyé à l'enregistrement d'une catégorie : sans identifiant, c'est un nouveau bouton */
+export interface FormatInput {
+  id?: number
+  contenance: number | null
+  libelle: string | null
 }
 
 export interface CategorieInput {
@@ -102,7 +122,7 @@ export interface CategorieInput {
   unite: Unite
   active: boolean
   codeReference: string
-  formats: number[]
+  formats: FormatInput[]
 }
 
 // --- Synchronisation (bénévole) ------------------------------------------------------------------
@@ -115,6 +135,8 @@ export interface SaisieEnvoyee {
   categorieId: number
   quantite: number
   contenanceUnitaire: number | null
+  /** Bouton choisi (null : contenance libre ou inconnue) */
+  formatId: number | null
   saisieLe: string
   modifieLe: string
   supprime: boolean
@@ -130,6 +152,8 @@ export interface SaisieServeur {
   categorieId: number
   quantite: number
   contenanceUnitaire: number | null
+  /** Absent d'une réponse d'un serveur antérieur aux variantes */
+  formatId?: number | null
   saisieLe: string
   modifieLe: string
   supprime: boolean
@@ -177,6 +201,9 @@ export interface SaisieAdmin {
   unite: Unite
   /** Code de référence actuel de la catégorie */
   codeReference: string | null
+  formatId: number | null
+  /** Libellé de la variante choisie */
+  formatLibelle: string | null
 }
 
 export interface PageSaisies {
@@ -242,6 +269,8 @@ export interface SaisieExport {
   prenom: string
   categorie: string
   codeReference: string | null
+  /** Libellé de la variante choisie */
+  variante: string | null
   unite: Unite
   quantite: number
   contenanceUnitaire: number | null

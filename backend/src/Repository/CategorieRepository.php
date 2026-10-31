@@ -7,13 +7,16 @@ namespace App\Repository;
 use PDO;
 
 /**
- * Les formats d'une catégorie sont exposés sous forme de liste de contenances (g ou ml), dans l'ordre d'affichage.
+ * Les formats d'une catégorie sont les boutons proposés à la saisie, dans l'ordre d'affichage : une contenance (g ou ml)
+ * et/ou un libellé de variante (« Olive / colza » 1 L, « T4 » pour une catégorie à l'unité).
  * Ordre d'affichage : celui des sections, puis celui des catégories ; les catégories sans section viennent à la fin.
  *
  * @phpstan-type Categorie array{
  *     id: int, nom: string, sectionId: int|null, unite: 'kg'|'L'|'unite', ordre: int, active: bool,
- *     codeReference: string|null, formats: list<int>, nbSaisies: int
+ *     codeReference: string|null, formats: list<Format>, nbSaisies: int
  * }
+ * @phpstan-type Format array{id: int, contenance: int|null, libelle: string|null}
+ * @phpstan-type FormatInput array{id: int|null, contenance: int|null, libelle: string|null}
  */
 final readonly class CategorieRepository
 {
@@ -91,7 +94,7 @@ final readonly class CategorieRepository
     }
 
     /**
-     * @param list<int> $formats
+     * @param list<FormatInput> $formats
      */
     public function create(
         string $nom,
@@ -112,7 +115,7 @@ final readonly class CategorieRepository
     }
 
     /**
-     * @param list<int> $formats
+     * @param list<FormatInput> $formats
      */
     public function update(
         int $id,
@@ -149,14 +152,41 @@ final readonly class CategorieRepository
     }
 
     /**
-     * @param list<int> $formats contenances, dans l'ordre d'affichage
+     * Identifiants des formats d'une catégorie.
+     *
+     * @return list<int>
+     */
+    public function formatIds(int $categorieId): array
+    {
+        $stmt = $this->db->prepare('SELECT id FROM format WHERE categorie_id = ?');
+        $stmt->execute([$categorieId]);
+
+        return array_map(intval(...), $stmt->fetchAll(PDO::FETCH_COLUMN));
+    }
+
+    /**
+     * Remplace les formats d'une catégorie. Un format existant (id) est modifié sur place : les saisies faites
+     * avec ce bouton y restent rattachées. Les formats absents de la liste sont supprimés (leurs saisies gardent
+     * leur contenance, sans variante).
+     *
+     * @param list<FormatInput> $formats dans l'ordre d'affichage
      */
     private function setFormats(int $id, array $formats): void
     {
-        $this->db->prepare('DELETE FROM format WHERE categorie_id = ?')->execute([$id]);
-        $insert = $this->db->prepare('INSERT INTO format (categorie_id, contenance, ordre) VALUES (?, ?, ?)');
-        foreach ($formats as $index => $contenance) {
-            $insert->execute([$id, $contenance, $index + 1]);
+        $gardes = array_values(array_filter(array_column($formats, 'id')));
+        $this->db->prepare(
+            'DELETE FROM format WHERE categorie_id = ?'
+            . ($gardes === [] ? '' : ' AND id NOT IN (' . implode(',', array_fill(0, count($gardes), '?')) . ')'),
+        )->execute([$id, ...$gardes]);
+
+        $insert = $this->db->prepare('INSERT INTO format (categorie_id, contenance, libelle, ordre) VALUES (?, ?, ?, ?)');
+        $update = $this->db->prepare('UPDATE format SET contenance = ?, libelle = ?, ordre = ? WHERE id = ? AND categorie_id = ?');
+        foreach ($formats as $index => $format) {
+            if ($format['id'] === null) {
+                $insert->execute([$id, $format['contenance'], $format['libelle'], $index + 1]);
+            } else {
+                $update->execute([$format['contenance'], $format['libelle'], $index + 1, $format['id'], $id]);
+            }
         }
     }
 
@@ -172,15 +202,19 @@ final readonly class CategorieRepository
 
         $ids = array_column($rows, 'id');
         $stmt = $this->db->prepare(
-            'SELECT categorie_id, contenance FROM format
+            'SELECT id, categorie_id, contenance, libelle FROM format
              WHERE categorie_id IN (' . implode(',', array_fill(0, count($ids), '?')) . ')
-             ORDER BY ordre, contenance',
+             ORDER BY ordre, id',
         );
         $stmt->execute($ids);
 
         $formats = [];
         foreach ($stmt->fetchAll() as $format) {
-            $formats[(int) $format['categorie_id']][] = (int) $format['contenance'];
+            $formats[(int) $format['categorie_id']][] = [
+                'id' => (int) $format['id'],
+                'contenance' => $format['contenance'] === null ? null : (int) $format['contenance'],
+                'libelle' => $format['libelle'],
+            ];
         }
 
         return array_map(

@@ -14,6 +14,8 @@ export interface SaisieLocale {
   quantite: number
   /** g ou ml ; null pour une catégorie à l'unité ou une contenance inconnue */
   contenanceUnitaire: number | null
+  /** Bouton choisi (null : contenance libre ou inconnue ; absent des saisies antérieures aux variantes) */
+  formatId?: number | null
   /** Heure du don (ISO 8601 avec fuseau) */
   saisieLe: string
   /** Dernière modification (ISO 8601 avec millisecondes et fuseau) */

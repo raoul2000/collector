@@ -7,7 +7,8 @@ import { Card } from '../../../components/Card'
 import { ConfirmDialog } from '../../../components/ConfirmDialog'
 import { Table } from '../../../components/Table'
 import { toast } from '../../../components/toast'
-import { formatContenance, UNITE_LIBELLES } from '../../../lib/format'
+import { UNITE_LIBELLES } from '../../../lib/format'
+import { libelleBouton } from '../../saisie/libelle'
 import styles from '../admin.module.css'
 import { useCategories, useDeleteCategorie, useDeleteSection, useReorderCategories, useReorderSections, useSections } from '../api'
 import { handleMutationError } from '../errors'
@@ -199,12 +200,10 @@ export function CategoriesPage() {
                   </td>
                   <td>{UNITE_LIBELLES[categorie.unite]}</td>
                   <td>
-                    {categorie.unite === 'unite' ? (
-                      <span className={styles.muted}>—</span>
-                    ) : categorie.formats.length === 0 ? (
-                      <span className={styles.muted}>Aucun</span>
+                    {categorie.formats.length === 0 ? (
+                      <span className={styles.muted}>{categorie.unite === 'unite' ? '—' : 'Aucun'}</span>
                     ) : (
-                      categorie.formats.map((f) => formatContenance(f, categorie.unite)).join(' · ')
+                      categorie.formats.map((f) => libelleBouton(f, categorie.unite)).join(' · ')
                     )}
                   </td>
                   <td>{categorie.active ? <Badge kind="success">Active</Badge> : <Badge>Désactivée</Badge>}</td>

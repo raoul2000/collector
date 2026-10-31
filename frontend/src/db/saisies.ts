@@ -7,6 +7,8 @@ export interface ContenuSaisie {
   categorieId: number
   quantite: number
   contenanceUnitaire: number | null
+  /** Bouton choisi ; absent : aucun */
+  formatId?: number | null
 }
 
 export interface NouvelleSaisie extends ContenuSaisie {
@@ -19,6 +21,7 @@ export interface NouvelleSaisie extends ContenuSaisie {
  */
 export async function creerSaisie(saisie: NouvelleSaisie, now = new Date()): Promise<SaisieLocale> {
   const locale: SaisieLocale = {
+    formatId: null,
     ...saisie,
     id: crypto.randomUUID(),
     saisieLe: isoLocal(now),
@@ -34,7 +37,7 @@ export async function creerSaisie(saisie: NouvelleSaisie, now = new Date()): Pro
 }
 
 export async function modifierSaisie(id: string, contenu: ContenuSaisie, now = new Date()): Promise<void> {
-  await db.saisies.update(id, { ...contenu, modifieLe: isoLocal(now, true), aEnvoyer: 1, erreur: null })
+  await db.saisies.update(id, { formatId: null, ...contenu, modifieLe: isoLocal(now, true), aEnvoyer: 1, erreur: null })
 }
 
 /**

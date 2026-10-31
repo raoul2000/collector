@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react'
-import type { Categorie, Unite } from '../../../api/types'
+import type { Categorie, FormatInput, Unite } from '../../../api/types'
 import { Button } from '../../../components/Button'
 import { Checkbox } from '../../../components/Checkbox'
 import { Dialog } from '../../../components/Dialog'
@@ -28,7 +28,7 @@ export function CategorieFormDialog({ categorie, onClose }: CategorieFormDialogP
   const [unite, setUnite] = useState<Unite>(categorie?.unite ?? 'kg')
   const [codeReference, setCodeReference] = useState(categorie?.codeReference ?? '')
   const [active, setActive] = useState(categorie?.active ?? true)
-  const [formats, setFormats] = useState<number[]>(categorie?.formats ?? [])
+  const [formats, setFormats] = useState<FormatInput[]>(categorie?.formats ?? [])
   const [errors, setErrors] = useState<FieldErrors>({})
 
   // Changer l'unité fausserait les saisies existantes (grammes ↔ millilitres)
@@ -44,7 +44,7 @@ export function CategorieFormDialog({ categorie, onClose }: CategorieFormDialogP
     event.preventDefault()
     setErrors({})
     save.mutate(
-      { id: categorie?.id, input: { nom, sectionId, unite, codeReference, active, formats: unite === 'unite' ? [] : formats } },
+      { id: categorie?.id, input: { nom, sectionId, unite, codeReference, active, formats } },
       {
         onSuccess: (saved) => {
           toast.success(`Catégorie « ${saved.nom} » enregistrée.`)
@@ -122,7 +122,7 @@ export function CategorieFormDialog({ categorie, onClose }: CategorieFormDialogP
           />
         </div>
 
-        {unite !== 'unite' && <FormatsEditor unite={unite} value={formats} onChange={setFormats} error={errors.formats} />}
+        <FormatsEditor key={unite} unite={unite} value={formats} onChange={setFormats} error={errors.formats} />
 
         <Checkbox label="Catégorie active" checked={active} onChange={(e) => setActive(e.target.checked)} />
       </form>

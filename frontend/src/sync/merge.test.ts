@@ -10,6 +10,7 @@ const locale: SaisieLocale = {
   categorieId: 3,
   quantite: 2,
   contenanceUnitaire: 500,
+  formatId: 8,
   saisieLe: '2026-11-27T10:15:00+01:00',
   modifieLe: '2026-11-27T10:15:00.000+01:00',
   supprime: false,
@@ -26,6 +27,7 @@ const serveur: SaisieServeur = {
   categorieId: 3,
   quantite: 2,
   contenanceUnitaire: 500,
+  formatId: 8,
   saisieLe: '2026-11-27T10:15:00+01:00',
   modifieLe: '2026-11-27T10:15:00.000+01:00',
   supprime: false,
@@ -78,6 +80,13 @@ describe('appliquerResultat', () => {
 })
 
 describe('appliquerChangement', () => {
+  it('envoie une saisie antérieure aux variantes sans bouton', () => {
+    const { formatId: _, ...ancienne } = locale
+    expect(versEnvoi(ancienne).formatId).toBeNull()
+    const { formatId: __, ...ancienServeur } = serveur
+    expect(depuisServeur(ancienServeur).formatId).toBeNull()
+  })
+
   it('applique une correction sur une saisie déjà synchronisée', () => {
     const corrigee = { ...serveur, quantite: 3, corrigeParResponsable: 'Paul' }
 

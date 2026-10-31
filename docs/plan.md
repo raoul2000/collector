@@ -197,8 +197,26 @@ Objectif : suivre la collecte en temps réel et motiver les bénévoles.
 - ✅ Vérifié en local : import de `installation.sql` sur une base vide, reconnaissance par `migrate.php`, API du paquet fonctionnelle ; correction de l'encodage des accents à l'import en ligne de commande (`SET NAMES utf8mb4`)
 - ✅ Installation sur Ionos le 28/10/2026 : https://collecte.exdata.info (SFTP seulement, pas de SSH) ; `RewriteBase` ajouté aux `.htaccess` (sans lui, erreur 500 sur toute adresse réécrite) ; premiers essais réels concluants (campagne, saisies)
 
-### 4.2 Référentiel définitif ⏸️ (en attente de la liste Croix-Rouge)
-- Import de la liste de référence des catégories, unités et formats
+### 4.2 Référentiel Croix-Rouge 🔄
+
+Source : planche « Articles génériques » de la Croix-Rouge (AÏDA, version du 08/07/2026, onglet « Planche générique ») : fichier `.ods` d'origine non versionné (19 Mo) ; extrait versionné dans `docs/categories/planche-aida-2026-07-08.csv` (rubrique, dénomination, code AÏDA, tarif) : ~160 articles en 29 rubriques, un code AÏDA (EAN-13) par article, c'est-à-dire par rubrique **et** format.
+
+Décisions (31/10/2026) :
+- **Priorité à la saisie des bénévoles**, simple et rapide. La liste des bénévoles est **indépendante** des articles AÏDA, mais construite pour s'en rapprocher : les formats reprennent ceux de la planche. Le rapprochement avec AÏDA est une **deuxième phase**, côté responsable (4.5). Les tarifs de la planche ne sont pas exposés aux bénévoles.
+- **Sections** : groupes de catégories, affichés comme repères dans une **grille unique** (intitulés de section + barre de sections pour y accéder directement), sans écran supplémentaire.
+- **Variantes** : un bouton de format peut porter un libellé, avec ou sans contenance (Huile : « Olive / colza 1 L », « Tournesol, autres 1 L » ; Couches : T1-2 … T6) ; la saisie enregistre le bouton choisi.
+- **Liste** : ~35 catégories en 7 sections (Épicerie salée, Conserves, Petit-déjeuner et sucré, Boissons, Bébé, Hygiène et entretien, Divers), sans fusion ; produits frais (sauf le lait), frais au kg, boulangerie, surgelés, circuits courts, chèques et bons d'achat écartés (« Autre » sinon).
+- **Récents** : ligne des dernières catégories utilisées sur le téléphone, en haut de la grille.
+- **Recherche** : champ avec auto-complétion sur le nom des catégories, des sections, des variantes et une liste de **mots-clés** par catégorie (pré-remplis, modifiables par les responsables) ; recherche hors ligne, sans accents ni majuscules, sur les débuts de mots ; un résultat de variante mène directement à cette variante.
+- **Recherches sans résultat** : remontées au serveur à la synchronisation et présentées aux responsables, pour compléter les mots-clés.
+
+Étapes :
+- ⬜ Sections : modèle, administration, référentiel, grille groupée et barre de sections
+- ⬜ Variantes : libellé et contenance facultative des formats, format choisi enregistré dans la saisie (synchronisation, Mes saisies, saisies et bilans responsables)
+- ⬜ Liste Croix-Rouge : catégories, formats et variantes, mots-clés pré-remplis, article AÏDA visé par bouton (pour 4.5) ; remplacement de la liste provisoire en production
+- ⬜ Récents
+- ⬜ Recherche par mots-clés
+- ⬜ Recherches sans résultat : remontée à la synchronisation, liste pour les responsables
 
 ### 4.3 Recette ⬜
 - Simulation de collecte avec plusieurs téléphones (Android et iPhone)
@@ -210,6 +228,17 @@ Objectif : suivre la collecte en temps réel et motiver les bénévoles.
 - ✅ [Fiche bénévole](fiche-benevole.md) (une page) : installation, saisie, correction, voyant de synchronisation, bons réflexes
 - ✅ [Guide du responsable](guide-responsable.md) : préparation (magasins, catégories, campagne, essai), suivi et corrections pendant la collecte, clôture, questions fréquentes
 - ⬜ Version imprimable de la fiche bénévole avec l'adresse et le QR code
+
+### 4.5 Rapprochement AÏDA ⬜ (après la collecte)
+- Import de la planche AÏDA (script de lecture du `.ods`) dans une table d'articles : code, rubrique, dénomination, contenance nominale
+- Correspondance catégorie / bouton → article AÏDA, proposée automatiquement et modifiable ; article par défaut pour une contenance libre ou inconnue
+- Bilan « Réception AÏDA » d'une campagne : nombre d'articles par code, saisies non rapprochées, export Excel
+
+### Bonus : scan des codes-barres ⬜ (pas pour l'édition 2026)
+- Complément à la grille : un bouton « Scanner » pré-remplit catégorie et poids exact
+- Lecture par une bibliothèque embarquée (Safari sur iPhone ne lit pas les codes-barres en natif : à tester en priorité)
+- Base partagée code-barres → catégorie, alimentée par les bénévoles et par Open Food Facts quand le réseau le permet, synchronisée vers les téléphones
+- Essai de faisabilité préalable sur une trentaine de produits réels
 
 ---
 
@@ -227,16 +256,17 @@ Objectif : suivre la collecte en temps réel et motiver les bénévoles.
 
 | Élément | Nécessaire pour |
 |---|---|
-| Liste de référence des catégories Croix-Rouge | 4.2 (une liste provisoire est utilisée d'ici là) |
+| ~~Liste de référence des catégories Croix-Rouge~~ | Reçue le 31/10/2026 (4.2) |
 
 ## Reprise du travail
 
 État au 29/10/2026 : lots 1, 2 et 3 terminés ; application en production sur https://collecte.exdata.info ; évolutions réalisées : code de référence dans les saisies, correction du magasin des saisies par le responsable, export Excel d'une campagne, liste des appareils, journal technique de l'API (voir [déploiement](deploiement.md), section 7), outil de mise à jour du serveur par SFTP (`scripts/deployer.mjs`, [déploiement](deploiement.md), section 5.1).
 
 Prochaines étapes possibles :
-1. **Recette sur de vrais téléphones** (4.3).
-2. **Import de la liste Croix-Rouge** (4.2) quand elle sera disponible.
-3. **En dernier** (décision du 29/10/2026), une fois toutes les fonctionnalités réalisées et validées : **version imprimable de la fiche bénévole** avec l'adresse et un QR code, pour ne pas avoir à la refaire après chaque évolution.
+1. **Référentiel Croix-Rouge** (4.2) : sections, variantes, nouvelle liste, récents, recherche, recherches sans résultat — avant la collecte.
+2. **Recette sur de vrais téléphones** (4.3), avec la nouvelle liste.
+3. **Rapprochement AÏDA** (4.5), après la collecte ; scan des codes-barres en bonus, plus tard.
+4. **En dernier** (décision du 29/10/2026), une fois toutes les fonctionnalités réalisées et validées : **version imprimable de la fiche bénévole** avec l'adresse et un QR code, pour ne pas avoir à la refaire après chaque évolution.
 
 Environnement de développement : voir le [README](../README.md). La base locale `collector` contient un jeu de démonstration d'environ 760 saisies (pour voir les bilans) ; `php bin/migrate.php --fresh --seed` la remet à zéro.
 
@@ -274,3 +304,4 @@ Environnement de développement : voir le [README](../README.md). La base locale
 | 29/10/2026 | Journal technique de l'API : une ligne par requête, un fichier par jour dans `var/log`, conservé 30 jours ; référence de requête (`X-Request-Id`) citée dans les erreurs internes |
 | 31/10/2026 | Décision : la comparaison entre années est retirée du périmètre de l'application |
 | 31/10/2026 | Outil de mise à jour du serveur `scripts/deployer.mjs` : dépôt SFTP des seuls fichiers modifiés (manifeste `app/var/deploiement.json`), migrations appliquées par l'API (`/api/maintenance/schema` et `/migrer`, jeton `deploiement.jeton`), sauvegarde de la base confirmée avant migration, mot de passe SFTP demandé à chaque lancement |
+| 31/10/2026 | Liste Croix-Rouge reçue (planche AÏDA) ; décisions du référentiel : liste bénévole indépendante d'AÏDA, sections en grille unique, variantes, récents, recherche par mots-clés et recherches sans résultat ; rapprochement AÏDA après la collecte ; scan des codes-barres en bonus |

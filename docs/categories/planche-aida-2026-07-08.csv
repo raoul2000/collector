@@ -1,0 +1,154 @@
+rubrique;denomination;code_aida;tarif_eur
+RIZ;Riz - 1 Kg;2000000007427;2,30
+RIZ;Riz - 500g;2000000007410;1,20
+PÂTES;Pâtes, semoule - 1Kg;2000000007403;2,20
+PÂTES;Pâtes, semoule - 500g;2000000007397;1,40
+PÂTES;Pâtes, semoule - 250g;2000000007380;1,20
+PURÉE;Boîte purée en flocons ≈ 500g;2000000004259;1,20
+PURÉE;Sachet à l'unité / purée en flocons ≈ 125g;2000000004242;0,20
+FARINE;Farine - 1Kg;2000000007359;0,90
+CHOCOLAT;Petit déjeuner chocolaté ≈ 400g;2000000007342;5,00
+CHOCOLAT;Chocolat ≈ 100g;2000000007335;1,40
+CAFE;Café - 250g;2000000007311;3,10
+COMPOTE;Compote ≈ 650g;2000000007564;2,50
+COMPOTE;Compote ≈ 400g;2000000007540;1,50
+COMPOTE;Compote à l'unité 100g / (dont gourde);2000000005454;0,50
+BISCUIT / CEREALES;Biscuits / Céréales Petit déjeuner / ≈ 500g;2000000004273;2,70
+BISCUIT / CEREALES;Mini paquet de céréales format 20g;2000000009100;0,70
+BISCUIT / CEREALES;Paquet de biscuits ≈ 250g;2000000011394;1,50
+CONFITURE;Confiture / Gelée / Marmelade / Pâte à tartiner ≈ 750g;2000000007533;3,50
+CONFITURE;Confiture / Gelée / Marmelade / Pâte à tartiner ≈ 370g;2000000007526;1,70
+SUCRE;Sucre - 1Kg;2000000007502;1,60
+EAU - SODA;Bouteille d'eau;2000000008004;0,20
+EAU - SODA;Soda, jus de fruits, boissons gazeuses - 33cl;2000000004235;0,50
+EAU - SODA;Soda, jus de fruits, boissons gazeuses - 1,5L;2000000004228;2,20
+HUILE;Huile d'Olive, Colza, Noix / 1 Litre;2000000019758;3,10
+HUILE;Autres Huiles (Tournesol, coco, etc) / 1 Litre;2000000007472;2,40
+POTAGE EN BRICK;Sachet soupe déshydratée / ≈ 20g;2000000007090;0,40
+POTAGE EN BRICK;Potage et soupes en brick / 1 Litre;2000000007458;2,60
+POTAGE EN BRICK;Potage et soupes en brique individuel / Petit format - 250g;2000000009056;0,60
+CONSERVES LÉGUMES/LÉGUMINEUSES;Conserve de légumes ≈ 800g / Format 4 / 4;2000000007618;1,50
+CONSERVES LÉGUMES/LÉGUMINEUSES;Conserve de légumes ≈ 400g / Format 1 / 2 / Maïs, champignon etc.…;2000000007601;0,70
+CONSERVES LÉGUMES/LÉGUMINEUSES;Conserve de légumes ≈ 220g Format 1 / 4 / Maïs, champignon etc…;2000000007595;0,40
+CONSERVES LÉGUMES/LÉGUMINEUSES;Conserve de légumes / Format 1 / 6 / Concentré de tomates etc..;2000000007588;0,20
+CONSERVES LÉGUMES/LÉGUMINEUSES;Conserve de légumineuses / ≈ 800g / Format 4 / 4 / (Lentilles, fèves, petits pois, pois chiches, haricots blancs ou rouges, flageolets, etc…);2000000019673;1,50
+CONSERVES LÉGUMES/LÉGUMINEUSES;Conserve de légumineuses / ≈ 400g - Format 1 / 2 / (Lentilles, fèves, petits pois, pois chiches, haricots blancs ou rouges, flageolets, etc…);2000000019680;0,80
+CONSERVES LÉGUMES/LÉGUMINEUSES;Conserve de légumineuses / ≈ 250g - Format 1 / 4 / (Lentilles, fèves, petits pois, pois chiches, haricots blancs ou rouges, flageolets, etc…);2000000019697;0,40
+CONSERVES LÉGUMES/LÉGUMINEUSES;Légumes et légumineuses secs / (Lentilles, fèves, petits pois, pois chiches, haricots blancs ou rouges, flageolets, etc…) / Sachet 500g;2000000007731;1,50
+CONSERVES LÉGUMES/LÉGUMINEUSES;Légumes et légumineuses secs / (Lentilles, fèves, petits pois, pois chiches, haricots blancs ou rouges, flageolets, etc…) / Sachet 1 Kilo;2000000014067;2,60
+CONSERVES LÉGUMES/LÉGUMINEUSES;Tofu;2000000020921;3,00
+CONSERVES LÉGUMES/LÉGUMINEUSES;Sauces d'accompagnement / 400g;2000000004266;2,10
+CONSERVES PLAT CUISINES;Plats préparés ≈ 1.2 kg / Format XL / cassoulet, raviolis, salé aux lentilles etc…;2000000007694;5,20
+CONSERVES PLAT CUISINES;Plats préparés ≈ 800g / Format 4 / 4 / cassoulet, raviolis, salé aux lentilles etc…;2000000007717;4,00
+CONSERVES PLAT CUISINES;Plats préparés ≈ 400g / Format 1 / 2 / cassoulet, raviolis, salé aux lentilles etc…;2000000007700;2,00
+CONSERVES DE VIANDE;Conserve viande ≈ 400g / Type pâtés, rillette, terrine, corned beef, etc…;2000000007670;4,50
+CONSERVES DE VIANDE;Conserve viande ≈ 250g / Type pâtés, rillette, terrine, corned beef, etc.…;2000000007687;2,90
+CONSERVES DE POISSON;Conserve poisson ≈ 300g / Type sardine, maquereaux, thon…;2000000007663;3,50
+CONSERVES DE POISSON;Conserve poisson ≈ 150g / Type sardine, maquereaux, thon…;2000000007656;1,80
+CONSERVES DESSERT;Conserve dessert ≈ 500g / Type Mont Blanc …;2000000007830;2,00
+CONSERVES DESSERT;Conserve dessert ≈ 250g / Type Mont Blanc …;2000000007823;1,00
+CONSERVES DESSERT;Crème Dessert Vanille ≈ 500g;2000000015408;2,70
+CONSERVES DE FRUIT;Fruits au sirop ≈ 800g / Macédoine de fruits, oreillons de pêches...;2000000007373;2,90
+CONSERVES DE FRUIT;Fruits au sirop ≈ 400g / Macédoine de fruits, oreillons de pêches...;2000000007366;2,00
+CONSERVES DE FRUIT;Fruits secs / Abricot, pruneau, figue, raisin…;2000000007809;2,30
+PRODUITS BEBE;Brick soupe bébé à l'unité;2000000005478;1,50
+PRODUITS BEBE;Petit pot bébé Fruits;2000000005201;0,80
+PRODUITS BEBE;Petit pot bébé Légumes;2000000005218;0,70
+PRODUITS BEBE;Grand pot bébé Viande / Poisson;2000000005225;1,30
+PRODUITS BEBE;Lait de croissance / Lait infantile / Crème dessert - Bébé;2000000007816;3,80
+PRODUITS BEBE;Boites céréales à diluer / Type Blédine …;2000000007847;3,50
+PRODUITS BEBE;Lait 1er âge 0-6 mois;2000000009025;15,60
+PRODUITS BEBE;Lait 2ème âge 6-12 mois;2000000009018;12,90
+PRODUITS BEBE;Lait de croissance / 12 mois-3 ans;2000000009001;10,30
+PRODUITS FRAIS / LAITAGE;Lait 1 Litre;2000000011370;1,20
+PRODUITS FRAIS / LAITAGE;Beurre frais – 250g;2000000007748;2,10
+PRODUITS FRAIS / LAITAGE;Traiteur rayon frais / (crudités, salade, taboulé, tsatsiki, tarama…);2000000007779;2,60
+PRODUITS FRAIS / LAITAGE;Plat cuisiné rayon frais / à réchauffer / (Pizzas, nems, galettes bretonnes…);2000000007786;3,40
+PRODUITS FRAIS / LAITAGE;Brick boisson lactée 25cl;2000000005089;0,40
+PRODUITS FRAIS / LAITAGE;Crème fraiche;2000000005485;1,20
+PRODUITS FRAIS / LAITAGE;Fromage blanc en pot;2000000007793;2,10
+PRODUITS FRAIS / LAITAGE;Fromage en portion / (Kiri, Vache qui rit etc…);2000000005492;2,20
+PRODUITS FRAIS / LAITAGE;Yaourt à boire 75cl;2000000007724;2,30
+PRODUITS FRAIS / LAITAGE;Lait fermenté à boire à l'unité / (Actimel, Activia etc…);2000000005508;0,70
+PRODUITS FRAIS / LAITAGE;Œuf à l'unité;2000000005447;0,30
+PRODUITS FRAIS / LAITAGE;Petit suisse à l'unité;2000000005607;0,20
+PRODUITS FRAIS / LAITAGE;Yaourt / fromage blanc nature à l'unité;2000000005027;0,20
+PRODUITS FRAIS / LAITAGE;Yaourt / fromage blanc aux fruits à l'unité;2000000005034;0,40
+PRODUITS FRAIS / LAITAGE;Crème dessert à l’unité – 125g;2000000005195;0,50
+PRODUITS FRAIS / LAITAGE;Crème dessert / Grand format – 1kg;2000000007755;3,80
+Achats Produits Circuits Courts;Fruits Circuits Courts au KG;2000000017297;ne plus utiliser
+Achats Produits Circuits Courts;Légumes Circuits Courts au KG;2000000016894;ne plus utiliser
+Achats Produits Circuits Courts;Autres Produits Circuits Courts au KG;2000000016900;ne plus utiliser
+FRAIS AU KG / VIANDES & VOLAILLES - POISSON & CRUSTACES / FROMAGES - FRUITS & LEGUMES;Fruits et Légumes gérés au KG;2160100002019;2,70
+FRAIS AU KG / VIANDES & VOLAILLES - POISSON & CRUSTACES / FROMAGES - FRUITS & LEGUMES;Fruits gérés au KG;2160000001006;2,70
+FRAIS AU KG / VIANDES & VOLAILLES - POISSON & CRUSTACES / FROMAGES - FRUITS & LEGUMES;Légumes gérés au KG (hors pommes de terre);2000000007304;2,60
+FRAIS AU KG / VIANDES & VOLAILLES - POISSON & CRUSTACES / FROMAGES - FRUITS & LEGUMES;Pommes de terre au KG;2000000002484;1,50
+FRAIS AU KG / VIANDES & VOLAILLES - POISSON & CRUSTACES / FROMAGES - FRUITS & LEGUMES;Viandes / au KG / (sous cellophane par exemple);2000000006222;10,40
+FRAIS AU KG / VIANDES & VOLAILLES - POISSON & CRUSTACES / FROMAGES - FRUITS & LEGUMES;Charcuterie / au KG / (sous cellophane par exemple);2000000019765;10,60
+FRAIS AU KG / VIANDES & VOLAILLES - POISSON & CRUSTACES / FROMAGES - FRUITS & LEGUMES;Poissons au KG / (sous cellophane par exemple);2000000006567;19,20
+FRAIS AU KG / VIANDES & VOLAILLES - POISSON & CRUSTACES / FROMAGES - FRUITS & LEGUMES;Crustacés et mollusques au KG / (sous cellophane par exemple);2000000006772;12,90
+FRAIS AU KG / VIANDES & VOLAILLES - POISSON & CRUSTACES / FROMAGES - FRUITS & LEGUMES;Fromages divers au KG / (sous cellophane par exemple);2000000006994;10,30
+BOULANGERIE;Baguette à l’unité;2000000005232;1,20
+BOULANGERIE;Pain au KG;2000000007083;3,70
+BOULANGERIE;Viennoiserie / Pâtisserie / Pain de mie au KG;2160100005102;5,10
+BOULANGERIE;Viennoiserie à l'unité;2000000005102;0,40
+BOULANGERIE;Sandwich de boulangerie à l'unité;2000000005171;1,50
+BOULANGERIE;Biscottes / Pain grillé;2000000020983;1,50
+SURGELES AU KG (sauf steak haché 100g/125g à l'unité);Steak haché surgelé 100g / 125g à l'unité;2000000019840;0,80
+SURGELES AU KG (sauf steak haché 100g/125g à l'unité);Viandes surgelés au KG;2000000008042;7,70
+SURGELES AU KG (sauf steak haché 100g/125g à l'unité);Poissons surgelés au KG;2000000008035;12,90
+SURGELES AU KG (sauf steak haché 100g/125g à l'unité);Légumes surgelés au KG;2000000008059;2,60
+SURGELES AU KG (sauf steak haché 100g/125g à l'unité);Spécialités et plats surgelés au KG;2000000008066;7,70
+SURGELES AU KG (sauf steak haché 100g/125g à l'unité);Desserts pâtissiers divers au KG;2000000007854;8,40
+DIVERS;Autres épices;2000000017341;2,60
+DIVERS;Sauces d'accompagnement / (vinaigrette, mayonnaise, béarnaise, toute sauce à base de matière grasse);2000000004266;2,30
+DIVERS;Condiments / (vinaigre, moutarde, cornichons, olives, sel et poivre, herbes aromatiques...);2000000008103;3,60
+DIVERS;Dosette condiments / 20g;2000000009063;0,40
+DIVERS;Thé / Infusion / Chicorée / café en dosettes / café soluble;2000000008097;3,20
+DIVERS;Bonbons / confiserie / chocolat;2000000008080;3,00
+DIVERS;Gâteaux apéritifs / Chips / Graines / Snack;2000000008110;1,40
+DIVERS;Sel / Poivre;2000000008073;1,00
+HYGIENE ADULTE / ENFANT;Couches 2 / 5 Kg à l’unité;2000000005270;0,30
+HYGIENE ADULTE / ENFANT;Couches 3 / 6 Kg à l’unité;2000000005287;0,30
+HYGIENE ADULTE / ENFANT;Couches 4 / 9 Kg à l’unité;2000000005294;0,30
+HYGIENE ADULTE / ENFANT;Couches 7 / 18 Kg à l’unité;2000000005300;0,40
+HYGIENE ADULTE / ENFANT;Couches 11 / 25 Kg à l’unité;2000000005317;0,50
+HYGIENE ADULTE / ENFANT;Biberon / divers hygiène BB;2000000019710;7,70
+HYGIENE ADULTE / ENFANT;Tétine / divers hygiène BB;2000000019727;5,10
+HYGIENE ADULTE / ENFANT;Brosse à dent à l'unité;2000000005584;1,60
+HYGIENE ADULTE / ENFANT;Coton;2000000005416;1,20
+HYGIENE ADULTE / ENFANT;Coton tige;2000000005423;0,80
+HYGIENE ADULTE / ENFANT;Crème;2000000005355;5,30
+HYGIENE ADULTE / ENFANT;Dentifrice;2000000000626;1,20
+HYGIENE ADULTE / ENFANT;Gel douche;2000000005331;1,50
+HYGIENE ADULTE / ENFANT;Lait de toilette;2000000005324;4,20
+HYGIENE ADULTE / ENFANT;Lotion;2000000005362;4,30
+HYGIENE ADULTE / ENFANT;Lingettes;2000000005386;2,00
+HYGIENE ADULTE / ENFANT;Paquet de mouchoir papier à l'unité / (type Kleenex);2000000005591;0,10
+HYGIENE ADULTE / ENFANT;Papier toilette à l'unité;2000000007151;0,30
+HYGIENE ADULTE / ENFANT;Rasoir à l'unité;2000000007144;0,40
+HYGIENE ADULTE / ENFANT;Savon;2000000005379;0,80
+HYGIENE ADULTE / ENFANT;Sérum physiologique à l'unité;2000000005409;0,20
+HYGIENE ADULTE / ENFANT;Serviette hygiénique à l'unité (Jour Nuit);2000000005430;0,10
+HYGIENE ADULTE / ENFANT;Culotte menstruelle à l'unité (tous flux);2000000019741;18,40
+HYGIENE ADULTE / ENFANT;Shampooing;2000000005348;2,10
+HYGIENE ADULTE / ENFANT;Kit hygiène homme CRF;2000000013343;4,30
+HYGIENE ADULTE / ENFANT;Kit hygiène femme CRF;2000000013336;4,60
+HYGIENE ADULTE / ENFANT;Produits d’hygiène génériques;2000000009865;2,10
+HYGIENE ADULTE / ENFANT;Lessive;2000000007762;3,80
+HYGIENE ADULTE / ENFANT;Berlingot hygiène / entretien 250 ml;2000000009070;1,00
+HYGIENE ADULTE / ENFANT;Dosette lessive à l’unité / 0.60g;2000000009087;0,20
+HYGIENE ADULTE / ENFANT;Eponge à l’unité;2000000009094;1,20
+HYGIENE ADULTE / ENFANT;Produits d’entretien génériques;2000000009858;2,60
+HYGIENE ADULTE / ENFANT;Produits droguerie génériques / (piles, ampoules, cirage etc…);2000000010359;2,60
+CHEQUES D’ACCOMPAGNEMENT PERSONNALISES;CAP Alimentaire & Hygiène tous montants;2000000005003;
+CHEQUES D’ACCOMPAGNEMENT PERSONNALISES;CAP Alimentaire & Hygiène 5€;2000000020969;
+CHEQUES D’ACCOMPAGNEMENT PERSONNALISES;CAP Alimentaire & Hygiène 6€;2000000020952;
+CHEQUES D’ACCOMPAGNEMENT PERSONNALISES;CAP Alimentaire & Hygiène 10€;2000000020945;
+CHEQUES D’ACCOMPAGNEMENT PERSONNALISES;CAP Fruits & Légumes (ne plus utiliser en entrée de stock);2000000005010;
+CHEQUES D’ACCOMPAGNEMENT PERSONNALISES;CAP Alimentation (ne plus utiliser en entrée de stock);2000000005119;
+CHEQUES D’ACCOMPAGNEMENT PERSONNALISES;CAP Alimentation / Fruits & Légumes (ne plus utiliser en entrée de stock);2000000005126;
+CHEQUES D’ACCOMPAGNEMENT PERSONNALISES;CAP Alimentation / Fruits & Légumes et produits frais (ne plus utiliser en entrée de stock);2000000005133;
+BON D’ACHAT CROIX ROUGE;Bon d’Achat Croix Rouge 10€;2000000005553;
+BON D’ACHAT CROIX ROUGE;Bon d’Achat Croix Rouge 20€;2000000005560;
+BON D’ACHAT CROIX ROUGE;Bon d’Achat Croix Rouge 30€;2000000005577;

@@ -32,3 +32,7 @@ Thumbs.db
 
 # Paquet de déploiement généré
 deploy/package/
+
+# Planche AÏDA d’origine (19 Mo, images) : seul son extrait CSV est versionné
+docs/categories/*.ods
+docs/categories/.~lock.*

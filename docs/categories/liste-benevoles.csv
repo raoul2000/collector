@@ -1,0 +1,72 @@
+section;categorie;unite;contenance;variante;code_aida;article_aida
+Épicerie salée;Pâtes, semoule;kg;250;;2000000007380;Pâtes, semoule - 250g
+Épicerie salée;Pâtes, semoule;kg;500;;2000000007397;Pâtes, semoule - 500g
+Épicerie salée;Pâtes, semoule;kg;1000;;2000000007403;Pâtes, semoule - 1Kg
+Épicerie salée;Riz;kg;500;;2000000007410;Riz - 500g
+Épicerie salée;Riz;kg;1000;;2000000007427;Riz - 1 Kg
+Épicerie salée;Purée;kg;125;Sachet;2000000004242;Sachet à l'unité / purée en flocons ≈ 125g
+Épicerie salée;Purée;kg;500;Boîte;2000000004259;Boîte purée en flocons ≈ 500g
+Épicerie salée;Farine;kg;1000;;2000000007359;Farine - 1Kg
+Épicerie salée;Légumes secs;kg;500;;2000000007731;Légumes et légumineuses secs / (Lentilles, fèves, petits pois, pois chiches, haricots blancs ou rouges, flageolets, etc…) / Sachet 500g
+Épicerie salée;Légumes secs;kg;1000;;2000000014067;Légumes et légumineuses secs / (Lentilles, fèves, petits pois, pois chiches, haricots blancs ou rouges, flageolets, etc…) / Sachet 1 Kilo
+Épicerie salée;Soupes;unite;;Sachet;2000000007090;Sachet soupe déshydratée / ≈ 20g
+Épicerie salée;Soupes;unite;;Brique 25 cl;2000000009056;Potage et soupes en brique individuel / Petit format - 250g
+Épicerie salée;Soupes;unite;;Brique 1 L;2000000007458;Potage et soupes en brick / 1 Litre
+Épicerie salée;Huile;L;1000;Olive / colza;2000000019758;Huile d'Olive, Colza, Noix / 1 Litre
+Épicerie salée;Huile;L;1000;Tournesol, autres;2000000007472;Autres Huiles (Tournesol, coco, etc) / 1 Litre
+Épicerie salée;Sauces, condiments, épices;unite;;;2000000008103;Condiments / (vinaigre, moutarde, cornichons, olives, sel et poivre, herbes aromatiques...)
+Épicerie salée;Apéritif, chips;unite;;;2000000008110;Gâteaux apéritifs / Chips / Graines / Snack
+Conserves;Légumes;kg;140;1/6;2000000007588;Conserve de légumes / Format 1 / 6 / Concentré de tomates etc..
+Conserves;Légumes;kg;220;1/4;2000000007595;Conserve de légumes ≈ 220g Format 1 / 4 / Maïs, champignon etc…
+Conserves;Légumes;kg;400;1/2;2000000007601;Conserve de légumes ≈ 400g / Format 1 / 2 / Maïs, champignon etc.…
+Conserves;Légumes;kg;800;4/4;2000000007618;Conserve de légumes ≈ 800g / Format 4 / 4
+Conserves;Légumineuses;kg;250;1/4;2000000019697;Conserve de légumineuses / ≈ 250g - Format 1 / 4 / (Lentilles, fèves, petits pois, pois chiches, haricots blancs ou rouges, flageolets, etc…)
+Conserves;Légumineuses;kg;400;1/2;2000000019680;Conserve de légumineuses / ≈ 400g - Format 1 / 2 / (Lentilles, fèves, petits pois, pois chiches, haricots blancs ou rouges, flageolets, etc…)
+Conserves;Légumineuses;kg;800;4/4;2000000019673;Conserve de légumineuses / ≈ 800g / Format 4 / 4 / (Lentilles, fèves, petits pois, pois chiches, haricots blancs ou rouges, flageolets, etc…)
+Conserves;Plats cuisinés;kg;400;;2000000007700;Plats préparés ≈ 400g / Format 1 / 2 / cassoulet, raviolis, salé aux lentilles etc…
+Conserves;Plats cuisinés;kg;800;;2000000007717;Plats préparés ≈ 800g / Format 4 / 4 / cassoulet, raviolis, salé aux lentilles etc…
+Conserves;Plats cuisinés;kg;1200;;2000000007694;Plats préparés ≈ 1.2 kg / Format XL / cassoulet, raviolis, salé aux lentilles etc…
+Conserves;Viande;kg;250;;2000000007687;Conserve viande ≈ 250g / Type pâtés, rillette, terrine, corned beef, etc.…
+Conserves;Viande;kg;400;;2000000007670;Conserve viande ≈ 400g / Type pâtés, rillette, terrine, corned beef, etc…
+Conserves;Poisson;kg;150;;2000000007656;Conserve poisson ≈ 150g / Type sardine, maquereaux, thon…
+Conserves;Poisson;kg;300;;2000000007663;Conserve poisson ≈ 300g / Type sardine, maquereaux, thon…
+Conserves;Fruits au sirop;kg;400;;2000000007366;Fruits au sirop ≈ 400g / Macédoine de fruits, oreillons de pêches...
+Conserves;Fruits au sirop;kg;800;;2000000007373;Fruits au sirop ≈ 800g / Macédoine de fruits, oreillons de pêches...
+Conserves;Desserts;kg;250;;2000000007823;Conserve dessert ≈ 250g / Type Mont Blanc …
+Conserves;Desserts;kg;500;;2000000007830;Conserve dessert ≈ 500g / Type Mont Blanc …
+Petit-déjeuner et sucré;Café;kg;250;;2000000007311;Café - 250g
+Petit-déjeuner et sucré;Thé, infusion, café soluble;unite;;;2000000008097;Thé / Infusion / Chicorée / café en dosettes / café soluble
+Petit-déjeuner et sucré;Chocolat;kg;100;Tablette;2000000007335;Chocolat ≈ 100g
+Petit-déjeuner et sucré;Chocolat;kg;400;Poudre;2000000007342;Petit déjeuner chocolaté ≈ 400g
+Petit-déjeuner et sucré;Biscuits, céréales;kg;20;Mini;2000000009100;Mini paquet de céréales format 20g
+Petit-déjeuner et sucré;Biscuits, céréales;kg;250;;2000000011394;Paquet de biscuits ≈ 250g
+Petit-déjeuner et sucré;Biscuits, céréales;kg;500;;2000000004273;Biscuits / Céréales Petit déjeuner / ≈ 500g
+Petit-déjeuner et sucré;Confiture, pâte à tartiner;kg;370;;2000000007526;Confiture / Gelée / Marmelade / Pâte à tartiner ≈ 370g
+Petit-déjeuner et sucré;Confiture, pâte à tartiner;kg;750;;2000000007533;Confiture / Gelée / Marmelade / Pâte à tartiner ≈ 750g
+Petit-déjeuner et sucré;Compote;kg;100;Gourde;2000000005454;Compote à l'unité 100g / (dont gourde)
+Petit-déjeuner et sucré;Compote;kg;400;;2000000007540;Compote ≈ 400g
+Petit-déjeuner et sucré;Compote;kg;650;;2000000007564;Compote ≈ 650g
+Petit-déjeuner et sucré;Sucre;kg;1000;;2000000007502;Sucre - 1Kg
+Petit-déjeuner et sucré;Fruits secs;kg;250;;2000000007809;Fruits secs / Abricot, pruneau, figue, raisin…
+Petit-déjeuner et sucré;Fruits secs;kg;500;;2000000007809;Fruits secs / Abricot, pruneau, figue, raisin…
+Petit-déjeuner et sucré;Bonbons, confiserie;unite;;;2000000008080;Bonbons / confiserie / chocolat
+Boissons;Eau;L;500;;2000000008004;Bouteille d'eau
+Boissons;Eau;L;1500;;2000000008004;Bouteille d'eau
+Boissons;Jus, sodas;L;330;;2000000004235;Soda, jus de fruits, boissons gazeuses - 33cl
+Boissons;Jus, sodas;L;1500;;2000000004228;Soda, jus de fruits, boissons gazeuses - 1,5L
+Boissons;Lait;L;1000;;2000000011370;Lait 1 Litre
+Bébé;Petits pots;unite;;Fruits;2000000005201;Petit pot bébé Fruits
+Bébé;Petits pots;unite;;Légumes;2000000005218;Petit pot bébé Légumes
+Bébé;Petits pots;unite;;Viande / poisson;2000000005225;Grand pot bébé Viande / Poisson
+Bébé;Lait infantile;unite;;1er âge;2000000009025;Lait 1er âge 0-6 mois
+Bébé;Lait infantile;unite;;2e âge;2000000009018;Lait 2ème âge 6-12 mois
+Bébé;Lait infantile;unite;;Croissance;2000000009001;Lait de croissance / 12 mois-3 ans
+Bébé;Céréales bébé;unite;;;2000000007847;Boites céréales à diluer / Type Blédine …
+Hygiène et entretien;Hygiène;unite;;;2000000009865;Produits d’hygiène génériques
+Hygiène et entretien;Couches;unite;;T1-2;2000000005270;Couches 2 / 5 Kg à l’unité
+Hygiène et entretien;Couches;unite;;T3;2000000005287;Couches 3 / 6 Kg à l’unité
+Hygiène et entretien;Couches;unite;;T4;2000000005294;Couches 4 / 9 Kg à l’unité
+Hygiène et entretien;Couches;unite;;T5;2000000005300;Couches 7 / 18 Kg à l’unité
+Hygiène et entretien;Couches;unite;;T6;2000000005317;Couches 11 / 25 Kg à l’unité
+Hygiène et entretien;Entretien, lessive;unite;;;2000000009858;Produits d’entretien génériques
+Divers;Autre;unite;;;;

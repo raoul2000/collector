@@ -127,7 +127,9 @@ for (const f of migrations) {
     ].join('\n'),
   )
 }
-cpSync(join(backend, 'sql', 'categories_initiales.sql'), join(paquet, 'sql', 'categories_initiales.sql'))
+for (const fichier of ['categories_initiales.sql', 'reinitialiser-referentiel.sql']) {
+  cpSync(join(backend, 'sql', fichier), join(paquet, 'sql', fichier))
+}
 
 // 5. Résumé -----------------------------------------------------------------------------------------------
 const version = JSON.parse(readFileSync(join(frontend, 'package.json'), 'utf8')).version

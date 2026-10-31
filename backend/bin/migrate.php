@@ -7,7 +7,8 @@ declare(strict_types=1);
  *
  *   php bin/migrate.php            applique les migrations en attente
  *   php bin/migrate.php --fresh    (développement) recrée la base vide avant de migrer
- *   php bin/migrate.php --seed     charge ensuite les données de développement (sql/seed_dev.sql)
+ *   php bin/migrate.php --seed     charge ensuite les données de développement (sql/seed_dev.sql) et la liste
+ *                                  des catégories (sql/categories_initiales.sql)
  *   php bin/migrate.php --db=nom   utilise une autre base que celle de la configuration
  */
 
@@ -43,9 +44,11 @@ try {
         : 'Migrations appliquées : ' . implode(', ', $applied) . "\n";
 
     if (isset($options['seed'])) {
-        $seed = (string) file_get_contents($appDir . '/sql/seed_dev.sql');
-        foreach (Migrator::splitStatements($seed) as $statement) {
-            $pdo->exec($statement);
+        foreach (['seed_dev.sql', 'categories_initiales.sql'] as $fichier) {
+            $seed = (string) file_get_contents($appDir . '/sql/' . $fichier);
+            foreach (Migrator::splitStatements($seed) as $statement) {
+                $pdo->exec($statement);
+            }
         }
         echo "Données de développement chargées.\n";
     }

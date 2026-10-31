@@ -213,7 +213,8 @@ Décisions (31/10/2026) :
 Étapes :
 - ✅ Sections : table `section` (migration 003), sections dans l'onglet Catégories (création, renommage, ordre, suppression sans perte des catégories), section de chaque catégorie, référentiel (`sections`, `sectionId`), grille groupée et barre de raccourcis sur l'écran de saisie
 - ✅ Variantes : libellé des formats, variantes sans contenance pour les catégories à l'unité (migration 004), bouton choisi enregistré dans la saisie (`formatId` : synchronisation, Mes saisies, correction, liste des saisies, colonne « Variante » de l'export) ; identifiants des formats conservés à la modification ; référentiel compatible avec les versions antérieures (`formats` en contenances, `boutons` complets) ; bouton incohérent ignoré à la synchronisation, refusé en correction
-- ⬜ Liste Croix-Rouge : catégories, formats et variantes, mots-clés pré-remplis, article AÏDA visé par bouton (pour 4.5) ; remplacement de la liste provisoire en production
+- ✅ Liste Croix-Rouge : `docs/categories/liste-benevoles.csv` (7 sections, 35 catégories, une ligne par bouton avec l'article AÏDA visé, pour 4.5), SQL généré par `scripts/generer-categories.mjs` (`categories_initiales.sql`, `reinitialiser-referentiel.sql`) ; données de développement sur la nouvelle liste (`bin/generer-demo.php`)
+- ⬜ Remplacement de la liste d'essai en production (décision du 31/10/2026 : repartir de zéro, il n'y a que des saisies d'essai) : déploiement, puis `reinitialiser-referentiel.sql` dans phpMyAdmin ([déploiement](deploiement.md), section 5.3)
 - ⬜ Récents
 - ⬜ Recherche par mots-clés
 - ⬜ Recherches sans résultat : remontée à la synchronisation, liste pour les responsables
@@ -268,7 +269,7 @@ Prochaines étapes possibles :
 3. **Rapprochement AÏDA** (4.5), après la collecte ; scan des codes-barres en bonus, plus tard.
 4. **En dernier** (décision du 29/10/2026), une fois toutes les fonctionnalités réalisées et validées : **version imprimable de la fiche bénévole** avec l'adresse et un QR code, pour ne pas avoir à la refaire après chaque évolution.
 
-Environnement de développement : voir le [README](../README.md). La base locale `collector` contient un jeu de démonstration d'environ 760 saisies (pour voir les bilans) ; `php bin/migrate.php --fresh --seed` la remet à zéro.
+Environnement de développement : voir le [README](../README.md). La base locale `collector` contient la liste des bénévoles et environ 800 saisies de démonstration ; `php bin/migrate.php --fresh --seed` puis `php bin/generer-demo.php` la remettent à zéro.
 
 ## Journal
 
@@ -307,3 +308,4 @@ Environnement de développement : voir le [README](../README.md). La base locale
 | 31/10/2026 | Liste Croix-Rouge reçue (planche AÏDA) ; décisions du référentiel : liste bénévole indépendante d'AÏDA, sections en grille unique, variantes, récents, recherche par mots-clés et recherches sans résultat ; rapprochement AÏDA après la collecte ; scan des codes-barres en bonus |
 | 31/10/2026 | Référentiel Croix-Rouge, étape 1 : sections (migration `003_sections.sql`, `/api/admin/sections`, grille de saisie groupée avec barre de raccourcis) |
 | 31/10/2026 | Référentiel Croix-Rouge, étape 2 : variantes (migration `004_variantes.sql`, libellé des formats, `formatId` des saisies, champ `boutons` du référentiel) |
+| 31/10/2026 | Référentiel Croix-Rouge, étape 3 : liste des bénévoles (7 sections, 35 catégories, CSV source et SQL généré), script de remise à zéro pour la production, générateur de saisies de démonstration |

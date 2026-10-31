@@ -64,7 +64,8 @@ deploy/package/
 ├── sql/
 │   ├── installation.sql          installation complète d'une base vide
 │   ├── migration-NNN_….sql       une migration par fichier (mises à jour)
-│   └── categories_initiales.sql  liste provisoire de catégories (facultatif)
+│   ├── categories_initiales.sql  liste des catégories des bénévoles (installation neuve)
+│   └── reinitialiser-referentiel.sql  remise à zéro : saisies supprimées, liste réinstallée (section 5.3)
 └── VERSION.txt
 ```
 
@@ -141,7 +142,7 @@ php bin/migrate.php         # « Migrations appliquées : … »
 
 **Sans accès SSH** : ouvrir **phpMyAdmin** depuis l'espace client (rubrique Bases de données), sélectionner la base, onglet **Importer**, choisir `deploy/package/sql/installation.sql` (jeu de caractères : utf-8), puis **Exécuter**.
 
-**Catégories (facultatif)** : pour partir de la liste provisoire, importer de la même façon `categories_initiales.sql`. Sinon, créer les catégories depuis l'espace responsable.
+**Catégories** : importer de la même façon `categories_initiales.sql` : sections, catégories, formats et variantes de la liste des bénévoles, construite d'après la planche « Articles génériques » de la Croix-Rouge (source : `docs/categories/liste-benevoles.csv`). Elle reste modifiable depuis l'espace responsable.
 
 ### 4.4 Vérifier
 
@@ -209,6 +210,16 @@ En cas d'échec d'une migration, l'outil s'arrête avant de déposer l'interface
 5. **Déposer `www/`** : copier le contenu de `deploy/package/www/` dans `/collector/www/` en remplaçant les fichiers existants. Les anciens fichiers de `www/assets/` peuvent rester (ils ne gênent pas) ou être supprimés.
 6. **Vérifier** : `https://<domaine>/api/health`, puis ouvrir l'application. Les téléphones déjà équipés affichent le bandeau « Une nouvelle version de l'application est disponible » : toucher **Mettre à jour**.
 7. **Si l'outil de mise à jour a déjà été utilisé** : supprimer `app/var/deploiement.json` sur le serveur, pour que le prochain lancement de l'outil renvoie tous les fichiers.
+
+### 5.3 Remise à zéro du référentiel (liste des catégories)
+
+À faire **une seule fois**, pour remplacer une liste de catégories d'essai par la liste des bénévoles, **tant qu'aucune vraie saisie n'a été faite** : le script supprime **toutes les saisies**, puis les catégories, formats et sections, et installe la liste. Campagnes, magasins, appareils et journal sont conservés.
+
+1. Mettre à jour l'application (section 5.1 ou 5.2) : la base doit avoir les migrations 003 et 004.
+2. **Sauvegarder la base** (phpMyAdmin > Exporter).
+3. phpMyAdmin > **Importer** `deploy/package/sql/reinitialiser-referentiel.sql` (jeu de caractères : utf-8).
+4. Vérifier l'onglet **Catégories** de l'espace responsable (7 sections, 35 catégories).
+5. Sur les téléphones qui ont servi aux essais : effacer les données du site dans le navigateur (ou désinstaller l'application), puis rouvrir l'adresse. Les saisies d'essai restées sur le téléphone ne correspondent plus à aucune catégorie.
 
 ---
 

@@ -18,6 +18,7 @@ cd backend
 composer install
 cp config/config.example.php config/config.php   # puis renseigner les accès MySQL
 php bin/migrate.php --fresh --seed               # (re)crée la base avec les données de développement
+php bin/generer-demo.php                         # ~800 saisies de démonstration (bilans, listes)
 composer serve                                   # API sur http://localhost:8000
 composer test                                    # tests PHPUnit (base collector_test recréée)
 ```
@@ -47,6 +48,7 @@ npm run build        # vérification TypeScript + compilation dans dist/
 ## Déploiement
 
 ```sh
+node scripts/generer-categories.mjs     # SQL de la liste des catégories, depuis docs/categories/liste-benevoles.csv
 node scripts/preparer-deploiement.mjs   # vérifie, compile et prépare deploy/package
 node scripts/deployer.mjs --simulation  # mise à jour du serveur par SFTP : ce qui serait fait
 node scripts/deployer.mjs               # mise à jour du serveur (fichiers modifiés et base)

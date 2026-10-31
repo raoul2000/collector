@@ -3,7 +3,7 @@ import type { CategorieRef } from '../../api/types'
 import { Alert } from '../../components/Alert'
 import { Tile } from '../../components/Tile'
 import { toast } from '../../components/toast'
-import { creerSaisie, supprimerSaisie } from '../../db/saisies'
+import { creerSaisie, supprimerSaisie, useCategoriesRecentes } from '../../db/saisies'
 import { demanderSynchro } from '../../sync/engine'
 import { useBenevole } from '../benevole/context'
 import { boutonsCategorie, libelleSaisie, varianteSaisie } from './libelle'
@@ -16,6 +16,12 @@ export const DUREE_ANNULATION_MS = 8000
 
 const DETAIL_UNITE = { kg: 'poids', L: 'volume', unite: 'à l\'unité' } as const
 
+/** Catégories récentes affichées en haut de la grille */
+export const NB_RECENTES = 4
+
+/** En dessous, la grille tient presque sur un écran : la ligne des récentes n'apporterait rien */
+export const SEUIL_RECENTES = 8
+
 /**
  * Saisie des dons : choix de la catégorie, puis du poids / volume et de la quantité.
  * Après validation, retour immédiat à la grille des catégories, prêt pour l'article suivant.
@@ -24,6 +30,11 @@ export function SaisiePage() {
   const { referentiel, magasin } = useBenevole()
   const [categorie, setCategorie] = useState<CategorieRef | null>(null)
   const [derniere, setDerniere] = useState<{ id: string; libelle: string } | null>(null)
+  const idsRecents = useCategoriesRecentes(
+    referentiel.categories.length > SEUIL_RECENTES ? referentiel.categories.map((c) => c.id) : [],
+    NB_RECENTES,
+  )
+  const recentes = (idsRecents ?? []).flatMap((id) => referentiel.categories.find((c) => c.id === id) ?? [])
 
   // La possibilité d'annuler disparaît après quelques secondes
   useEffect(() => {
@@ -85,6 +96,21 @@ export function SaisiePage() {
       {categorie === null ? (
         <>
           <h1 className="visually-hidden">Choisir une catégorie</h1>
+          {recentes.length > 0 && (
+            <section className={styles.groupe} aria-labelledby="categories-recentes">
+              <h2 id="categories-recentes" className={styles.titreSection}>
+                Récents
+              </h2>
+              <div className={styles.grid}>
+                {recentes.map((c) => (
+                  // Hors de sa section, un nom comme « Légumes » a besoin de son contexte (Conserves)
+                  <Tile key={c.id} onClick={() => setCategorie(c)} detail={referentiel.sections?.find((s) => s.id === c.sectionId)?.nom}>
+                    {c.nom}
+                  </Tile>
+                ))}
+              </div>
+            </section>
+          )}
           <GrilleCategories groupes={grouperParSection(referentiel)} onChoisir={setCategorie} />
         </>
       ) : (

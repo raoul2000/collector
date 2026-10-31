@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { Referentiel } from '../../api/types'
 import { db } from '../../db/db'
 import { enregistrerReferentiel } from '../../db/referentiel'
+import { creerSaisie } from '../../db/saisies'
 import { useBenevoleStore } from '../../stores/benevole'
 import { useSyncStore } from '../../sync/syncStore'
 import { renderApp } from '../../test/renderApp'
@@ -243,6 +244,42 @@ describe('Écran de saisie', () => {
     await user.click(screen.getByRole('button', { name: 'Valider' }))
 
     await waitFor(async () => expect(await saisies()).toEqual([expect.objectContaining({ contenanceUnitaire: 500, formatId: null })]))
+  })
+
+  it('propose les catégories récentes en haut d’une grille longue', async () => {
+    const categories = Array.from({ length: 10 }, (_, i) => ({ ...SAVON, id: 100 + i, nom: `Catégorie ${i}` }))
+    const base = { campagneId: 7, magasinId: 4, quantite: 1, contenanceUnitaire: null }
+    await creerSaisie({ ...base, categorieId: 101 }, new Date('2026-10-01T09:00:00Z'))
+    await creerSaisie({ ...base, categorieId: 105 }, new Date('2026-10-01T09:01:00Z'))
+    await creerSaisie({ ...base, categorieId: 101 }, new Date('2026-10-01T09:02:00Z'))
+    const supprimee = await creerSaisie({ ...base, categorieId: 107 }, new Date('2026-10-01T09:03:00Z'))
+    await db.saisies.update(supprimee.id, { supprime: true })
+    // Catégorie retirée de la collecte
+    await creerSaisie({ ...base, categorieId: 999 }, new Date('2026-10-01T09:04:00Z'))
+
+    const user = await demarrer({ ...REFERENTIEL, categories })
+
+    const recents = await screen.findByRole('region', { name: 'Récents' })
+    expect(within(recents).getAllByRole('button').map((b) => b.textContent)).toEqual(['Catégorie 1', 'Catégorie 5'])
+
+    await user.click(within(recents).getByRole('button', { name: 'Catégorie 5' }))
+    expect(screen.getByRole('heading', { name: 'Catégorie 5' })).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Valider' }))
+
+    await waitFor(() =>
+      expect(within(screen.getByRole('region', { name: 'Récents' })).getAllByRole('button').map((b) => b.textContent)).toEqual([
+        'Catégorie 5',
+        'Catégorie 1',
+      ]),
+    )
+  })
+
+  it('n’affiche pas de récents pour une grille courte', async () => {
+    await creerSaisie({ campagneId: 7, magasinId: 4, categorieId: 1, quantite: 1, contenanceUnitaire: 500 })
+    await demarrer()
+
+    expect(await screen.findByRole('button', { name: /Pâtes/ })).toBeInTheDocument()
+    expect(screen.queryByRole('region', { name: 'Récents' })).not.toBeInTheDocument()
   })
 
   it('affiche une grille simple sans sections', async () => {

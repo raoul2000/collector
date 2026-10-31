@@ -53,6 +53,30 @@ export function useMesSaisies(): SaisieLocale[] | undefined {
   return useLiveQuery(() => db.saisies.orderBy('saisieLe').reverse().filter((s) => !s.supprime).toArray())
 }
 
+/**
+ * Catégories des saisies les plus récentes du téléphone (sans doublon, de la plus récente à la plus ancienne),
+ * parmi les catégories connues : les dons d'une collecte se répètent beaucoup.
+ */
+export function useCategoriesRecentes(connues: number[], nombre: number): number[] | undefined {
+  return useLiveQuery(
+    async () => {
+      const autorisees = new Set(connues)
+      const ids: number[] = []
+      await db.saisies
+        .orderBy('saisieLe')
+        .reverse()
+        .until(() => ids.length >= nombre)
+        .each((s) => {
+          if (!s.supprime && autorisees.has(s.categorieId) && !ids.includes(s.categorieId)) {
+            ids.push(s.categorieId)
+          }
+        })
+      return ids
+    },
+    [connues.join(','), nombre],
+  )
+}
+
 /** Nombre de saisies en attente d'envoi au serveur */
 export function useNbAEnvoyer(): number | undefined {
   return useLiveQuery(() => db.saisies.where('aEnvoyer').equals(1).count())

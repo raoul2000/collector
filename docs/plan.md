@@ -215,7 +215,7 @@ Décisions (31/10/2026) :
 - ✅ Variantes : libellé des formats, variantes sans contenance pour les catégories à l'unité (migration 004), bouton choisi enregistré dans la saisie (`formatId` : synchronisation, Mes saisies, correction, liste des saisies, colonne « Variante » de l'export) ; identifiants des formats conservés à la modification ; référentiel compatible avec les versions antérieures (`formats` en contenances, `boutons` complets) ; bouton incohérent ignoré à la synchronisation, refusé en correction
 - ✅ Liste Croix-Rouge : `docs/categories/liste-benevoles.csv` (7 sections, 35 catégories, une ligne par bouton avec l'article AÏDA visé, pour 4.5), SQL généré par `scripts/generer-categories.mjs` (`categories_initiales.sql`, `reinitialiser-referentiel.sql`) ; données de développement sur la nouvelle liste (`bin/generer-demo.php`)
 - ⬜ Remplacement de la liste d'essai en production (décision du 31/10/2026 : repartir de zéro, il n'y a que des saisies d'essai) : déploiement, puis `reinitialiser-referentiel.sql` dans phpMyAdmin ([déploiement](deploiement.md), section 5.3)
-- ⬜ Récents
+- ✅ Récents : les 4 dernières catégories utilisées sur le téléphone (d'après ses saisies, sans doublon, hors saisies supprimées et catégories retirées), avec le nom de leur section, en haut d'une grille de plus de 8 catégories
 - ⬜ Recherche par mots-clés
 - ⬜ Recherches sans résultat : remontée à la synchronisation, liste pour les responsables
 
@@ -309,3 +309,4 @@ Environnement de développement : voir le [README](../README.md). La base locale
 | 31/10/2026 | Référentiel Croix-Rouge, étape 1 : sections (migration `003_sections.sql`, `/api/admin/sections`, grille de saisie groupée avec barre de raccourcis) |
 | 31/10/2026 | Référentiel Croix-Rouge, étape 2 : variantes (migration `004_variantes.sql`, libellé des formats, `formatId` des saisies, champ `boutons` du référentiel) |
 | 31/10/2026 | Référentiel Croix-Rouge, étape 3 : liste des bénévoles (7 sections, 35 catégories, CSV source et SQL généré), script de remise à zéro pour la production, générateur de saisies de démonstration |
+| 31/10/2026 | Référentiel Croix-Rouge, étape 4 : catégories récentes en haut de la grille de saisie |

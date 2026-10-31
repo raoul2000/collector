@@ -42,6 +42,8 @@ export interface CategorieRef {
   /** Absent d'une copie locale enregistrée avant l'arrivée des sections */
   sectionId?: number | null
   unite: Unite
+  /** Mots-clés de recherche (absents d'une copie locale antérieure à la recherche) */
+  motsCles?: string[]
   /** Contenances seules (versions de l'application antérieures aux variantes) */
   formats: number[]
   /** Boutons proposés à la saisie (absent d'une copie locale antérieure aux variantes) */
@@ -105,6 +107,7 @@ export interface Categorie {
   ordre: number
   active: boolean
   codeReference: string | null
+  motsCles: string[]
   formats: FormatRef[]
   nbSaisies: number
 }
@@ -122,6 +125,8 @@ export interface CategorieInput {
   unite: Unite
   active: boolean
   codeReference: string
+  /** Mots-clés séparés par des virgules */
+  motsCles: string
   formats: FormatInput[]
 }
 

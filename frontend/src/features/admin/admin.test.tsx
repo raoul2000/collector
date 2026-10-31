@@ -129,6 +129,7 @@ describe('Catégories', () => {
     ordre: id * 10,
     active: true,
     codeReference: null,
+    motsCles: [],
     formats: [],
     nbSaisies: 0,
     ...extra,
@@ -198,6 +199,7 @@ describe('Catégories', () => {
       sectionId: null,
       unite: 'kg',
       codeReference: '',
+      motsCles: '',
       active: true,
       formats: [
         { contenance: 500, libelle: null },

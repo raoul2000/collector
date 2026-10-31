@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 /**
  * Génère les scripts SQL de la liste des catégories à partir de docs/categories/liste-benevoles.csv
- * (une ligne par bouton : section, catégorie, unité, contenance, variante, article AÏDA visé) :
+ * (une ligne par bouton : section, catégorie, unité, contenance, variante, article AÏDA visé, mots-clés de recherche
+ * sur la première ligne de la catégorie) :
  *
  *   backend/sql/categories_initiales.sql      installation neuve (tables section, categorie et format vides)
  *   backend/sql/reinitialiser-referentiel.sql remise à zéro : supprime saisies, catégories et sections, puis
@@ -23,13 +24,14 @@ const source = 'docs/categories/liste-benevoles.csv'
 const [entete, ...lignes] = readFileSync(join(racine, source), 'utf8').trim().split(/\r?\n/).map((l) => l.split(';'))
 const col = Object.fromEntries(entete.map((nom, i) => [nom, i]))
 
-/** @type {Map<string, Map<string, {unite: string, boutons: {contenance: number|null, libelle: string|null}[]}>>} */
+/** @type {Map<string, Map<string, {unite: string, motsCles: string|null, boutons: {contenance: number|null, libelle: string|null}[]}>>} */
 const sections = new Map()
 for (const ligne of lignes) {
   const [section, categorie, unite] = [ligne[col.section], ligne[col.categorie], ligne[col.unite]]
   if (!['kg', 'L', 'unite'].includes(unite)) throw new Error(`${categorie} : unité inconnue « ${unite} »`)
   const categories = sections.get(section) ?? sections.set(section, new Map()).get(section)
-  const cat = categories.get(categorie) ?? categories.set(categorie, { unite, boutons: [] }).get(categorie)
+  const cat = categories.get(categorie) ?? categories.set(categorie, { unite, motsCles: null, boutons: [] }).get(categorie)
+  cat.motsCles ??= ligne[col.mots_cles] || null
   if (cat.unite !== unite) throw new Error(`${categorie} : unités différentes`)
   const contenance = ligne[col.contenance] === '' ? null : Number(ligne[col.contenance])
   const libelle = ligne[col.variante] || null
@@ -44,8 +46,10 @@ let ordreSection = 0
 let ordreCategorie = 0
 for (const [section, categories] of sections) {
   insertions.push('', `-- ${section}`, `INSERT INTO section (nom, ordre) VALUES (${sql(section)}, ${(ordreSection += 10)});`, 'SET @section = LAST_INSERT_ID();')
-  for (const [nom, { unite, boutons }] of categories) {
-    insertions.push(`INSERT INTO categorie (nom, section_id, unite, ordre) VALUES (${sql(nom)}, @section, ${sql(unite)}, ${(ordreCategorie += 10)});`)
+  for (const [nom, { unite, motsCles, boutons }] of categories) {
+    insertions.push(
+      `INSERT INTO categorie (nom, section_id, unite, ordre, mots_cles) VALUES (${sql(nom)}, @section, ${sql(unite)}, ${(ordreCategorie += 10)}, ${sql(motsCles)});`,
+    )
     if (boutons.length > 0) {
       insertions.push(
         'SET @categorie = LAST_INSERT_ID();',

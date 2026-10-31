@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react'
-import type { CategorieRef } from '../../api/types'
+import type { CategorieRef, FormatRef, SectionRef } from '../../api/types'
 import { Alert } from '../../components/Alert'
 import { Tile } from '../../components/Tile'
 import { toast } from '../../components/toast'
 import { creerSaisie, supprimerSaisie, useCategoriesRecentes } from '../../db/saisies'
 import { demanderSynchro } from '../../sync/engine'
 import { useBenevole } from '../benevole/context'
-import { boutonsCategorie, libelleSaisie, varianteSaisie } from './libelle'
+import { boutonsCategorie, libelleBouton, libelleSaisie, varianteSaisie } from './libelle'
+import { normaliser, rechercher } from './recherche'
 import { grouperParSection, type GroupeCategories } from './sections'
 import { SaisieForm, type ContenuForm } from './SaisieForm'
 import styles from './SaisiePage.module.css'
@@ -29,6 +30,9 @@ export const SEUIL_RECENTES = 8
 export function SaisiePage() {
   const { referentiel, magasin } = useBenevole()
   const [categorie, setCategorie] = useState<CategorieRef | null>(null)
+  // Variante trouvée par la recherche : la saisie s'ouvre sur ce bouton
+  const [boutonInitial, setBoutonInitial] = useState<FormatRef>()
+  const [recherche, setRecherche] = useState('')
   const [derniere, setDerniere] = useState<{ id: string; libelle: string } | null>(null)
   const idsRecents = useCategoriesRecentes(
     referentiel.categories.length > SEUIL_RECENTES ? referentiel.categories.map((c) => c.id) : [],
@@ -69,6 +73,14 @@ export function SaisiePage() {
     window.scrollTo?.({ top: 0 })
   }
 
+  const choisir = (choisie: CategorieRef, bouton?: FormatRef) => {
+    setCategorie(choisie)
+    setBoutonInitial(bouton)
+    setRecherche('')
+  }
+
+  const nomSection = (c: CategorieRef) => referentiel.sections?.find((s) => s.id === c.sectionId)?.nom
+
   const annuler = async () => {
     if (!derniere) {
       return
@@ -96,22 +108,54 @@ export function SaisiePage() {
       {categorie === null ? (
         <>
           <h1 className="visually-hidden">Choisir une catégorie</h1>
-          {recentes.length > 0 && (
-            <section className={styles.groupe} aria-labelledby="categories-recentes">
-              <h2 id="categories-recentes" className={styles.titreSection}>
-                Récents
-              </h2>
-              <div className={styles.grid}>
-                {recentes.map((c) => (
-                  // Hors de sa section, un nom comme « Légumes » a besoin de son contexte (Conserves)
-                  <Tile key={c.id} onClick={() => setCategorie(c)} detail={referentiel.sections?.find((s) => s.id === c.sectionId)?.nom}>
-                    {c.nom}
-                  </Tile>
-                ))}
-              </div>
-            </section>
+          <div className={styles.recherche}>
+            <label htmlFor="recherche-categorie" className="visually-hidden">
+              Rechercher un produit
+            </label>
+            <input
+              id="recherche-categorie"
+              className={styles.rechercheInput}
+              type="search"
+              enterKeyHint="search"
+              autoComplete="off"
+              placeholder="Rechercher un produit (ex. lentilles)"
+              value={recherche}
+              onChange={(e) => setRecherche(e.target.value)}
+            />
+            {recherche !== '' && (
+              <button type="button" className={styles.effacer} onClick={() => setRecherche('')} aria-label="Effacer la recherche">
+                ×
+              </button>
+            )}
+          </div>
+          {normaliser(recherche) !== '' ? (
+            <ResultatsRecherche
+              recherche={recherche}
+              categories={referentiel.categories}
+              sections={referentiel.sections ?? []}
+              onChoisir={choisir}
+              onEffacer={() => setRecherche('')}
+            />
+          ) : (
+            <>
+              {recentes.length > 0 && (
+                <section className={styles.groupe} aria-labelledby="categories-recentes">
+                  <h2 id="categories-recentes" className={styles.titreSection}>
+                    Récents
+                  </h2>
+                  <div className={styles.grid}>
+                    {recentes.map((c) => (
+                      // Hors de sa section, un nom comme « Légumes » a besoin de son contexte (Conserves)
+                      <Tile key={c.id} onClick={() => choisir(c)} detail={nomSection(c)}>
+                        {c.nom}
+                      </Tile>
+                    ))}
+                  </div>
+                </section>
+              )}
+              <GrilleCategories groupes={grouperParSection(referentiel)} onChoisir={choisir} />
+            </>
           )}
-          <GrilleCategories groupes={grouperParSection(referentiel)} onChoisir={setCategorie} />
         </>
       ) : (
         <>
@@ -122,9 +166,10 @@ export function SaisiePage() {
             <h1 className={styles.detailTitre}>{categorie.nom}</h1>
           </div>
           <SaisieForm
-            key={categorie.id}
+            key={`${categorie.id}-${boutonInitial?.id ?? ''}`}
             unite={categorie.unite}
             boutons={boutonsCategorie(categorie)}
+            initial={boutonInitial && { quantite: 1, contenanceUnitaire: boutonInitial.contenance, formatId: boutonInitial.id }}
             submitLabel="Valider"
             onSubmit={(contenu) => void enregistrer(categorie, contenu)}
           />
@@ -178,5 +223,56 @@ function GrilleCategories({ groupes, onChoisir }: { groupes: GroupeCategories[];
         </section>
       ))}
     </>
+  )
+}
+
+interface ResultatsRechercheProps {
+  recherche: string
+  categories: CategorieRef[]
+  sections: SectionRef[]
+  onChoisir: (categorie: CategorieRef, bouton?: FormatRef) => void
+  onEffacer: () => void
+}
+
+/**
+ * Résultats de la recherche : catégories et variantes trouvées. Sans résultat, la catégorie « Autre » (si elle
+ * existe) permet de saisir quand même.
+ */
+function ResultatsRecherche({ recherche, categories, sections, onChoisir, onEffacer }: ResultatsRechercheProps) {
+  const resultats = rechercher(recherche, categories, sections)
+  const section = (c: CategorieRef) => sections.find((s) => s.id === c.sectionId)?.nom
+
+  if (resultats.length === 0) {
+    const autre = categories.find((c) => normaliser(c.nom) === 'autre')
+    return (
+      <div className={styles.sansResultat} role="status">
+        <p>Aucune catégorie ne correspond à « {recherche.trim()} ».</p>
+        <div className={styles.grid}>
+          {autre && (
+            <Tile size="lg" detail="produit non prévu" onClick={() => onChoisir(autre)}>
+              {autre.nom}
+            </Tile>
+          )}
+          <Tile size="lg" onClick={onEffacer}>
+            Voir toutes les catégories
+          </Tile>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <section aria-label="Résultats de la recherche" className={styles.grid}>
+      {resultats.map(({ categorie, bouton, motCle }) => (
+        <Tile
+          key={`${categorie.id}-${bouton?.id ?? ''}`}
+          size="lg"
+          onClick={() => onChoisir(categorie, bouton)}
+          detail={bouton ? libelleBouton(bouton, categorie.unite) : (motCle ?? section(categorie))}
+        >
+          {categorie.nom}
+        </Tile>
+      ))}
+    </section>
   )
 }

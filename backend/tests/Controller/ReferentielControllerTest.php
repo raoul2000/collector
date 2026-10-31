@@ -37,7 +37,7 @@ final class ReferentielControllerTest extends ApiTestCase
         $this->insert('campagne_magasin', ['campagne_id' => $ancienne, 'magasin_id' => $autre]);
 
         $huile = $this->insert('categorie', ['nom' => 'Huile', 'unite' => 'L', 'ordre' => 20]);
-        $pates = $this->insert('categorie', ['nom' => 'Pâtes', 'unite' => 'kg', 'ordre' => 10]);
+        $pates = $this->insert('categorie', ['nom' => 'Pâtes', 'unite' => 'kg', 'ordre' => 10, 'mots_cles' => 'coquillettes, spaghetti']);
         $savon = $this->insert('categorie', ['nom' => 'Savon', 'unite' => 'unite', 'ordre' => 30]);
         $this->insert('categorie', ['nom' => 'Ancienne', 'unite' => 'kg', 'ordre' => 5, 'active' => 0]);
         $this->insert('format', ['categorie_id' => $pates, 'contenance' => 1000, 'ordre' => 3]);
@@ -63,9 +63,9 @@ final class ReferentielControllerTest extends ApiTestCase
         $boutons = array_column($data['categories'], 'boutons');
         self::assertSame(
             [
-                ['id' => $pates, 'nom' => 'Pâtes', 'sectionId' => null, 'unite' => 'kg', 'formats' => [250, 500, 1000], 'boutons' => $boutons[0]],
-                ['id' => $huile, 'nom' => 'Huile', 'sectionId' => null, 'unite' => 'L', 'formats' => [1000], 'boutons' => $boutons[1]],
-                ['id' => $savon, 'nom' => 'Savon', 'sectionId' => null, 'unite' => 'unite', 'formats' => [], 'boutons' => []],
+                ['id' => $pates, 'nom' => 'Pâtes', 'sectionId' => null, 'unite' => 'kg', 'motsCles' => ['coquillettes', 'spaghetti'], 'formats' => [250, 500, 1000], 'boutons' => $boutons[0]],
+                ['id' => $huile, 'nom' => 'Huile', 'sectionId' => null, 'unite' => 'L', 'motsCles' => [], 'formats' => [1000], 'boutons' => $boutons[1]],
+                ['id' => $savon, 'nom' => 'Savon', 'sectionId' => null, 'unite' => 'unite', 'motsCles' => [], 'formats' => [], 'boutons' => []],
             ],
             $data['categories'],
         );

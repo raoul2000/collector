@@ -27,6 +27,7 @@ export function CategorieFormDialog({ categorie, onClose }: CategorieFormDialogP
   const [sectionId, setSectionId] = useState<number | null>(categorie?.sectionId ?? null)
   const [unite, setUnite] = useState<Unite>(categorie?.unite ?? 'kg')
   const [codeReference, setCodeReference] = useState(categorie?.codeReference ?? '')
+  const [motsCles, setMotsCles] = useState((categorie?.motsCles ?? []).join(', '))
   const [active, setActive] = useState(categorie?.active ?? true)
   const [formats, setFormats] = useState<FormatInput[]>(categorie?.formats ?? [])
   const [errors, setErrors] = useState<FieldErrors>({})
@@ -44,7 +45,7 @@ export function CategorieFormDialog({ categorie, onClose }: CategorieFormDialogP
     event.preventDefault()
     setErrors({})
     save.mutate(
-      { id: categorie?.id, input: { nom, sectionId, unite, codeReference, active, formats } },
+      { id: categorie?.id, input: { nom, sectionId, unite, codeReference, motsCles, active, formats } },
       {
         onSuccess: (saved) => {
           toast.success(`Catégorie « ${saved.nom} » enregistrée.`)
@@ -123,6 +124,16 @@ export function CategorieFormDialog({ categorie, onClose }: CategorieFormDialogP
         </div>
 
         <FormatsEditor key={unite} unite={unite} value={formats} onChange={setFormats} error={errors.formats} />
+
+        <TextField
+          label="Mots-clés"
+          placeholder="lentilles, pois chiches, flageolets"
+          hint="Séparés par des virgules : le bénévole qui les tape dans la recherche trouve cette catégorie."
+          value={motsCles}
+          onChange={(e) => setMotsCles(e.target.value)}
+          error={errors.motsCles}
+          maxLength={500}
+        />
 
         <Checkbox label="Catégorie active" checked={active} onChange={(e) => setActive(e.target.checked)} />
       </form>

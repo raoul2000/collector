@@ -13,7 +13,7 @@ use PDO;
  *
  * @phpstan-type Categorie array{
  *     id: int, nom: string, sectionId: int|null, unite: 'kg'|'L'|'unite', ordre: int, active: bool,
- *     codeReference: string|null, formats: list<Format>, nbSaisies: int
+ *     codeReference: string|null, motsCles: list<string>, formats: list<Format>, nbSaisies: int
  * }
  * @phpstan-type Format array{id: int, contenance: int|null, libelle: string|null}
  * @phpstan-type FormatInput array{id: int|null, contenance: int|null, libelle: string|null}
@@ -21,7 +21,7 @@ use PDO;
 final readonly class CategorieRepository
 {
     private const string SELECT =
-        'SELECT c.id, c.nom, c.section_id, c.unite, c.ordre, c.active, c.code_reference,
+        'SELECT c.id, c.nom, c.section_id, c.unite, c.ordre, c.active, c.code_reference, c.mots_cles,
                 (SELECT COUNT(*) FROM saisie s WHERE s.categorie_id = c.id) AS nb_saisies
          FROM categorie c
          LEFT JOIN section sec ON sec.id = c.section_id';
@@ -103,11 +103,12 @@ final readonly class CategorieRepository
         int $ordre,
         bool $active,
         ?string $codeReference,
+        array $motsCles,
         array $formats,
     ): int {
         $this->db->prepare(
-            'INSERT INTO categorie (nom, section_id, unite, ordre, active, code_reference) VALUES (?, ?, ?, ?, ?, ?)',
-        )->execute([$nom, $sectionId, $unite, $ordre, (int) $active, $codeReference]);
+            'INSERT INTO categorie (nom, section_id, unite, ordre, active, code_reference, mots_cles) VALUES (?, ?, ?, ?, ?, ?, ?)',
+        )->execute([$nom, $sectionId, $unite, $ordre, (int) $active, $codeReference, self::motsClesSql($motsCles)]);
         $id = (int) $this->db->lastInsertId();
         $this->setFormats($id, $formats);
 
@@ -125,11 +126,12 @@ final readonly class CategorieRepository
         int $ordre,
         bool $active,
         ?string $codeReference,
+        array $motsCles,
         array $formats,
     ): void {
         $this->db->prepare(
-            'UPDATE categorie SET nom = ?, section_id = ?, unite = ?, ordre = ?, active = ?, code_reference = ? WHERE id = ?',
-        )->execute([$nom, $sectionId, $unite, $ordre, (int) $active, $codeReference, $id]);
+            'UPDATE categorie SET nom = ?, section_id = ?, unite = ?, ordre = ?, active = ?, code_reference = ?, mots_cles = ? WHERE id = ?',
+        )->execute([$nom, $sectionId, $unite, $ordre, (int) $active, $codeReference, self::motsClesSql($motsCles), $id]);
         $this->setFormats($id, $formats);
     }
 
@@ -191,6 +193,32 @@ final readonly class CategorieRepository
     }
 
     /**
+     * Liste de mots-clés : séparés par des virgules (ou des retours à la ligne), sans doublon ni vide.
+     *
+     * @return list<string>
+     */
+    public static function motsCles(?string $texte): array
+    {
+        $mots = [];
+        foreach (preg_split('/[,\n]/', (string) $texte) ?: [] as $mot) {
+            $mot = trim((string) preg_replace('/\s+/', ' ', $mot));
+            if ($mot !== '' && !in_array(mb_strtolower($mot), array_map(mb_strtolower(...), $mots), true)) {
+                $mots[] = $mot;
+            }
+        }
+
+        return $mots;
+    }
+
+    /**
+     * @param list<string> $motsCles
+     */
+    private static function motsClesSql(array $motsCles): ?string
+    {
+        return $motsCles === [] ? null : implode(', ', $motsCles);
+    }
+
+    /**
      * @param list<array<string, mixed>> $rows
      * @return list<Categorie>
      */
@@ -226,6 +254,7 @@ final readonly class CategorieRepository
                 'ordre' => (int) $row['ordre'],
                 'active' => (bool) $row['active'],
                 'codeReference' => $row['code_reference'],
+                'motsCles' => self::motsCles($row['mots_cles']),
                 'formats' => $formats[(int) $row['id']] ?? [],
                 'nbSaisies' => (int) $row['nb_saisies'],
             ],

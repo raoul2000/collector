@@ -40,6 +40,7 @@ final readonly class ReferentielController
                     'nom' => $c['nom'],
                     'sectionId' => $c['sectionId'],
                     'unite' => $c['unite'],
+                    'motsCles' => $c['motsCles'],
                     // Contenances seules, pour les versions de l'application antérieures aux variantes
                     'formats' => array_values(array_unique(array_filter(array_column($c['formats'], 'contenance')))),
                     'boutons' => $c['formats'],

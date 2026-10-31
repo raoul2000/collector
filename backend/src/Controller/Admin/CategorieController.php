@@ -25,6 +25,8 @@ final readonly class CategorieController
 
     public const int LIBELLE_MAX = 40;
 
+    public const int MOTS_CLES_MAX = 500;
+
     public function __construct(
         private PDO $db,
         private CategorieRepository $categories,
@@ -50,6 +52,7 @@ final readonly class CategorieController
                 $data['ordre'] ?? $this->categories->nextOrdre(),
                 $data['active'],
                 $data['codeReference'],
+                $data['motsCles'],
                 $data['formats'],
             );
             $this->journal->log($prenom, 'creation', 'categorie', $id, ['apres' => $this->categories->find($id)]);
@@ -74,6 +77,7 @@ final readonly class CategorieController
                 $data['ordre'] ?? $avant['ordre'],
                 $data['active'],
                 $data['codeReference'],
+                $data['motsCles'],
                 $data['formats'],
             );
             $this->journal->log($prenom, 'modification', 'categorie', $avant['id'], [
@@ -202,7 +206,7 @@ final readonly class CategorieController
 
     /**
      * @param array<string, mixed>|null $existing catégorie modifiée (null pour une création)
-     * @return array{nom: string, sectionId: int|null, unite: string, ordre: int|null, active: bool, codeReference: string|null, formats: list<array{id: int|null, contenance: int|null, libelle: string|null}>}
+     * @return array{nom: string, sectionId: int|null, unite: string, ordre: int|null, active: bool, codeReference: string|null, motsCles: list<string>, formats: list<array{id: int|null, contenance: int|null, libelle: string|null}>}
      */
     private function validate(Request $request, ?array $existing): array
     {
@@ -213,6 +217,10 @@ final readonly class CategorieController
         $active = $v->bool('active', optional: true) ?? $existing['active'] ?? true;
         $codeReference = $v->string('codeReference', max: 50, optional: true);
         $codeReference = $codeReference === '' ? null : $codeReference;
+        // Texte séparé par des virgules ; absent : inchangés
+        $motsCles = $v->has('motsCles')
+            ? CategorieRepository::motsCles($v->string('motsCles', max: self::MOTS_CLES_MAX, optional: true))
+            : $existing['motsCles'] ?? [];
         // Absente : inchangée ; null : sans section
         $sectionId = array_key_exists('sectionId', $request->json())
             ? $v->int('sectionId', 1, PHP_INT_MAX, optional: true)
@@ -245,6 +253,7 @@ final readonly class CategorieController
             'ordre' => $ordre,
             'active' => $active,
             'codeReference' => $codeReference,
+            'motsCles' => $motsCles,
             'formats' => $formats,
         ];
     }

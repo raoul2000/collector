@@ -197,7 +197,7 @@ campagne      (id, nom, date_debut, date_fin, active, cree_le)
 magasin       (id, nom, ville, actif)
 campagne_magasin (campagne_id, magasin_id)
 section       (id, nom, ordre)                                  -- groupe de catégories (repère de la grille)
-categorie     (id, nom, section_id NULL, unite ENUM('kg','L','unite'), ordre, active, code_reference)
+categorie     (id, nom, section_id NULL, unite ENUM('kg','L','unite'), ordre, active, code_reference, mots_cles NULL)
 format        (id, categorie_id, contenance INT NULL, libelle NULL, ordre)  -- g ou ml ; libellé de variante
 appareil      (id CHAR(36) UUID, prenom, cree_le, vu_le)
 saisie        (id CHAR(36) UUID généré côté client,

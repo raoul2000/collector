@@ -282,6 +282,45 @@ describe('Écran de saisie', () => {
     expect(screen.queryByRole('region', { name: 'Récents' })).not.toBeInTheDocument()
   })
 
+  it('trouve une catégorie ou une variante par la recherche', async () => {
+    const huile = {
+      ...HUILE,
+      motsCles: ['friture'],
+      boutons: [
+        { id: 21, contenance: 1000, libelle: 'Olive / colza' },
+        { id: 22, contenance: 1000, libelle: 'Tournesol, autres' },
+      ],
+    }
+    const autre = { ...SAVON, id: 9, nom: 'Autre' }
+    const user = await demarrer({ ...REFERENTIEL, categories: [PATES, huile, SAVON, autre] })
+    const champ = await screen.findByRole('searchbox', { name: 'Rechercher un produit' })
+
+    await user.type(champ, 'tournesol')
+    const resultats = screen.getByRole('region', { name: 'Résultats de la recherche' })
+    expect(within(resultats).getAllByRole('button')).toHaveLength(1)
+    expect(screen.queryByRole('button', { name: /Pâtes/ })).not.toBeInTheDocument()
+    await user.click(within(resultats).getByRole('button', { name: /Huile/ }))
+
+    // La saisie s'ouvre sur la variante trouvée
+    expect(screen.getByRole('heading', { name: 'Huile' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Tournesol/ })).toHaveAttribute('aria-pressed', 'true')
+    await user.click(screen.getByRole('button', { name: 'Valider' }))
+    await waitFor(async () => expect(await saisies()).toEqual([expect.objectContaining({ categorieId: 2, formatId: 22 })]))
+
+    // Mot-clé, puis aucun résultat : la catégorie « Autre » reste proposée
+    const champ2 = screen.getByRole('searchbox', { name: 'Rechercher un produit' })
+    expect(champ2).toHaveValue('')
+    await user.type(champ2, 'friture')
+    expect(within(screen.getByRole('region', { name: 'Résultats de la recherche' })).getByRole('button')).toHaveTextContent('friture')
+    await user.clear(champ2)
+    await user.type(champ2, 'gnocchi')
+    expect(screen.getByText('Aucune catégorie ne correspond à « gnocchi ».')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Autre/ })).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Voir toutes les catégories' }))
+    expect(champ2).toHaveValue('')
+    expect(screen.getByRole('button', { name: /Pâtes/ })).toBeInTheDocument()
+  })
+
   it('affiche une grille simple sans sections', async () => {
     await demarrer()
 

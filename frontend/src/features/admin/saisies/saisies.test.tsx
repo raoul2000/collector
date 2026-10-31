@@ -24,7 +24,7 @@ const MAGASINS: Magasin[] = [
   { id: 4, nom: 'Lidl', ville: 'Centre', actif: true, nbSaisies: 2 },
 ]
 
-const PATES: Categorie = { id: 1, nom: 'Pâtes', sectionId: null, unite: 'kg', ordre: 10, active: true, codeReference: null, formats: [{ id: 11, contenance: 250, libelle: null }, { id: 12, contenance: 500, libelle: null }], nbSaisies: 1 }
+const PATES: Categorie = { id: 1, nom: 'Pâtes', sectionId: null, unite: 'kg', ordre: 10, active: true, codeReference: null, motsCles: [], formats: [{ id: 11, contenance: 250, libelle: null }, { id: 12, contenance: 500, libelle: null }], nbSaisies: 1 }
 
 const SAISIE: SaisieAdmin = {
   id: 'a1a1a1a1-0000-4000-8000-000000000001',

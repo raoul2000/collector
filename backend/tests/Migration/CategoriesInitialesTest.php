@@ -54,6 +54,10 @@ final class CategoriesInitialesTest extends DatabaseTestCase
             "SELECT CONCAT(f.libelle, ' ', f.contenance) FROM format f JOIN categorie c ON c.id = f.categorie_id WHERE c.nom = 'Huile' ORDER BY f.ordre",
         )->fetchAll(PDO::FETCH_COLUMN);
         self::assertSame(['Olive / colza 1000', 'Tournesol, autres 1000'], $huile);
+
+        $motsCles = (string) $this->db->query("SELECT mots_cles FROM categorie WHERE nom = 'Légumineuses en conserve'")->fetchColumn();
+        self::assertStringContainsString('lentilles', $motsCles);
+        self::assertSame(1, (int) $this->db->query('SELECT COUNT(*) FROM categorie WHERE mots_cles IS NULL')->fetchColumn(), 'Seule « Autre » est sans mots-clés');
     }
 
     private function executer(string $fichier): void

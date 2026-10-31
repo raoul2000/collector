@@ -134,3 +134,49 @@
   letter-spacing: 0.04em;
   text-transform: uppercase;
 }
+
+/* Recherche d'un produit, au-dessus de la grille */
+.recherche {
+  position: relative;
+}
+
+.rechercheInput {
+  width: 100%;
+  min-height: var(--touch-lg);
+  padding: var(--space-2) calc(var(--touch-min) + var(--space-2)) var(--space-2) var(--space-4);
+  border: 2px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  font: inherit;
+  font-size: var(--font-size-lg);
+}
+
+.rechercheInput:focus {
+  border-color: var(--color-focus);
+  outline: none;
+}
+
+/* Effacement intégré au navigateur remplacé par un bouton assez grand pour le pouce */
+.rechercheInput::-webkit-search-cancel-button {
+  display: none;
+}
+
+.effacer {
+  position: absolute;
+  top: 50%;
+  right: var(--space-1);
+  width: var(--touch-min);
+  height: var(--touch-min);
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  font-size: 1.5rem;
+  transform: translateY(-50%);
+  cursor: pointer;
+}
+
+.sansResultat {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}

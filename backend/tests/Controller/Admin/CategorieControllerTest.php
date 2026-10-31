@@ -29,7 +29,7 @@ final class CategorieControllerTest extends ApiTestCase
         $formats = $response->data['formats'];
         self::assertSame(
             ['id' => $response->data['id'], 'nom' => 'Pâtes', 'sectionId' => null, 'unite' => 'kg', 'ordre' => 50, 'active' => true,
-                'codeReference' => null, 'formats' => $formats, 'nbSaisies' => 0],
+                'codeReference' => null, 'motsCles' => [], 'formats' => $formats, 'nbSaisies' => 0],
             $response->data,
         );
         // Contenances seules (forme antérieure aux variantes) : acceptées, sans libellé
@@ -151,6 +151,26 @@ final class CategorieControllerTest extends ApiTestCase
             self::assertSame(422, $response->status, "Cas {$index}");
             self::assertArrayHasKey('formats', $response->data['error']['details']['fields']);
         }
+    }
+
+    public function testKeywordsAreNormalizedAndKeptWhenAbsent(): void
+    {
+        $created = $this->request('POST', '/api/admin/categories', [
+            'nom' => 'Légumineuses', 'unite' => 'kg', 'motsCles' => " lentilles,pois  chiches,
+Lentilles, , flageolets ",
+        ]);
+        self::assertSame(201, $created->status);
+        self::assertSame(['lentilles', 'pois chiches', 'flageolets'], $created->data['motsCles']);
+
+        $id = $created->data['id'];
+        $kept = $this->request('PUT', "/api/admin/categories/{$id}", ['nom' => 'Légumineuses', 'unite' => 'kg']);
+        self::assertSame(['lentilles', 'pois chiches', 'flageolets'], $kept->data['motsCles']);
+        $cleared = $this->request('PUT', "/api/admin/categories/{$id}", ['nom' => 'Légumineuses', 'unite' => 'kg', 'motsCles' => '']);
+        self::assertSame([], $cleared->data['motsCles']);
+        self::assertNull($this->db->query("SELECT mots_cles FROM categorie WHERE id = {$id}")->fetchColumn());
+
+        $tooLong = $this->request('POST', '/api/admin/categories', ['nom' => 'Riz', 'unite' => 'kg', 'motsCles' => str_repeat('x', 501)]);
+        self::assertSame(422, $tooLong->status);
     }
 
     public function testFormatsKeepTheirIdWhenUpdated(): void

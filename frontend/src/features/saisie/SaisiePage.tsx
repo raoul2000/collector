@@ -7,6 +7,7 @@ import { creerSaisie, supprimerSaisie } from '../../db/saisies'
 import { demanderSynchro } from '../../sync/engine'
 import { useBenevole } from '../benevole/context'
 import { libelleSaisie } from './libelle'
+import { grouperParSection, type GroupeCategories } from './sections'
 import { SaisieForm, type ContenuForm } from './SaisieForm'
 import styles from './SaisiePage.module.css'
 
@@ -81,13 +82,7 @@ export function SaisiePage() {
       {categorie === null ? (
         <>
           <h1 className="visually-hidden">Choisir une catégorie</h1>
-          <div className={styles.grid}>
-            {referentiel.categories.map((c) => (
-              <Tile key={c.id} size="lg" detail={DETAIL_UNITE[c.unite]} onClick={() => setCategorie(c)}>
-                {c.nom}
-              </Tile>
-            ))}
-          </div>
+          <GrilleCategories groupes={grouperParSection(referentiel)} onChoisir={setCategorie} />
         </>
       ) : (
         <>
@@ -106,5 +101,52 @@ export function SaisiePage() {
         </>
       )}
     </div>
+  )
+}
+
+const idGroupe = (groupe: GroupeCategories) => `section-${groupe.section?.id ?? 'autres'}`
+
+/**
+ * Grille unique des catégories. Avec des sections : un intitulé par section et, en haut, une barre de raccourcis
+ * qui fait défiler la grille jusqu'à la section (aucun écran supplémentaire à traverser).
+ */
+function GrilleCategories({ groupes, onChoisir }: { groupes: GroupeCategories[]; onChoisir: (c: CategorieRef) => void }) {
+  const tuiles = (groupe: GroupeCategories) => (
+    <div className={styles.grid}>
+      {groupe.categories.map((c) => (
+        <Tile key={c.id} size="lg" detail={DETAIL_UNITE[c.unite]} onClick={() => onChoisir(c)}>
+          {c.nom}
+        </Tile>
+      ))}
+    </div>
+  )
+
+  if (groupes.length === 1 && groupes[0]!.section === null) {
+    return tuiles(groupes[0]!)
+  }
+
+  return (
+    <>
+      <nav className={styles.sections} aria-label="Sections">
+        {groupes.map((g) => (
+          <button
+            key={idGroupe(g)}
+            type="button"
+            className={styles.raccourci}
+            onClick={() => document.getElementById(idGroupe(g))?.scrollIntoView?.({ behavior: 'smooth', block: 'start' })}
+          >
+            {g.section?.nom ?? 'Autres'}
+          </button>
+        ))}
+      </nav>
+      {groupes.map((g) => (
+        <section key={idGroupe(g)} className={styles.groupe} aria-labelledby={idGroupe(g)}>
+          <h2 id={idGroupe(g)} className={styles.titreSection}>
+            {g.section?.nom ?? 'Autres'}
+          </h2>
+          {tuiles(g)}
+        </section>
+      ))}
+    </>
   )
 }

@@ -62,13 +62,33 @@ final class ReferentielControllerTest extends ApiTestCase
         );
         self::assertSame(
             [
-                ['id' => $pates, 'nom' => 'Pâtes', 'unite' => 'kg', 'formats' => [250, 500, 1000]],
-                ['id' => $huile, 'nom' => 'Huile', 'unite' => 'L', 'formats' => [1000]],
-                ['id' => $savon, 'nom' => 'Savon', 'unite' => 'unite', 'formats' => []],
+                ['id' => $pates, 'nom' => 'Pâtes', 'sectionId' => null, 'unite' => 'kg', 'formats' => [250, 500, 1000]],
+                ['id' => $huile, 'nom' => 'Huile', 'sectionId' => null, 'unite' => 'L', 'formats' => [1000]],
+                ['id' => $savon, 'nom' => 'Savon', 'sectionId' => null, 'unite' => 'unite', 'formats' => []],
             ],
             $data['categories'],
         );
+        self::assertSame([], $data['sections']);
         self::assertMatchesRegularExpression('/^[0-9a-f]{16}$/', $data['version']);
+    }
+
+    public function testCategoriesAreGroupedBySection(): void
+    {
+        $hygiene = $this->insert('section', ['nom' => 'Hygiène', 'ordre' => 20]);
+        $epicerie = $this->insert('section', ['nom' => 'Épicerie', 'ordre' => 10]);
+        $this->insert('section', ['nom' => 'Vide', 'ordre' => 30]);
+        $inactive = $this->insert('section', ['nom' => 'Inactive', 'ordre' => 40]);
+        $savon = $this->insert('categorie', ['nom' => 'Savon', 'section_id' => $hygiene, 'unite' => 'unite', 'ordre' => 1]);
+        $autre = $this->insert('categorie', ['nom' => 'Autre', 'unite' => 'unite', 'ordre' => 0]);
+        $riz = $this->insert('categorie', ['nom' => 'Riz', 'section_id' => $epicerie, 'unite' => 'kg', 'ordre' => 50]);
+        $this->insert('categorie', ['nom' => 'Ancienne', 'section_id' => $inactive, 'unite' => 'kg', 'active' => 0]);
+
+        $data = self::json($this->request('GET', '/api/referentiel'));
+
+        // Sections sans catégorie active omises ; catégories sans section en dernier
+        self::assertSame([['id' => $epicerie, 'nom' => 'Épicerie'], ['id' => $hygiene, 'nom' => 'Hygiène']], $data['sections']);
+        self::assertSame([$riz, $savon, $autre], array_column($data['categories'], 'id'));
+        self::assertSame([$epicerie, $hygiene, null], array_column($data['categories'], 'sectionId'));
     }
 
     public function testVersionChangesWhenContentChanges(): void

@@ -8,18 +8,22 @@ use PDO;
 
 /**
  * Les formats d'une catégorie sont exposés sous forme de liste de contenances (g ou ml), dans l'ordre d'affichage.
+ * Ordre d'affichage : celui des sections, puis celui des catégories ; les catégories sans section viennent à la fin.
  *
  * @phpstan-type Categorie array{
- *     id: int, nom: string, unite: 'kg'|'L'|'unite', ordre: int, active: bool,
+ *     id: int, nom: string, sectionId: int|null, unite: 'kg'|'L'|'unite', ordre: int, active: bool,
  *     codeReference: string|null, formats: list<int>, nbSaisies: int
  * }
  */
 final readonly class CategorieRepository
 {
     private const string SELECT =
-        'SELECT c.id, c.nom, c.unite, c.ordre, c.active, c.code_reference,
+        'SELECT c.id, c.nom, c.section_id, c.unite, c.ordre, c.active, c.code_reference,
                 (SELECT COUNT(*) FROM saisie s WHERE s.categorie_id = c.id) AS nb_saisies
-         FROM categorie c';
+         FROM categorie c
+         LEFT JOIN section sec ON sec.id = c.section_id';
+
+    private const string ORDER = ' ORDER BY sec.id IS NULL, sec.ordre, sec.nom, c.ordre, c.nom';
 
     public function __construct(private PDO $db)
     {
@@ -32,7 +36,7 @@ final readonly class CategorieRepository
      */
     public function findActiveWithFormats(): array
     {
-        return $this->withFormats($this->db->query(self::SELECT . ' WHERE c.active = 1 ORDER BY c.ordre, c.nom')->fetchAll());
+        return $this->withFormats($this->db->query(self::SELECT . ' WHERE c.active = 1' . self::ORDER)->fetchAll());
     }
 
     /**
@@ -42,7 +46,7 @@ final readonly class CategorieRepository
      */
     public function findAll(): array
     {
-        return $this->withFormats($this->db->query(self::SELECT . ' ORDER BY c.ordre, c.nom')->fetchAll());
+        return $this->withFormats($this->db->query(self::SELECT . self::ORDER)->fetchAll());
     }
 
     /**
@@ -89,11 +93,18 @@ final readonly class CategorieRepository
     /**
      * @param list<int> $formats
      */
-    public function create(string $nom, string $unite, int $ordre, bool $active, ?string $codeReference, array $formats): int
-    {
+    public function create(
+        string $nom,
+        ?int $sectionId,
+        string $unite,
+        int $ordre,
+        bool $active,
+        ?string $codeReference,
+        array $formats,
+    ): int {
         $this->db->prepare(
-            'INSERT INTO categorie (nom, unite, ordre, active, code_reference) VALUES (?, ?, ?, ?, ?)',
-        )->execute([$nom, $unite, $ordre, (int) $active, $codeReference]);
+            'INSERT INTO categorie (nom, section_id, unite, ordre, active, code_reference) VALUES (?, ?, ?, ?, ?, ?)',
+        )->execute([$nom, $sectionId, $unite, $ordre, (int) $active, $codeReference]);
         $id = (int) $this->db->lastInsertId();
         $this->setFormats($id, $formats);
 
@@ -103,11 +114,19 @@ final readonly class CategorieRepository
     /**
      * @param list<int> $formats
      */
-    public function update(int $id, string $nom, string $unite, int $ordre, bool $active, ?string $codeReference, array $formats): void
-    {
+    public function update(
+        int $id,
+        string $nom,
+        ?int $sectionId,
+        string $unite,
+        int $ordre,
+        bool $active,
+        ?string $codeReference,
+        array $formats,
+    ): void {
         $this->db->prepare(
-            'UPDATE categorie SET nom = ?, unite = ?, ordre = ?, active = ?, code_reference = ? WHERE id = ?',
-        )->execute([$nom, $unite, $ordre, (int) $active, $codeReference, $id]);
+            'UPDATE categorie SET nom = ?, section_id = ?, unite = ?, ordre = ?, active = ?, code_reference = ? WHERE id = ?',
+        )->execute([$nom, $sectionId, $unite, $ordre, (int) $active, $codeReference, $id]);
         $this->setFormats($id, $formats);
     }
 
@@ -168,6 +187,7 @@ final readonly class CategorieRepository
             static fn (array $row): array => [
                 'id' => (int) $row['id'],
                 'nom' => (string) $row['nom'],
+                'sectionId' => $row['section_id'] === null ? null : (int) $row['section_id'],
                 'unite' => $row['unite'],
                 'ordre' => (int) $row['ordre'],
                 'active' => (bool) $row['active'],

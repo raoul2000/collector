@@ -15,6 +15,7 @@ import type {
   MagasinInput,
   PageSaisies,
   SaisieAdmin,
+  Section,
 } from '../../api/types'
 
 /**
@@ -24,6 +25,7 @@ import type {
 export const ADMIN_SESSION_KEY = ['admin', 'session'] as const
 const CAMPAGNES_KEY = ['admin', 'campagnes'] as const
 const MAGASINS_KEY = ['admin', 'magasins'] as const
+const SECTIONS_KEY = ['admin', 'sections'] as const
 const CATEGORIES_KEY = ['admin', 'categories'] as const
 const SAISIES_KEY = ['admin', 'saisies'] as const
 
@@ -130,6 +132,49 @@ export function useDeleteMagasin() {
   })
 }
 
+// --- Sections ------------------------------------------------------------------------------------
+
+export function useSections() {
+  return useQuery({
+    queryKey: SECTIONS_KEY,
+    queryFn: ({ signal }) => api.get<Section[]>('admin/sections', signal),
+  })
+}
+
+export function useSaveSection() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, nom }: { id?: number; nom: string }) =>
+      id === undefined ? api.post<Section>('admin/sections', { nom }) : api.put<Section>(`admin/sections/${id}`, { nom }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: SECTIONS_KEY }),
+  })
+}
+
+export function useReorderSections() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (ids: number[]) => api.put<Section[]>('admin/sections/ordre', { ids }),
+    // L'ordre des catégories suit celui des sections
+    onSuccess: (sections) => {
+      queryClient.setQueryData(SECTIONS_KEY, sections)
+      return queryClient.invalidateQueries({ queryKey: CATEGORIES_KEY })
+    },
+  })
+}
+
+export function useDeleteSection() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (id: number) => api.delete(`admin/sections/${id}`),
+    // Ses catégories passent « sans section »
+    onSuccess: () =>
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: SECTIONS_KEY }),
+        queryClient.invalidateQueries({ queryKey: CATEGORIES_KEY }),
+      ]),
+  })
+}
+
 // --- Catégories ----------------------------------------------------------------------------------
 
 export function useCategories() {
@@ -146,11 +191,12 @@ export function useSaveCategorie() {
       id === undefined
         ? api.post<Categorie>('admin/categories', input)
         : api.put<Categorie>(`admin/categories/${id}`, input),
-    // Les saisies affichent le nom et le code de référence de leur catégorie
+    // Les saisies affichent le nom et le code de référence de leur catégorie ; les sections, leur nombre de catégories
     onSuccess: () =>
       Promise.all([
         queryClient.invalidateQueries({ queryKey: CATEGORIES_KEY }),
         queryClient.invalidateQueries({ queryKey: SAISIES_KEY }),
+        queryClient.invalidateQueries({ queryKey: SECTIONS_KEY }),
       ]),
   })
 }
@@ -267,6 +313,10 @@ export function useDeleteCategorie() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: (id: number) => api.delete(`admin/categories/${id}`),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: CATEGORIES_KEY }),
+    onSuccess: () =>
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: CATEGORIES_KEY }),
+        queryClient.invalidateQueries({ queryKey: SECTIONS_KEY }),
+      ]),
   })
 }

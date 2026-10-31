@@ -22,3 +22,19 @@
   cursor: default;
   opacity: 0.3;
 }
+
+.sections {
+  margin-bottom: var(--space-5);
+}
+
+.sections > p {
+  margin-bottom: var(--space-3);
+}
+
+/* Intitulé de section dans la liste des catégories */
+.groupe th {
+  padding-top: var(--space-4);
+  background: var(--color-surface);
+  color: var(--color-primary);
+  font-size: var(--font-size-md);
+}

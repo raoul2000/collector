@@ -1,7 +1,7 @@
 import { screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import type { Categorie, Magasin } from '../../api/types'
+import type { Categorie, Magasin, Section } from '../../api/types'
 import { useToastStore } from '../../components/toast'
 import { fakeApi, SESSION_OK } from '../../test/fakeApi'
 import { renderApp } from '../../test/renderApp'
@@ -124,6 +124,7 @@ describe('Catégories', () => {
   const categorie = (id: number, nom: string, extra: Partial<Categorie> = {}): Categorie => ({
     id,
     nom,
+    sectionId: null,
     unite: 'kg',
     ordre: id * 10,
     active: true,
@@ -138,6 +139,7 @@ describe('Catégories', () => {
     const liste = [categorie(1, 'Pâtes', { formats: [500, 1000] }), categorie(2, 'Huile', { unite: 'L', formats: [1000] }), categorie(3, 'Savon', { unite: 'unite' })]
     const api = fakeApi({
       ...SESSION_OK,
+      'GET /api/admin/sections': { body: [] },
       'GET /api/admin/categories': { body: liste },
       'PUT /api/admin/categories/ordre': (body) => ({
         body: (body as { ids: number[] }).ids.map((id) => liste.find((c) => c.id === id)),
@@ -162,6 +164,7 @@ describe('Catégories', () => {
     const user = userEvent.setup()
     const api = fakeApi({
       ...SESSION_OK,
+      'GET /api/admin/sections': { body: [] },
       'GET /api/admin/categories': { body: [] },
       'POST /api/admin/categories': (body) => ({ status: 201, body: { ...categorie(9, 'Riz'), ...(body as object) } }),
     })
@@ -187,6 +190,7 @@ describe('Catégories', () => {
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
     expect(api.calls.find((c) => c.method === 'POST')?.body).toEqual({
       nom: 'Riz',
+      sectionId: null,
       unite: 'kg',
       codeReference: '',
       active: true,
@@ -194,9 +198,73 @@ describe('Catégories', () => {
     })
   })
 
+  it('groupe les catégories par section et ne les déplace qu’à l’intérieur de leur section', async () => {
+    const user = userEvent.setup()
+    const sections: Section[] = [
+      { id: 1, nom: 'Épicerie', ordre: 10, nbCategories: 2 },
+      { id: 2, nom: 'Hygiène', ordre: 20, nbCategories: 1 },
+    ]
+    const liste = [
+      categorie(1, 'Pâtes', { sectionId: 1 }),
+      categorie(2, 'Riz', { sectionId: 1 }),
+      categorie(3, 'Savon', { sectionId: 2, unite: 'unite' }),
+      categorie(4, 'Autre', { unite: 'unite' }),
+    ]
+    const api = fakeApi({
+      ...SESSION_OK,
+      'GET /api/admin/sections': { body: sections },
+      'GET /api/admin/categories': { body: liste },
+      'PUT /api/admin/sections/ordre': { body: [sections[1], sections[0]] },
+      'DELETE /api/admin/sections/2': { status: 204 },
+    })
+    renderApp('/admin/categories')
+
+    const groupes = (await screen.findAllByRole('columnheader')).filter((th) => th.getAttribute('scope') === 'colgroup')
+    expect(groupes.map((th) => th.textContent)).toEqual(['Épicerie', 'Hygiène', 'Sans section'])
+    expect(screen.getByRole('button', { name: 'Descendre « Riz »' })).toBeDisabled()
+    expect(screen.getByRole('button', { name: 'Monter « Savon »' })).toBeDisabled()
+    expect(screen.getByRole('button', { name: 'Descendre « Pâtes »' })).toBeEnabled()
+
+    await user.click(screen.getByRole('button', { name: 'Monter « Hygiène »' }))
+    expect(api.calls.find((c) => c.path === '/api/admin/sections/ordre')?.body).toEqual({ ids: [2, 1] })
+
+    await user.click(screen.getByRole('button', { name: 'Supprimer la section « Hygiène »' }))
+    const confirmation = screen.getByRole('dialog', { name: 'Supprimer la section ?' })
+    expect(confirmation).toHaveTextContent('Ses 1 catégorie(s) sont conservées, sans section.')
+    await user.click(within(confirmation).getByRole('button', { name: 'Supprimer' }))
+    await waitFor(() => expect(api.calls.some((c) => c.method === 'DELETE')).toBe(true))
+  })
+
+  it('crée une section et y range une catégorie', async () => {
+    const user = userEvent.setup()
+    const api = fakeApi({
+      ...SESSION_OK,
+      'GET /api/admin/sections': { body: [{ id: 5, nom: 'Conserves', ordre: 10, nbCategories: 0 }] },
+      'GET /api/admin/categories': { body: [] },
+      'POST /api/admin/sections': (body) => ({ status: 201, body: { id: 6, ordre: 20, nbCategories: 0, ...(body as object) } }),
+      'POST /api/admin/categories': (body) => ({ status: 201, body: { ...categorie(9, 'Poisson'), ...(body as object) } }),
+    })
+    renderApp('/admin/categories')
+
+    await user.click(await screen.findByRole('button', { name: 'Nouvelle section' }))
+    const dialogSection = screen.getByRole('dialog', { name: 'Nouvelle section' })
+    await user.type(within(dialogSection).getByLabelText('Nom'), 'Boissons')
+    await user.click(within(dialogSection).getByRole('button', { name: 'Enregistrer' }))
+    await waitFor(() => expect(api.calls.find((c) => c.path === '/api/admin/sections' && c.method === 'POST')?.body).toEqual({ nom: 'Boissons' }))
+
+    await user.click(screen.getByRole('button', { name: 'Nouvelle catégorie' }))
+    const dialog = await screen.findByRole('dialog', { name: 'Nouvelle catégorie' })
+    await user.type(within(dialog).getByLabelText('Nom'), 'Poisson')
+    await user.selectOptions(within(dialog).getByLabelText('Section'), 'Conserves')
+    await user.click(within(dialog).getByRole('button', { name: 'Enregistrer' }))
+
+    await waitFor(() => expect(api.calls.find((c) => c.path === '/api/admin/categories' && c.method === 'POST')?.body).toMatchObject({ nom: 'Poisson', sectionId: 5 }))
+  })
+
   it('verrouille l’unité d’une catégorie qui a des saisies', async () => {
     const user = userEvent.setup()
-    fakeApi({ ...SESSION_OK, 'GET /api/admin/categories': { body: [categorie(1, 'Pâtes', { nbSaisies: 4 })] } })
+    fakeApi({ ...SESSION_OK, 'GET /api/admin/sections': { body: [] },
+      'GET /api/admin/categories': { body: [categorie(1, 'Pâtes', { nbSaisies: 4 })] } })
     renderApp('/admin/categories')
 
     await user.click(await screen.findByRole('button', { name: 'Modifier' }))

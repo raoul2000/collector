@@ -10,6 +10,7 @@ use App\Http\JsonResponse;
 use App\Http\Request;
 use App\Repository\CategorieRepository;
 use App\Repository\JournalRepository;
+use App\Repository\SectionRepository;
 use App\Validation\Validator;
 use PDO;
 
@@ -25,6 +26,7 @@ final readonly class CategorieController
     public function __construct(
         private PDO $db,
         private CategorieRepository $categories,
+        private SectionRepository $sections,
         private JournalRepository $journal,
     ) {
     }
@@ -41,6 +43,7 @@ final readonly class CategorieController
         $id = Database::transaction($this->db, function () use ($data, $prenom): int {
             $id = $this->categories->create(
                 $data['nom'],
+                $data['sectionId'],
                 $data['unite'],
                 $data['ordre'] ?? $this->categories->nextOrdre(),
                 $data['active'],
@@ -64,6 +67,7 @@ final readonly class CategorieController
             $this->categories->update(
                 $avant['id'],
                 $data['nom'],
+                $data['sectionId'],
                 $data['unite'],
                 $data['ordre'] ?? $avant['ordre'],
                 $data['active'],
@@ -133,7 +137,7 @@ final readonly class CategorieController
 
     /**
      * @param array<string, mixed>|null $existing catégorie modifiée (null pour une création)
-     * @return array{nom: string, unite: string, ordre: int|null, active: bool, codeReference: string|null, formats: list<int>}
+     * @return array{nom: string, sectionId: int|null, unite: string, ordre: int|null, active: bool, codeReference: string|null, formats: list<int>}
      */
     private function validate(Request $request, ?array $existing): array
     {
@@ -144,6 +148,13 @@ final readonly class CategorieController
         $active = $v->bool('active', optional: true) ?? $existing['active'] ?? true;
         $codeReference = $v->string('codeReference', max: 50, optional: true);
         $codeReference = $codeReference === '' ? null : $codeReference;
+        // Absente : inchangée ; null : sans section
+        $sectionId = array_key_exists('sectionId', $request->json())
+            ? $v->int('sectionId', 1, PHP_INT_MAX, optional: true)
+            : $existing['sectionId'] ?? null;
+        if ($sectionId !== null && !$this->sections->exists($sectionId)) {
+            $v->addError('sectionId', 'Section introuvable.');
+        }
 
         $formats = [];
         if ($unite !== null) {
@@ -170,6 +181,7 @@ final readonly class CategorieController
 
         return [
             'nom' => (string) $nom,
+            'sectionId' => $sectionId,
             'unite' => (string) $unite,
             'ordre' => $ordre,
             'active' => $active,

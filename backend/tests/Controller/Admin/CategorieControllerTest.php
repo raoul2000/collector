@@ -27,7 +27,7 @@ final class CategorieControllerTest extends ApiTestCase
 
         self::assertSame(201, $response->status);
         self::assertSame(
-            ['id' => $response->data['id'], 'nom' => 'Pâtes', 'unite' => 'kg', 'ordre' => 50, 'active' => true,
+            ['id' => $response->data['id'], 'nom' => 'Pâtes', 'sectionId' => null, 'unite' => 'kg', 'ordre' => 50, 'active' => true,
                 'codeReference' => null, 'formats' => [500, 250, 1000], 'nbSaisies' => 0],
             $response->data,
         );
@@ -112,6 +112,32 @@ final class CategorieControllerTest extends ApiTestCase
 
         self::assertSame(422, $this->request('PUT', '/api/admin/categories/ordre', ['ids' => [$a]])->status);
         self::assertSame(422, $this->request('PUT', '/api/admin/categories/ordre', ['ids' => [$a, $a]])->status);
+    }
+
+    public function testSectionIsCheckedKeptWhenAbsentAndOrdersTheList(): void
+    {
+        $conserves = $this->insert('section', ['nom' => 'Conserves', 'ordre' => 20]);
+        $epicerie = $this->insert('section', ['nom' => 'Épicerie', 'ordre' => 10]);
+        $this->insert('categorie', ['nom' => 'Autre', 'unite' => 'unite', 'ordre' => 1]);
+        $this->insert('categorie', ['nom' => 'Poisson', 'section_id' => $conserves, 'unite' => 'kg', 'ordre' => 5]);
+        $this->insert('categorie', ['nom' => 'Riz', 'section_id' => $epicerie, 'unite' => 'kg', 'ordre' => 30]);
+
+        $refused = $this->request('POST', '/api/admin/categories', ['nom' => 'Pâtes', 'unite' => 'kg', 'sectionId' => 999]);
+        self::assertSame(422, $refused->status);
+        self::assertArrayHasKey('sectionId', $refused->data['error']['details']['fields']);
+
+        $created = $this->request('POST', '/api/admin/categories', ['nom' => 'Pâtes', 'unite' => 'kg', 'sectionId' => $epicerie]);
+        self::assertSame(201, $created->status);
+        self::assertSame($epicerie, $created->data['sectionId']);
+
+        // Ordre : sections (Épicerie, Conserves), puis catégories ; sans section à la fin
+        self::assertSame(['Riz', 'Pâtes', 'Poisson', 'Autre'], array_column(self::json($this->request('GET', '/api/admin/categories')), 'nom'));
+
+        $id = $created->data['id'];
+        $kept = $this->request('PUT', "/api/admin/categories/{$id}", ['nom' => 'Pâtes', 'unite' => 'kg']);
+        self::assertSame($epicerie, $kept->data['sectionId']);
+        $removed = $this->request('PUT', "/api/admin/categories/{$id}", ['nom' => 'Pâtes', 'unite' => 'kg', 'sectionId' => null]);
+        self::assertNull($removed->data['sectionId']);
     }
 
     public function testDeleteRemovesFormats(): void

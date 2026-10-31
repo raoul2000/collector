@@ -9,6 +9,7 @@ use App\Http\Request;
 use App\Repository\CampagneRepository;
 use App\Repository\CategorieRepository;
 use App\Repository\MagasinRepository;
+use App\Repository\SectionRepository;
 
 /**
  * Données de référence nécessaires à la saisie, mises en cache sur le téléphone pour le fonctionnement hors ligne.
@@ -19,6 +20,7 @@ final readonly class ReferentielController
         private CampagneRepository $campagnes,
         private MagasinRepository $magasins,
         private CategorieRepository $categories,
+        private SectionRepository $sections,
     ) {
     }
 
@@ -36,12 +38,19 @@ final readonly class ReferentielController
                 static fn (array $c): array => [
                     'id' => $c['id'],
                     'nom' => $c['nom'],
+                    'sectionId' => $c['sectionId'],
                     'unite' => $c['unite'],
                     'formats' => $c['formats'],
                 ],
                 $this->categories->findActiveWithFormats(),
             ),
         ];
+        // Sections ayant au moins une catégorie active, dans l'ordre d'affichage
+        $utilisees = array_flip(array_filter(array_column($referentiel['categories'], 'sectionId')));
+        $referentiel['sections'] = array_values(array_map(
+            static fn (array $s): array => ['id' => $s['id'], 'nom' => $s['nom']],
+            array_filter($this->sections->findAll(), static fn (array $s): bool => isset($utilisees[$s['id']])),
+        ));
 
         // Empreinte du contenu : permet au téléphone de savoir si sa copie locale est à jour
         $referentiel['version'] = substr(sha1(json_encode($referentiel, JSON_THROW_ON_ERROR)), 0, 16);

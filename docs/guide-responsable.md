@@ -22,7 +22,9 @@ Un magasin **désactivé** n'est plus proposé aux bénévoles. Un magasin qui a
 
 Onglet **Catégories** :
 
-- **Ordre** : avec les flèches ↑ ↓, placez en tête les catégories les plus fréquentes. C'est l'ordre des cases sur l'écran des bénévoles.
+- **Sections** (cadre en haut de l'onglet) : groupes de catégories, par exemple *Conserves* ou *Bébé*. Sur l'écran des bénévoles, chaque section a son intitulé au-dessus de ses cases, et une barre de raccourcis en haut de la grille permet d'y aller directement. **Nouvelle section** pour en créer une, flèches ↑ ↓ pour les ordonner. Supprimer une section ne supprime pas ses catégories : elles passent dans *Sans section* (affichées en dernier, sous l'intitulé *Autres*). Sans aucune section, la grille reste une simple liste de cases.
+- **Section d'une catégorie** : choisie dans le formulaire de la catégorie (**Modifier**).
+- **Ordre** : avec les flèches ↑ ↓, placez en tête de leur section les catégories les plus fréquentes. C'est l'ordre des cases sur l'écran des bénévoles.
 - **Mesure** : *Poids (kg)*, *Volume (L)* ou *Quantité seule*. Elle n'est plus modifiable dès qu'une saisie existe dans la catégorie.
 - **Formats** : les contenances proposées en raccourci (ex. 250 g, 500 g, 1 kg). Quelques formats bien choisis accélèrent beaucoup la saisie ; les bénévoles peuvent toujours saisir une autre valeur.
 - **Code de référence** : facultatif, pour faire le lien avec la liste de la Croix-Rouge.

@@ -9,6 +9,7 @@ use App\Controller\Admin\CampagneController;
 use App\Controller\Admin\CategorieController;
 use App\Controller\Admin\MagasinController;
 use App\Controller\Admin\SaisieController;
+use App\Controller\Admin\SectionController;
 use App\Controller\AdminAuthController;
 use App\Controller\BilanController;
 use App\Controller\HealthController;
@@ -25,6 +26,7 @@ use App\Repository\CategorieRepository;
 use App\Repository\JournalRepository;
 use App\Repository\MagasinRepository;
 use App\Repository\SaisieRepository;
+use App\Repository\SectionRepository;
 use App\Saisie\SaisieRules;
 
 /**
@@ -64,6 +66,7 @@ return static function (App $app): void {
         new CampagneRepository($db()),
         new MagasinRepository($db()),
         new CategorieRepository($db()),
+        new SectionRepository($db()),
     )->show($q));
 
     $bilans = static fn (): BilanController => new BilanController(new CampagneRepository($db()), new BilanRepository($db()));
@@ -139,8 +142,20 @@ return static function (App $app): void {
     $categories = static fn (): CategorieController => new CategorieController(
         $db(),
         new CategorieRepository($db()),
+        new SectionRepository($db()),
         new JournalRepository($db()),
     );
+    $sections = static fn (): SectionController => new SectionController(
+        $db(),
+        new SectionRepository($db()),
+        new JournalRepository($db()),
+    );
+    $r->get('/api/admin/sections', $admin(static fn ($q, $p) => $sections()->list($q, $p)));
+    $r->post('/api/admin/sections', $admin(static fn ($q, $p) => $sections()->create($q, $p)));
+    $r->put('/api/admin/sections/ordre', $admin(static fn ($q, $p) => $sections()->reorder($q, $p)));
+    $r->put('/api/admin/sections/{id}', $admin(static fn ($q, $p) => $sections()->update($q, $p)));
+    $r->delete('/api/admin/sections/{id}', $admin(static fn ($q, $p) => $sections()->delete($q, $p)));
+
     $r->get('/api/admin/categories', $admin(static fn ($q, $p) => $categories()->list($q, $p)));
     $r->post('/api/admin/categories', $admin(static fn ($q, $p) => $categories()->create($q, $p)));
     // Déclarée avant /categories/{id} pour ne pas être capturée par celle-ci

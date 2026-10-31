@@ -196,7 +196,8 @@ Contenances stockées en **entiers** : grammes pour les catégories en kg, milli
 campagne      (id, nom, date_debut, date_fin, active, cree_le)
 magasin       (id, nom, ville, actif)
 campagne_magasin (campagne_id, magasin_id)
-categorie     (id, nom, unite ENUM('kg','L','unite'), ordre, active, code_reference)
+section       (id, nom, ordre)                                  -- groupe de catégories (repère de la grille)
+categorie     (id, nom, section_id NULL, unite ENUM('kg','L','unite'), ordre, active, code_reference)
 format        (id, categorie_id, contenance INT, ordre)          -- g ou ml
 appareil      (id CHAR(36) UUID, prenom, cree_le, vu_le)
 saisie        (id CHAR(36) UUID généré côté client,

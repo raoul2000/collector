@@ -21,9 +21,16 @@ export interface MagasinRef {
   ville: string
 }
 
+export interface SectionRef {
+  id: number
+  nom: string
+}
+
 export interface CategorieRef {
   id: number
   nom: string
+  /** Absent d'une copie locale enregistrée avant l'arrivée des sections */
+  sectionId?: number | null
   unite: Unite
   formats: number[]
 }
@@ -31,6 +38,9 @@ export interface CategorieRef {
 export interface Referentiel {
   campagne: CampagneRef | null
   magasins: MagasinRef[]
+  /** Sections ayant au moins une catégorie, dans l'ordre d'affichage (absent d'une ancienne copie locale) */
+  sections?: SectionRef[]
+  /** Dans l'ordre d'affichage : par section, les catégories sans section en dernier */
   categories: CategorieRef[]
   version: string
 }
@@ -67,9 +77,17 @@ export interface MagasinInput {
   actif: boolean
 }
 
+export interface Section {
+  id: number
+  nom: string
+  ordre: number
+  nbCategories: number
+}
+
 export interface Categorie {
   id: number
   nom: string
+  sectionId: number | null
   unite: Unite
   ordre: number
   active: boolean
@@ -80,6 +98,7 @@ export interface Categorie {
 
 export interface CategorieInput {
   nom: string
+  sectionId: number | null
   unite: Unite
   active: boolean
   codeReference: string

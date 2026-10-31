@@ -8,6 +8,7 @@ import { useBenevoleStore } from '../../stores/benevole'
 import { useSyncStore } from '../../sync/syncStore'
 import { renderApp } from '../../test/renderApp'
 import { libelleSaisie } from './libelle'
+import { grouperParSection } from './sections'
 
 const PATES = { id: 1, nom: 'Pâtes', unite: 'kg' as const, formats: [250, 500, 1000] }
 const HUILE = { id: 2, nom: 'Huile', unite: 'L' as const, formats: [1000] }
@@ -164,6 +165,39 @@ describe('Écran de saisie', () => {
     expect(await saisies()).toHaveLength(0)
   })
 
+  it('regroupe les catégories par section, avec une barre de raccourcis', async () => {
+    const scrollIntoView = vi.fn()
+    Element.prototype.scrollIntoView = scrollIntoView
+    const user = await demarrer({
+      ...REFERENTIEL,
+      sections: [{ id: 1, nom: 'Épicerie' }, { id: 2, nom: 'Hygiène' }],
+      categories: [{ ...PATES, sectionId: 1 }, { ...HUILE, sectionId: 1 }, { ...SAVON, sectionId: 2 }, { ...SAVON, id: 9, nom: 'Divers', sectionId: null }],
+    })
+
+    const epicerie = await screen.findByRole('region', { name: 'Épicerie' })
+    expect(within(epicerie).getAllByRole('button').map((b) => b.textContent)).toEqual([expect.stringMatching(/^Pâtes/), expect.stringMatching(/^Huile/)])
+    expect(within(screen.getByRole('region', { name: 'Hygiène' })).getByRole('button', { name: /Savon/ })).toBeInTheDocument()
+    expect(within(screen.getByRole('region', { name: 'Autres' })).getByRole('button', { name: /Divers/ })).toBeInTheDocument()
+
+    const barre = screen.getByRole('navigation', { name: 'Sections' })
+    expect(within(barre).getAllByRole('button').map((b) => b.textContent)).toEqual(['Épicerie', 'Hygiène', 'Autres'])
+    await user.click(within(barre).getByRole('button', { name: 'Hygiène' }))
+    expect(scrollIntoView).toHaveBeenCalledOnce()
+    expect(scrollIntoView.mock.contexts[0]).toBe(screen.getByRole('heading', { name: 'Hygiène' }))
+
+    // La saisie se poursuit comme sans sections
+    await user.click(within(epicerie).getByRole('button', { name: /Pâtes/ }))
+    expect(screen.getByRole('heading', { name: 'Pâtes' })).toBeInTheDocument()
+  })
+
+  it('affiche une grille simple sans sections', async () => {
+    await demarrer()
+
+    expect(await screen.findByRole('button', { name: /Pâtes/ })).toBeInTheDocument()
+    expect(screen.queryByRole('navigation', { name: 'Sections' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('region')).not.toBeInTheDocument()
+  })
+
   it('bloque la saisie sans collecte en cours', async () => {
     await demarrer({ ...REFERENTIEL, campagne: null })
 
@@ -178,5 +212,24 @@ describe('libelleSaisie', () => {
     expect(libelleSaisie(HUILE, 1, null)).toBe('1 × Huile (contenance inconnue)')
     expect(libelleSaisie(SAVON, 4, null)).toBe('4 × Savon')
     expect(libelleSaisie(undefined, 1, 500)).toBe('1 × Catégorie inconnue')
+  })
+})
+
+describe('grouperParSection', () => {
+  it('suit l’ordre des sections et place les catégories sans section à la fin', () => {
+    const groupes = grouperParSection({
+      sections: [{ id: 2, nom: 'B' }, { id: 1, nom: 'A' }, { id: 3, nom: 'Vide' }],
+      categories: [{ ...SAVON, sectionId: null }, { ...PATES, sectionId: 1 }, { ...HUILE, sectionId: 2 }, { ...HUILE, id: 8, sectionId: 99 }],
+    })
+
+    expect(groupes.map((g) => [g.section?.nom ?? null, g.categories.map((c) => c.id)])).toEqual([
+      ['B', [2]],
+      ['A', [1]],
+      [null, [3, 8]],
+    ])
+  })
+
+  it('accepte une ancienne copie locale, sans sections', () => {
+    expect(grouperParSection({ categories: [PATES, HUILE] })).toEqual([{ section: null, categories: [PATES, HUILE] }])
   })
 })

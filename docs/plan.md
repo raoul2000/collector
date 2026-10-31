@@ -211,7 +211,7 @@ Décisions (31/10/2026) :
 - **Recherches sans résultat** : remontées au serveur à la synchronisation et présentées aux responsables, pour compléter les mots-clés.
 
 Étapes :
-- ⬜ Sections : modèle, administration, référentiel, grille groupée et barre de sections
+- ✅ Sections : table `section` (migration 003), sections dans l'onglet Catégories (création, renommage, ordre, suppression sans perte des catégories), section de chaque catégorie, référentiel (`sections`, `sectionId`), grille groupée et barre de raccourcis sur l'écran de saisie
 - ⬜ Variantes : libellé et contenance facultative des formats, format choisi enregistré dans la saisie (synchronisation, Mes saisies, saisies et bilans responsables)
 - ⬜ Liste Croix-Rouge : catégories, formats et variantes, mots-clés pré-remplis, article AÏDA visé par bouton (pour 4.5) ; remplacement de la liste provisoire en production
 - ⬜ Récents
@@ -305,3 +305,4 @@ Environnement de développement : voir le [README](../README.md). La base locale
 | 31/10/2026 | Décision : la comparaison entre années est retirée du périmètre de l'application |
 | 31/10/2026 | Outil de mise à jour du serveur `scripts/deployer.mjs` : dépôt SFTP des seuls fichiers modifiés (manifeste `app/var/deploiement.json`), migrations appliquées par l'API (`/api/maintenance/schema` et `/migrer`, jeton `deploiement.jeton`), sauvegarde de la base confirmée avant migration, mot de passe SFTP demandé à chaque lancement |
 | 31/10/2026 | Liste Croix-Rouge reçue (planche AÏDA) ; décisions du référentiel : liste bénévole indépendante d'AÏDA, sections en grille unique, variantes, récents, recherche par mots-clés et recherches sans résultat ; rapprochement AÏDA après la collecte ; scan des codes-barres en bonus |
+| 31/10/2026 | Référentiel Croix-Rouge, étape 1 : sections (migration `003_sections.sql`, `/api/admin/sections`, grille de saisie groupée avec barre de raccourcis) |

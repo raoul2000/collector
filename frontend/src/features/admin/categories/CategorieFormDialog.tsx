@@ -8,7 +8,7 @@ import { TextField } from '../../../components/TextField'
 import { toast } from '../../../components/toast'
 import { UNITE_LIBELLES } from '../../../lib/format'
 import styles from '../admin.module.css'
-import { useSaveCategorie } from '../api'
+import { useSaveCategorie, useSections } from '../api'
 import { handleMutationError, type FieldErrors } from '../errors'
 import { FormatsEditor } from './FormatsEditor'
 
@@ -22,7 +22,9 @@ const UNITES: Unite[] = ['kg', 'L', 'unite']
 
 export function CategorieFormDialog({ categorie, onClose }: CategorieFormDialogProps) {
   const save = useSaveCategorie()
+  const sections = useSections().data ?? []
   const [nom, setNom] = useState(categorie?.nom ?? '')
+  const [sectionId, setSectionId] = useState<number | null>(categorie?.sectionId ?? null)
   const [unite, setUnite] = useState<Unite>(categorie?.unite ?? 'kg')
   const [codeReference, setCodeReference] = useState(categorie?.codeReference ?? '')
   const [active, setActive] = useState(categorie?.active ?? true)
@@ -42,7 +44,7 @@ export function CategorieFormDialog({ categorie, onClose }: CategorieFormDialogP
     event.preventDefault()
     setErrors({})
     save.mutate(
-      { id: categorie?.id, input: { nom, unite, codeReference, active, formats: unite === 'unite' ? [] : formats } },
+      { id: categorie?.id, input: { nom, sectionId, unite, codeReference, active, formats: unite === 'unite' ? [] : formats } },
       {
         onSuccess: (saved) => {
           toast.success(`Catégorie « ${saved.nom} » enregistrée.`)
@@ -80,6 +82,21 @@ export function CategorieFormDialog({ categorie, onClose }: CategorieFormDialogP
           required
           autoFocus
         />
+        {(sections.length > 0 || sectionId !== null) && (
+          <Select
+            label="Section"
+            value={sectionId ?? ''}
+            onChange={(e) => setSectionId(e.target.value === '' ? null : Number(e.target.value))}
+            error={errors.sectionId}
+          >
+            <option value="">Sans section</option>
+            {sections.map((s) => (
+              <option key={s.id} value={s.id}>
+                {s.nom}
+              </option>
+            ))}
+          </Select>
+        )}
         <div className={styles.row}>
           <Select
             label="Mesure"

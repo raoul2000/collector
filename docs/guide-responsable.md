@@ -65,9 +65,11 @@ La colonne **Code** affiche le code de référence de la catégorie. Pour retrou
 - **Corriger** une erreur évidente (ex. *500 × Pâtes*, mauvais magasin) : la correction est transmise au téléphone du bénévole et l'emporte sur ses éventuelles modifications ; la saisie y apparaît « Corrigée par *votre prénom* ».
 - **Supprimer** un doublon : la saisie n'est plus comptée (elle reste visible avec « Afficher les saisies supprimées »).
 
-**Bénévole qui s'est trompé de magasin** : filtrez sur son prénom (et le magasin erroné), cochez ses saisies (la case de l'en-tête coche toute la page), puis **Changer de magasin…** et choisissez le bon. Seuls les magasins actifs participant à la campagne sont proposés. Les saisies déplacées apparaissent « Corrigées par *votre prénom* » sur le téléphone. Demandez aussi au bénévole de choisir le bon magasin (onglet **Réglages**) pour ses saisies suivantes.
+**Bénévole qui s'est trompé de magasin** : ouvrez ses saisies depuis l'onglet **Appareils** (**Voir ses saisies**, voir 2.3) ou filtrez sur son prénom (et le magasin erroné), cochez ses saisies (la case de l'en-tête coche toute la page), puis **Changer de magasin…** et choisissez le bon. Seuls les magasins actifs participant à la campagne sont proposés. Les saisies déplacées apparaissent « Corrigées par *votre prénom* » sur le téléphone. Demandez aussi au bénévole de choisir le bon magasin (onglet **Réglages**) pour ses saisies suivantes.
 
 ### 2.3 Aider un bénévole
+
+Onglet **Appareils** (actualisé toutes les 30 secondes) : un téléphone par ligne, avec le prénom du bénévole, le **code de l'appareil** (8 caractères, aussi affiché sur le téléphone dans **Réglages** › Synchronisation), le magasin de sa dernière saisie, ses saisies et articles, l'heure de sa dernière saisie et de sa **dernière synchronisation**. Tant que l'application est ouverte avec du réseau, le téléphone se synchronise toutes les 30 secondes : **Connecté** signifie une synchronisation récente (moins de 2 minutes, réglable dans la configuration du serveur). **Voir ses saisies** ouvre l'onglet **Saisies** limité à ce téléphone, même si deux bénévoles ont le même prénom.
 
 | Situation | Que faire |
 |---|---|

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\App;
 use App\Auth\AdminAuth;
+use App\Controller\Admin\AppareilController;
 use App\Controller\Admin\CampagneController;
 use App\Controller\Admin\CategorieController;
 use App\Controller\Admin\MagasinController;
@@ -145,5 +146,11 @@ return static function (App $app): void {
     $r->get('/api/admin/saisies/export', $admin(static fn ($q, $p) => $saisies()->export($q, $p)));
     $r->post('/api/admin/saisies/magasin', $admin(static fn ($q, $p) => $saisies()->changeMagasin($q, $p)));
     $r->put('/api/admin/saisies/{id}',$admin(static fn ($q, $p) => $saisies()->update($q, $p)));
+    $r->get('/api/admin/appareils', $admin(static fn ($q, $p) => new AppareilController(
+        new CampagneRepository($db()),
+        new AppareilRepository($db()),
+        (int) $config['appareils']['connecte_minutes'],
+    )->list($q, $p)));
+
     $r->delete('/api/admin/saisies/{id}', $admin(static fn ($q, $p) => $saisies()->delete($q, $p)));
 };

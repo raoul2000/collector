@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useSearchParams } from 'react-router'
 import type { Categorie, FiltresSaisies, SaisieAdmin } from '../../../api/types'
 import { Alert } from '../../../components/Alert'
 import { Badge } from '../../../components/Badge'
@@ -40,7 +41,14 @@ export function SaisiesPage() {
   const categories = useCategories()
   const supprimer = useSupprimerSaisie()
 
-  const [filtres, setFiltres] = useState<FiltresSaisies>({ page: 1 })
+  // Filtres reçus dans l'adresse (lien « Voir ses saisies » de la page Appareils)
+  const [searchParams, setSearchParams] = useSearchParams()
+  const campagneDemandee = Number(searchParams.get('campagne')) || undefined
+  const [filtres, setFiltres] = useState<FiltresSaisies>({
+    page: 1,
+    campagne: campagneDemandee,
+    appareil: searchParams.get('appareil') ?? undefined,
+  })
   const [prenom, setPrenom] = useState('')
   const [code, setCode] = useState('')
   const [corrigee, setCorrigee] = useState<SaisieAdmin | null>(null)
@@ -58,10 +66,15 @@ export function SaisiesPage() {
 
   // Campagne active sélectionnée par défaut
   const active = campagnes.data?.find((c) => c.active)
-  const [campagneInitialisee, setCampagneInitialisee] = useState(false)
+  const [campagneInitialisee, setCampagneInitialisee] = useState(campagneDemandee !== undefined)
   if (!campagneInitialisee && campagnes.data) {
     setCampagneInitialisee(true)
     setFiltres((f) => ({ ...f, campagne: active?.id }))
+  }
+
+  const retirerFiltreAppareil = () => {
+    filtrer({ appareil: undefined })
+    setSearchParams({}, { replace: true })
   }
 
   // Le filtre sur le prénom s'applique quand la frappe s'interrompt
@@ -165,6 +178,18 @@ export function SaisiesPage() {
           onChange={(e) => filtrer({ supprimees: e.target.checked })}
         />
       </div>
+
+      {filtres.appareil && (
+        <p className={pageStyles.filtreAppareil}>
+          <span>
+            Saisies de l'appareil <code>{filtres.appareil.slice(0, 8)}</code>
+            {saisies.data?.saisies[0] && ` (${saisies.data.saisies[0].prenom})`}
+          </span>
+          <Button size="sm" variant="ghost" onClick={retirerFiltreAppareil}>
+            Retirer ce filtre
+          </Button>
+        </p>
+      )}
 
       {saisies.isPending && <p className={styles.loading}>Chargement…</p>}
       {saisies.isError && <Alert kind="error">{saisies.error.message}</Alert>}

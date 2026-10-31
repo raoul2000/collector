@@ -46,12 +46,18 @@ final readonly class SaisieController
             return (int) $value;
         };
 
+        $appareil = (string) $request->query('appareil', '');
+        if ($appareil !== '' && !Validator::isUuid($appareil)) {
+            throw HttpException::badRequest("Paramètre invalide : {$appareil}");
+        }
+
         $page = (int) $entier($request->query('page'), 1, 1_000_000, 1);
         $parPage = (int) $entier($request->query('parPage'), 1, self::PAR_PAGE_MAX, 50);
         $resultat = $this->saisies->search([
             'campagneId' => $entier($request->query('campagne'), 1, PHP_INT_MAX, null),
             'magasinId' => $entier($request->query('magasin'), 1, PHP_INT_MAX, null),
             'categorieId' => $entier($request->query('categorie'), 1, PHP_INT_MAX, null),
+            'appareilId' => $appareil === '' ? null : strtolower($appareil),
             'prenom' => mb_substr(trim((string) $request->query('prenom', '')), 0, 50),
             'code' => mb_substr(trim((string) $request->query('code', '')), 0, 50),
             'sansCode' => $request->query('sansCode') === '1',

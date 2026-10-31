@@ -10,6 +10,7 @@ import type {
   ChangementMagasin,
   CorrectionSaisie,
   FiltresSaisies,
+  ListeAppareils,
   Magasin,
   MagasinInput,
   PageSaisies,
@@ -210,6 +211,7 @@ export function useAdminSaisies(filtres: FiltresSaisies, enabled = true) {
   if (filtres.campagne) params.set('campagne', String(filtres.campagne))
   if (filtres.magasin) params.set('magasin', String(filtres.magasin))
   if (filtres.categorie) params.set('categorie', String(filtres.categorie))
+  if (filtres.appareil) params.set('appareil', filtres.appareil)
   if (filtres.prenom) params.set('prenom', filtres.prenom)
   if (filtres.sansCode) params.set('sansCode', '1')
   else if (filtres.code) params.set('code', filtres.code)
@@ -230,6 +232,18 @@ export function useCorrigerSaisie() {
     mutationFn: ({ id, correction }: { id: string; correction: CorrectionSaisie }) =>
       api.put<SaisieAdmin>(`admin/saisies/${id}`, correction),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: SAISIES_KEY }),
+  })
+}
+
+// --- Appareils ----------------------------------------------------------------------------------
+
+/** Liste des appareils d'une campagne (la campagne active par défaut), actualisée comme les bilans */
+export function useAppareils(campagne: number | undefined) {
+  return useQuery({
+    queryKey: ['admin', 'appareils', { campagne }],
+    queryFn: ({ signal }) => api.get<ListeAppareils>(`admin/appareils${campagne ? `?campagne=${campagne}` : ''}`, signal),
+    refetchInterval: BILAN_REFRESH_MS,
+    placeholderData: keepPreviousData,
   })
 }
 

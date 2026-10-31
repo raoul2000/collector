@@ -231,7 +231,7 @@ Objectif : suivre la collecte en temps réel et motiver les bénévoles.
 
 ## Reprise du travail
 
-État au 29/10/2026 : lots 1, 2 et 3 terminés ; application en production sur https://collecte.exdata.info ; évolutions réalisées : code de référence dans les saisies, correction du magasin des saisies par le responsable, export Excel d'une campagne, journal technique de l'API (voir [déploiement](deploiement.md), section 7).
+État au 29/10/2026 : lots 1, 2 et 3 terminés ; application en production sur https://collecte.exdata.info ; évolutions réalisées : code de référence dans les saisies, correction du magasin des saisies par le responsable, export Excel d'une campagne, liste des appareils, journal technique de l'API (voir [déploiement](deploiement.md), section 7).
 
 Prochaines étapes possibles :
 1. **Recette sur de vrais téléphones** (4.3).
@@ -271,4 +271,5 @@ Environnement de développement : voir le [README](../README.md). La base locale
 | 28/10/2026 | Évolution : code de référence dans les saisies (colonne, filtres « Code » et « Sans code ») |
 | 29/10/2026 | Évolution : correction du magasin des saisies par le responsable, une à une ou par sélection (`POST /api/admin/saisies/magasin`) ; magasins actifs participant à la campagne uniquement |
 | 29/10/2026 | Évolution : export Excel d'une campagne depuis les Bilans (une feuille « Saisies », fichier construit dans le navigateur avec `write-excel-file`, chargé à la demande ; `GET /api/admin/saisies/export?campagne=`) |
+| 29/10/2026 | Évolution : onglet « Appareils » (prénom, code, magasin, saisies, dernière synchronisation, badge « Connecté » selon `appareils.connecte_minutes`) ; filtre des saisies par appareil (`GET /api/admin/appareils`, `appareil=` sur `GET /api/admin/saisies`) |
 | 29/10/2026 | Journal technique de l'API : une ligne par requête, un fichier par jour dans `var/log`, conservé 30 jours ; référence de requête (`X-Request-Id`) citée dans les erreurs internes |

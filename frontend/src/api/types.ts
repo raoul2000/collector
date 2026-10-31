@@ -171,6 +171,8 @@ export interface FiltresSaisies {
   campagne?: number
   magasin?: number
   categorie?: number
+  /** Identifiant complet de l'appareil (téléphone) du bénévole */
+  appareil?: string
   prenom?: string
   /** Recherche « contient » dans le code de référence de la catégorie */
   code?: string
@@ -185,6 +187,32 @@ export interface CorrectionSaisie {
   categorieId: number
   quantite: number
   contenanceUnitaire: number | null
+}
+
+// --- Appareils (administration) ------------------------------------------------------------------
+
+export interface AppareilAdmin {
+  id: string
+  /** Dernier prénom saisi sur le téléphone */
+  prenom: string
+  /** Magasin de la dernière saisie de la campagne */
+  magasinId: number | null
+  nbSaisies: number
+  nbArticles: number
+  derniereSaisie: string | null
+  creeLe: string
+  /** Dernière synchronisation */
+  vuLe: string
+  /** Temps écoulé depuis la dernière synchronisation, selon l'horloge du serveur */
+  vuIlYaSecondes: number
+  connecte: boolean
+}
+
+export interface ListeAppareils {
+  campagne: { id: number; nom: string }
+  /** Délai (configurable sur le serveur) en deçà duquel un appareil est « connecté » */
+  connecteMinutes: number
+  appareils: AppareilAdmin[]
 }
 
 export interface SaisieExport {

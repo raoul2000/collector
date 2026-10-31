@@ -26,6 +26,11 @@ return [
         // Hash du mot de passe partagé des responsables (généré par bin/hash-password.php)
         'password_hash' => '',
     ],
+    'appareils' => [
+        // Liste des appareils : « Connecté » si la dernière synchronisation date de moins de N minutes
+        // (le téléphone se synchronise toutes les 30 secondes tant que l'application est ouverte)
+        'connecte_minutes' => 2,
+    ],
     'log' => [
         // Journal technique : un fichier par jour, var/log/collector-AAAA-MM-JJ.log
         'enabled' => true,

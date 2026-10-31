@@ -135,14 +135,14 @@ final readonly class SaisieRepository
     /**
      * Recherche paginée pour l'espace responsable, de la plus récente à la plus ancienne.
      *
-     * @param array{campagneId?: int|null, magasinId?: int|null, categorieId?: int|null, prenom?: string|null, code?: string|null, sansCode?: bool, supprimees?: bool} $filtres
+     * @param array{campagneId?: int|null, magasinId?: int|null, categorieId?: int|null, appareilId?: string|null, prenom?: string|null, code?: string|null, sansCode?: bool, supprimees?: bool} $filtres
      * @return array{saisies: list<array<string, mixed>>, total: int}
      */
     public function search(array $filtres, int $page, int $parPage): array
     {
         $where = [];
         $params = [];
-        foreach (['campagneId' => 's.campagne_id', 'magasinId' => 's.magasin_id', 'categorieId' => 's.categorie_id'] as $filtre => $colonne) {
+        foreach (['campagneId' => 's.campagne_id', 'magasinId' => 's.magasin_id', 'categorieId' => 's.categorie_id', 'appareilId' => 's.appareil_id'] as $filtre => $colonne) {
             if (($filtres[$filtre] ?? null) !== null) {
                 $where[] = "{$colonne} = ?";
                 $params[] = $filtres[$filtre];

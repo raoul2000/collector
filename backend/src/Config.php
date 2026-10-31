@@ -28,6 +28,10 @@ final class Config
         'admin' => [
             'password_hash' => '',
         ],
+        'appareils' => [
+            // Un appareil synchronisé depuis moins de N minutes est affiché « Connecté » (liste des appareils)
+            'connecte_minutes' => 2,
+        ],
         'log' => [
             'enabled' => true,
             // info (toutes les requêtes), warning (refus et requêtes lentes) ou error

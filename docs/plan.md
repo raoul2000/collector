@@ -231,7 +231,7 @@ Objectif : suivre la collecte en temps réel et motiver les bénévoles.
 
 ## Reprise du travail
 
-État au 29/10/2026 : lots 1, 2 et 3 terminés ; application en production sur https://collecte.exdata.info ; évolutions réalisées : code de référence dans les saisies, correction du magasin des saisies par le responsable, export Excel d'une campagne, liste des appareils, journal technique de l'API (voir [déploiement](deploiement.md), section 7).
+État au 29/10/2026 : lots 1, 2 et 3 terminés ; application en production sur https://collecte.exdata.info ; évolutions réalisées : code de référence dans les saisies, correction du magasin des saisies par le responsable, export Excel d'une campagne, liste des appareils, journal technique de l'API (voir [déploiement](deploiement.md), section 7), outil de mise à jour du serveur par SFTP (`scripts/deployer.mjs`, [déploiement](deploiement.md), section 5.1).
 
 Prochaines étapes possibles :
 1. **Recette sur de vrais téléphones** (4.3).
@@ -273,3 +273,4 @@ Environnement de développement : voir le [README](../README.md). La base locale
 | 29/10/2026 | Évolution : onglet « Appareils » (prénom, code, magasin, saisies, dernière synchronisation, badge « Connecté » selon `appareils.connecte_minutes`) ; filtre des saisies par appareil (`GET /api/admin/appareils`, `appareil=` sur `GET /api/admin/saisies`) |
 | 29/10/2026 | Journal technique de l'API : une ligne par requête, un fichier par jour dans `var/log`, conservé 30 jours ; référence de requête (`X-Request-Id`) citée dans les erreurs internes |
 | 31/10/2026 | Décision : la comparaison entre années est retirée du périmètre de l'application |
+| 31/10/2026 | Outil de mise à jour du serveur `scripts/deployer.mjs` : dépôt SFTP des seuls fichiers modifiés (manifeste `app/var/deploiement.json`), migrations appliquées par l'API (`/api/maintenance/schema` et `/migrer`, jeton `deploiement.jeton`), sauvegarde de la base confirmée avant migration, mot de passe SFTP demandé à chaque lancement |

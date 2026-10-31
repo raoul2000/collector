@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Migration;
 
 use PDO;
+use PDOException;
 use RuntimeException;
 
 /**
@@ -27,11 +28,16 @@ final readonly class Migrator
      */
     public function migrate(): array
     {
+        $this->ensureVersionTable();
         $applied = [];
         foreach ($this->pending() as $file) {
             $sql = (string) file_get_contents($this->directory . '/' . $file);
-            foreach (self::splitStatements($sql) as $statement) {
-                $this->pdo->exec($statement);
+            try {
+                foreach (self::splitStatements($sql) as $statement) {
+                    $this->pdo->exec($statement);
+                }
+            } catch (PDOException $e) {
+                throw new RuntimeException("Migration {$file} : {$e->getMessage()}", 0, $e);
             }
             $this->pdo->prepare('INSERT INTO schema_version (version) VALUES (?)')->execute([$file]);
             $applied[] = $file;
@@ -45,8 +51,10 @@ final readonly class Migrator
      */
     public function pending(): array
     {
-        $this->ensureVersionTable();
-        $done = $this->pdo->query('SELECT version FROM schema_version')->fetchAll(PDO::FETCH_COLUMN);
+        // Sans effet sur la base : la table schema_version n'est créée qu'à la première migration
+        $done = $this->hasVersionTable()
+            ? $this->pdo->query('SELECT version FROM schema_version')->fetchAll(PDO::FETCH_COLUMN)
+            : [];
 
         return array_values(array_diff($this->available(), $done));
     }
@@ -81,8 +89,17 @@ final readonly class Migrator
         return array_values(array_filter(array_map(trim(...), $statements), static fn (string $s): bool => $s !== ''));
     }
 
+    private function hasVersionTable(): bool
+    {
+        return $this->pdo->query("SHOW TABLES LIKE 'schema_version'")->fetchColumn() !== false;
+    }
+
     private function ensureVersionTable(): void
     {
+        // Vérification préalable : un CREATE TABLE, même sans effet, validerait la transaction en cours
+        if ($this->hasVersionTable()) {
+            return;
+        }
         $this->pdo->exec(
             'CREATE TABLE IF NOT EXISTS schema_version (
                 version     VARCHAR(100) NOT NULL PRIMARY KEY,

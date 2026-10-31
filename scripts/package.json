@@ -1,0 +1,12 @@
+{
+  "name": "collector-scripts",
+  "private": true,
+  "type": "module",
+  "description": "Outils de préparation et de déploiement de Collector",
+  "scripts": {
+    "test": "node --test"
+  },
+  "dependencies": {
+    "ssh2-sftp-client": "^12.1.1"
+  }
+}

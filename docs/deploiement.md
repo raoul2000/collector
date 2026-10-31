@@ -41,7 +41,7 @@ Dans l'espace client Ionos :
    - le mot de passe choisi.
 3. **Domaine ou sous-domaine** (ex. `collecte.mon-domaine.fr`) : le faire pointer sur le répertoire **`/collector/www`** (« répertoire cible »). Créer les dossiers s'ils n'existent pas.
 4. **Certificat SSL** : activer le certificat SSL (inclus chez Ionos) pour ce domaine. **HTTPS est indispensable** : sans lui, l'application ne fonctionne pas hors ligne et la connexion des responsables est refusée.
-5. **Accès SFTP** : noter le serveur, l'identifiant et le mot de passe SFTP (rubrique « Accès SFTP & SSH »). Si l'offre propose un **accès SSH**, le noter aussi : il simplifie les mises à jour de la base.
+5. **Accès SFTP** : noter le serveur, l'identifiant et le mot de passe SFTP (rubrique « Accès SFTP & SSH »). Un accès SSH n'est pas nécessaire : l'outil de mise à jour (section 5.1) applique les migrations de la base par l'API.
 
 Outil conseillé pour déposer les fichiers : **FileZilla** (connexion en **SFTP**, port 22). Dans FileZilla, activer *Serveur > Forcer l'affichage des fichiers cachés* pour voir et déposer les fichiers `.htaccess`.
 
@@ -112,8 +112,19 @@ Avec FileZilla :
        'admin' => [
            'password_hash' => '$2y$12$…',   // résultat de bin/hash-password.php
        ],
+       'deploiement' => [
+           'jeton' => '…',                  // pour l'outil de mise à jour (section 5.1)
+       ],
    ];
    ```
+
+4. **Jeton de l'outil de mise à jour** : générer une valeur aléatoire **sur l'ordinateur** et la reporter dans `deploiement.jeton` :
+
+   ```sh
+   php -r "echo bin2hex(random_bytes(24)), PHP_EOL;"
+   ```
+
+   Sans jeton (ou avec moins de 32 caractères), les routes de maintenance de l'API sont désactivées.
 
 > `config.php` contient des secrets : il n'est jamais versionné dans Git et n'est jamais écrasé lors des mises à jour.
 
@@ -149,6 +160,46 @@ Voir le [guide du responsable](guide-responsable.md) : créer la campagne, les m
 
 ## 5. Mise à jour
 
+> Éviter de mettre à jour pendant la collecte. Si c'est indispensable, le faire entre deux créneaux : les saisies faites hors ligne pendant la mise à jour sont conservées sur les téléphones et envoyées ensuite.
+
+### 5.1 Avec l'outil de mise à jour (conseillé)
+
+`scripts/deployer.mjs` prépare le paquet, dépose par SFTP **uniquement les fichiers nouveaux ou modifiés**, applique les migrations de la base et vérifie le résultat.
+
+**Une seule fois, sur l'ordinateur :**
+
+1. `npm install` dans le dossier `scripts/`.
+2. Copier `deploy/deploiement.example.json` vers **`deploy/deploiement.local.json`** (non versionné) et le compléter :
+   - `url` : adresse de l'application (`https://collecte.mon-domaine.fr`) ;
+   - `jeton` : la valeur de `deploiement.jeton` du `config.php` du serveur (section 4.2, étape 4) ; l'ajouter au `config.php` du serveur s'il n'y figure pas ;
+   - `sftp` : serveur, port et identifiant SFTP ; `racine` : dossier qui contient `app/` et `www/`, vu depuis la connexion SFTP (`.` si la connexion s'ouvre directement dessus, sinon par exemple `collector`).
+
+   Le mot de passe SFTP n'est enregistré nulle part : il est demandé à chaque lancement.
+
+**À chaque mise à jour**, depuis le dossier du projet :
+
+```sh
+node scripts/deployer.mjs --simulation   # facultatif : liste ce qui serait envoyé, supprimé et migré
+node scripts/deployer.mjs
+```
+
+L'outil :
+
+1. vérifie le code et prépare le paquet (comme `preparer-deploiement.mjs`) ;
+2. interroge l'API : état du service et migrations de la base à appliquer ;
+3. demande le mot de passe SFTP, puis une confirmation. **Si la base va être modifiée, il demande de faire d'abord la sauvegarde** (phpMyAdmin > Exporter) ;
+4. dépose les fichiers modifiés de `app/`, applique les migrations, puis dépose ceux de `www/` (`index.html` en dernier) ;
+5. supprime les fichiers retirés du paquet. Les anciens fichiers de `www/assets/` sont gardés jusqu'à la mise à jour suivante, pour les pages encore ouvertes ;
+6. vérifie l'API, la base et la page d'accueil.
+
+L'outil ne touche jamais à `app/config/config.php` ni à `app/var/`. La liste des fichiers déposés est conservée sur le serveur dans `app/var/deploiement.json` : au premier lancement, en son absence, tous les fichiers sont envoyés et aucun n'est supprimé (les anciens fichiers de `www/assets/` peuvent alors être supprimés à la main).
+
+Options : `--sans-build` (réutilise la dernière compilation), `--sans-migration` (migrations à importer dans phpMyAdmin, section 5.2).
+
+En cas d'échec d'une migration, l'outil s'arrête avant de déposer l'interface et affiche l'erreur de MySQL : corriger, puis relancer, ou restaurer la sauvegarde. Les appels de l'outil apparaissent dans le journal technique avec `maintenance=oui`.
+
+### 5.2 À la main (FileZilla et phpMyAdmin)
+
 1. **Sauvegarder la base** : phpMyAdmin > Exporter (méthode rapide, format SQL). Conserver le fichier.
 2. **Préparer le paquet** : `node scripts/preparer-deploiement.mjs`.
 3. **Déposer `app/`** : copier le contenu de `deploy/package/app/` dans `/collector/app/` en remplaçant les fichiers existants. Le paquet ne contient pas `config/config.php` : la configuration du serveur est conservée.
@@ -157,14 +208,13 @@ Voir le [guide du responsable](guide-responsable.md) : créer la campagne, les m
    - sans SSH : dans phpMyAdmin, afficher la table `schema_version` et importer **uniquement** les fichiers `migration-NNN_….sql` qui n'y figurent pas, dans l'ordre des numéros.
 5. **Déposer `www/`** : copier le contenu de `deploy/package/www/` dans `/collector/www/` en remplaçant les fichiers existants. Les anciens fichiers de `www/assets/` peuvent rester (ils ne gênent pas) ou être supprimés.
 6. **Vérifier** : `https://<domaine>/api/health`, puis ouvrir l'application. Les téléphones déjà équipés affichent le bandeau « Une nouvelle version de l'application est disponible » : toucher **Mettre à jour**.
-
-> Éviter de mettre à jour pendant la collecte. Si c'est indispensable, le faire entre deux créneaux : les saisies faites hors ligne pendant la mise à jour sont conservées sur les téléphones et envoyées ensuite.
+7. **Si l'outil de mise à jour a déjà été utilisé** : supprimer `app/var/deploiement.json` sur le serveur, pour que le prochain lancement de l'outil renvoie tous les fichiers.
 
 ---
 
 ## 6. Retour à la version précédente
 
-1. Redéposer le contenu de `app/` et de `www/` du paquet précédent (copie zip conservée à l'étape 2 de la mise à jour).
+1. Redéposer le contenu de `app/` et de `www/` du paquet précédent (copie zip conservée à l'étape 2 de la mise à jour), ou, avec l'outil, revenir dans Git à la version précédente (`git checkout <version>`) et relancer `node scripts/deployer.mjs`.
 2. Si la mise à jour avait ajouté une migration, restaurer la sauvegarde de la base faite avant la mise à jour (phpMyAdmin > Importer).
 
 ---

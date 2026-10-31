@@ -48,6 +48,10 @@ npm run build        # vérification TypeScript + compilation dans dist/
 
 ```sh
 node scripts/preparer-deploiement.mjs   # vérifie, compile et prépare deploy/package
+node scripts/deployer.mjs --simulation  # mise à jour du serveur par SFTP : ce qui serait fait
+node scripts/deployer.mjs               # mise à jour du serveur (fichiers modifiés et base)
 ```
+
+L'outil de mise à jour demande une installation préalable : `npm install` dans `scripts/`.
 
 Procédure complète (Ionos) : [docs/deploiement.md](docs/deploiement.md)

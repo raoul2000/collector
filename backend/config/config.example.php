@@ -31,6 +31,12 @@ return [
         // (le téléphone se synchronise toutes les 30 secondes tant que l'application est ouverte)
         'connecte_minutes' => 2,
     ],
+    'deploiement' => [
+        // Jeton de l'outil de déploiement (scripts/deployer.mjs), au moins 32 caractères, à recopier dans
+        // deploy/deploiement.local.json. Vide : mise à jour de la base à distance désactivée.
+        // Générer : php -r "echo bin2hex(random_bytes(24)), PHP_EOL;"
+        'jeton' => '',
+    ],
     'log' => [
         // Journal technique : un fichier par jour, var/log/collector-AAAA-MM-JJ.log
         'enabled' => true,

@@ -23,6 +23,9 @@ abstract class ApiTestCase extends DatabaseTestCase
     /** Journal technique de l'application testée (désactivé par défaut) */
     protected Logger $logger;
 
+    /** @var array<string, mixed> surcharges de configuration appliquées à chaque requête */
+    protected array $config = [];
+
     /** @var array<string, string> cookies conservés entre les requêtes, comme le ferait un navigateur */
     protected array $cookies = [];
 
@@ -37,6 +40,7 @@ abstract class ApiTestCase extends DatabaseTestCase
         return new App(
             Config::withDefaults(array_replace_recursive(
                 ['admin' => ['password_hash' => self::$adminPasswordHash]],
+                $this->config,
                 $config,
             )),
             pdo: $this->db,

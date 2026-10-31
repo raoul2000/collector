@@ -32,6 +32,10 @@ final class Config
             // Un appareil synchronisé depuis moins de N minutes est affiché « Connecté » (liste des appareils)
             'connecte_minutes' => 2,
         ],
+        'deploiement' => [
+            // Jeton de l'outil de déploiement (routes /api/maintenance) ; vide : routes désactivées
+            'jeton' => '',
+        ],
         'log' => [
             'enabled' => true,
             // info (toutes les requêtes), warning (refus et requêtes lentes) ou error

@@ -24,6 +24,29 @@ const app = join(paquet, 'app')
 const etape = (message) => console.log(`\n▶ ${message}`)
 const executer = (commande, cwd) => execSync(commande, { cwd, stdio: 'inherit', shell: true })
 
+/**
+ * Commande Composer : variable COMPOSER_BIN, sinon « composer » du PATH, sinon l'emplacement de
+ * l'installateur Windows (absent du PATH d'un terminal ouvert avant l'installation de Composer).
+ */
+function trouverComposer() {
+  const candidats = [
+    process.env.COMPOSER_BIN,
+    'composer',
+    process.platform === 'win32' ? join(process.env.ProgramData ?? 'C:\\ProgramData', 'ComposerSetup', 'bin', 'composer.bat') : null,
+  ].filter(Boolean)
+  for (const candidat of candidats) {
+    const commande = candidat.includes(' ') ? `"${candidat}"` : candidat
+    try {
+      execSync(`${commande} --version`, { stdio: 'ignore', shell: true })
+      return commande
+    } catch {
+      // candidat suivant
+    }
+  }
+  throw new Error('Composer introuvable : l\'ajouter au PATH, ou indiquer son chemin dans la variable COMPOSER_BIN.')
+}
+const composer = trouverComposer()
+
 // 1. Compilation de l'application -------------------------------------------------------------------
 if (!process.argv.includes('--sans-build')) {
   etape('Tests et compilation de l\'application')
@@ -31,7 +54,7 @@ if (!process.argv.includes('--sans-build')) {
   executer('npm test', frontend)
   executer('npm run build', frontend)
   etape('Tests de l\'API')
-  executer('composer test', backend)
+  executer(`${composer} test`, backend)
 }
 if (!existsSync(join(frontend, 'dist', 'index.html'))) {
   throw new Error('frontend/dist est absent : lancer le script sans --sans-build.')
@@ -57,7 +80,7 @@ cpSync(join(backend, 'config', 'config.example.php'), join(app, 'config', 'confi
 cpSync(join(racine, 'deploy', 'app.htaccess'), join(app, '.htaccess'))
 
 etape('Dépendances PHP de production (sans les outils de test)')
-executer('composer install --no-dev --optimize-autoloader --no-interaction --no-progress', app)
+executer(`${composer} install --no-dev --optimize-autoloader --no-interaction --no-progress`, app)
 
 // 4. Scripts SQL pour phpMyAdmin --------------------------------------------------------------------------
 etape('Scripts SQL')

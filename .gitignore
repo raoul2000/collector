@@ -10,6 +10,7 @@ frontend/dev-dist/
 backend/config/config.php
 backend/config/config.prod.php
 backend/config/config.dev.php
+deploy/deploiement.local.json
 .env
 .env.local
 

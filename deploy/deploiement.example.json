@@ -1,0 +1,10 @@
+{
+  "url": "https://collecte.mon-domaine.fr",
+  "jeton": "même valeur que deploiement.jeton dans app/config/config.php du serveur",
+  "sftp": {
+    "hote": "access-xxxxxxxx.webspace-host.com",
+    "port": 22,
+    "utilisateur": "acc-xxxxxxxx",
+    "racine": "."
+  }
+}

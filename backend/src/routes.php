@@ -12,10 +12,12 @@ use App\Controller\Admin\SaisieController;
 use App\Controller\AdminAuthController;
 use App\Controller\BilanController;
 use App\Controller\HealthController;
+use App\Controller\MaintenanceController;
 use App\Controller\ReferentielController;
 use App\Controller\SyncController;
 use App\Http\JsonResponse;
 use App\Http\Request;
+use App\Migration\Migrator;
 use App\Repository\AppareilRepository;
 use App\Repository\BilanRepository;
 use App\Repository\CampagneRepository;
@@ -91,6 +93,19 @@ return static function (App $app): void {
 
         return $response;
     });
+
+    // --- Outil de déploiement (jeton de config.php) ------------------------------------------------
+
+    $maintenance = static function () use ($app, $db, $config): MaintenanceController {
+        $app->logContext('maintenance', 'oui');
+
+        return new MaintenanceController(
+            static fn (): Migrator => new Migrator($db(), dirname(__DIR__) . '/sql/migrations'),
+            (string) $config['deploiement']['jeton'],
+        );
+    };
+    $r->get('/api/maintenance/schema', static fn (Request $q) => $maintenance()->schema($q));
+    $r->post('/api/maintenance/migrer', static fn (Request $q) => $maintenance()->migrate($q));
 
     // --- Espace responsable ---------------------------------------------------------------------
 

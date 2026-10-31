@@ -41,25 +41,25 @@ INSERT INTO categorie (nom, section_id, unite, ordre) VALUES ('Apéritif, chips'
 -- Conserves
 INSERT INTO section (nom, ordre) VALUES ('Conserves', 20);
 SET @section = LAST_INSERT_ID();
-INSERT INTO categorie (nom, section_id, unite, ordre) VALUES ('Légumes', @section, 'kg', 100);
+INSERT INTO categorie (nom, section_id, unite, ordre) VALUES ('Conserves de légumes', @section, 'kg', 100);
 SET @categorie = LAST_INSERT_ID();
 INSERT INTO format (categorie_id, contenance, libelle, ordre) VALUES (@categorie, 140, '1/6', 1), (@categorie, 220, '1/4', 2), (@categorie, 400, '1/2', 3), (@categorie, 800, '4/4', 4);
-INSERT INTO categorie (nom, section_id, unite, ordre) VALUES ('Légumineuses', @section, 'kg', 110);
+INSERT INTO categorie (nom, section_id, unite, ordre) VALUES ('Légumineuses en conserve', @section, 'kg', 110);
 SET @categorie = LAST_INSERT_ID();
 INSERT INTO format (categorie_id, contenance, libelle, ordre) VALUES (@categorie, 250, '1/4', 1), (@categorie, 400, '1/2', 2), (@categorie, 800, '4/4', 3);
 INSERT INTO categorie (nom, section_id, unite, ordre) VALUES ('Plats cuisinés', @section, 'kg', 120);
 SET @categorie = LAST_INSERT_ID();
 INSERT INTO format (categorie_id, contenance, libelle, ordre) VALUES (@categorie, 400, NULL, 1), (@categorie, 800, NULL, 2), (@categorie, 1200, NULL, 3);
-INSERT INTO categorie (nom, section_id, unite, ordre) VALUES ('Viande', @section, 'kg', 130);
+INSERT INTO categorie (nom, section_id, unite, ordre) VALUES ('Conserves de viande', @section, 'kg', 130);
 SET @categorie = LAST_INSERT_ID();
 INSERT INTO format (categorie_id, contenance, libelle, ordre) VALUES (@categorie, 250, NULL, 1), (@categorie, 400, NULL, 2);
-INSERT INTO categorie (nom, section_id, unite, ordre) VALUES ('Poisson', @section, 'kg', 140);
+INSERT INTO categorie (nom, section_id, unite, ordre) VALUES ('Conserves de poisson', @section, 'kg', 140);
 SET @categorie = LAST_INSERT_ID();
 INSERT INTO format (categorie_id, contenance, libelle, ordre) VALUES (@categorie, 150, NULL, 1), (@categorie, 300, NULL, 2);
 INSERT INTO categorie (nom, section_id, unite, ordre) VALUES ('Fruits au sirop', @section, 'kg', 150);
 SET @categorie = LAST_INSERT_ID();
 INSERT INTO format (categorie_id, contenance, libelle, ordre) VALUES (@categorie, 400, NULL, 1), (@categorie, 800, NULL, 2);
-INSERT INTO categorie (nom, section_id, unite, ordre) VALUES ('Desserts', @section, 'kg', 160);
+INSERT INTO categorie (nom, section_id, unite, ordre) VALUES ('Desserts en conserve', @section, 'kg', 160);
 SET @categorie = LAST_INSERT_ID();
 INSERT INTO format (categorie_id, contenance, libelle, ordre) VALUES (@categorie, 250, NULL, 1), (@categorie, 500, NULL, 2);
 

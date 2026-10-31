@@ -78,6 +78,45 @@ final class SyncControllerTest extends ApiTestCase
         self::assertSame(2, (int) $this->db->query('SELECT COUNT(format_id) FROM saisie')->fetchColumn());
     }
 
+    public function testUnsuccessfulSearchesAreRecordedAndAcknowledged(): void
+    {
+        [$a, $b, $c, $d] = [self::uuid(), self::uuid(), self::uuid(), self::uuid()];
+        $recherche = fn (string $id, array $autres = []): array => $autres + [
+            'id' => $id, 'campagneId' => $this->campagne, 'terme' => 'gnocchi', 'categorieId' => $this->pates,
+            'chercheLe' => '2026-11-27T10:15:00+01:00',
+        ];
+        $envoyer = fn (array $recherches): JsonResponse => $this->request(
+            'POST',
+            '/api/sync',
+            ['prenom' => 'Marie', 'curseur' => null, 'saisies' => [], 'recherches' => $recherches],
+            ['X-Device-Id' => self::APPAREIL],
+        );
+
+        $response = $envoyer([
+            $recherche($a),
+            $recherche($b, ['categorieId' => 999999]),
+            // Invalide : oubliée par le téléphone, mais pas enregistrée
+            $recherche($c, ['terme' => '']),
+            $recherche($d, ['campagneId' => 999999]),
+            ['terme' => 'sans identifiant'],
+        ]);
+
+        self::assertSame(200, $response->status);
+        self::assertSame([$a, $b, $c, $d], $response->data['recherchesRecues']);
+        self::assertSame(
+            [[$a, $this->pates], [$b, null]],
+            array_map(
+                static fn (array $r): array => [$r['id'], $r['categorie_id'] === null ? null : (int) $r['categorie_id']],
+                $this->db->query('SELECT id, categorie_id FROM recherche ORDER BY categorie_id IS NULL')->fetchAll(),
+            ),
+        );
+
+        // Renvoi (réponse perdue) : sans doublon
+        self::assertSame([$a], $envoyer([$recherche($a)])->data['recherchesRecues']);
+        self::assertSame(2, (int) $this->db->query('SELECT COUNT(*) FROM recherche')->fetchColumn());
+        self::assertSame(422, $envoyer(array_fill(0, SyncController::MAX_RECHERCHES + 1, $recherche($a)))->status);
+    }
+
     public function testResendingIsIdempotent(): void
     {
         $saisie = $this->saisie(self::uuid());

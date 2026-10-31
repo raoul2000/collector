@@ -9,6 +9,7 @@ use App\Http\HttpException;
 use App\Http\JsonResponse;
 use App\Http\Request;
 use App\Repository\AppareilRepository;
+use App\Repository\RechercheRepository;
 use App\Repository\SaisieRepository;
 use App\Saisie\SaisieRules;
 use App\Validation\Validator;
@@ -30,6 +31,8 @@ final readonly class SyncController
 {
     public const int MAX_SAISIES = 200;
 
+    public const int MAX_RECHERCHES = 100;
+
     private const string CURSOR_PATTERN = '/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3}$/';
 
     public function __construct(
@@ -37,6 +40,7 @@ final readonly class SyncController
         private AppareilRepository $appareils,
         private SaisieRepository $saisies,
         private SaisieRules $rules,
+        private RechercheRepository $recherches,
     ) {
     }
 
@@ -61,12 +65,20 @@ final readonly class SyncController
         } elseif (count($items) > self::MAX_SAISIES) {
             $v->addError('saisies', 'Au plus ' . self::MAX_SAISIES . ' saisies par envoi.');
         }
+        // Recherches sans résultat (absentes des versions de l'application antérieures)
+        $recherches = $body['recherches'] ?? [];
+        if (!is_array($recherches) || !array_is_list($recherches) || count($recherches) > self::MAX_RECHERCHES) {
+            $v->addError('recherches', 'Au plus ' . self::MAX_RECHERCHES . ' recherches par envoi.');
+        }
         $v->validate();
 
-        $resultats = Database::transaction($this->db, function () use ($appareilId, $prenom, $items): array {
+        [$resultats, $recherchesRecues] = Database::transaction($this->db, function () use ($appareilId, $prenom, $items, $recherches): array {
             $this->appareils->touch($appareilId, (string) $prenom);
 
-            return array_map(fn (mixed $item): array => $this->apply($appareilId, $item), $items);
+            return [
+                array_map(fn (mixed $item): array => $this->apply($appareilId, $item), $items),
+                array_values(array_filter(array_map(fn (mixed $r): ?string => $this->enregistrerRecherche($appareilId, $r), $recherches))),
+            ];
         });
 
         $envoyees = array_flip(array_filter(array_column($resultats, 'id')));
@@ -78,7 +90,35 @@ final readonly class SyncController
                 static fn (array $s): bool => !isset($envoyees[$s['id']]),
             )),
             'curseur' => $this->saisies->cursor(),
+            'recherchesRecues' => $recherchesRecues,
         ]);
+    }
+
+    /**
+     * Enregistre une recherche sans résultat. Renvoie son identifiant pour que le téléphone l'oublie, même si
+     * elle est invalide (elle serait sinon renvoyée indéfiniment) ; null si elle n'a pas d'identifiant lisible.
+     */
+    private function enregistrerRecherche(string $appareilId, mixed $item): ?string
+    {
+        if (!is_array($item) || array_is_list($item)) {
+            return null;
+        }
+        $v = new Validator($item);
+        $id = $v->uuid('id');
+        $campagneId = $v->int('campagneId', 1, PHP_INT_MAX);
+        $terme = $v->string('terme', max: 100);
+        $categorieId = $v->int('categorieId', 1, PHP_INT_MAX, optional: true);
+        $chercheLe = $v->datetime('chercheLe');
+        if ($id === null) {
+            return null;
+        }
+        if ($v->errors() === [] && $this->rules->campagneExiste((int) $campagneId)) {
+            // Catégorie supprimée depuis : la recherche reste utile sans elle
+            $categorieId = $categorieId !== null && $this->rules->categorieExiste($categorieId) ? $categorieId : null;
+            $this->recherches->insert($id, (int) $campagneId, $appareilId, (string) $terme, $categorieId, $chercheLe);
+        }
+
+        return $id;
     }
 
     /**

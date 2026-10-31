@@ -11,6 +11,7 @@ import type {
   CorrectionSaisie,
   FiltresSaisies,
   ListeAppareils,
+  ListeRecherches,
   Magasin,
   MagasinInput,
   PageSaisies,
@@ -175,6 +176,48 @@ export function useDeleteSection() {
   })
 }
 
+// --- Recherches sans résultat des bénévoles ---------------------------------------------------------
+
+const RECHERCHES_KEY = ['admin', 'recherches'] as const
+
+/** Recherches sans résultat de la campagne active (null : pas de campagne active) */
+export function useRecherches() {
+  return useQuery({
+    queryKey: RECHERCHES_KEY,
+    queryFn: async ({ signal }): Promise<ListeRecherches | null> => {
+      try {
+        return await api.get<ListeRecherches>('admin/recherches', signal)
+      } catch (error) {
+        if (error instanceof ApiError && error.status === 404) {
+          return null
+        }
+        throw error
+      }
+    },
+    refetchInterval: BILAN_REFRESH_MS,
+  })
+}
+
+export function useAjouterMotCle() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (input: { terme: string; categorieId: number }) => api.post<Categorie>('admin/recherches/mot-cle', input),
+    onSuccess: () =>
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: RECHERCHES_KEY }),
+        queryClient.invalidateQueries({ queryKey: CATEGORIES_KEY }),
+      ]),
+  })
+}
+
+export function useIgnorerRecherche() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (terme: string) => api.post('admin/recherches/ignorer', { terme }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: RECHERCHES_KEY }),
+  })
+}
+
 // --- Catégories ----------------------------------------------------------------------------------
 
 export function useCategories() {
@@ -197,6 +240,8 @@ export function useSaveCategorie() {
         queryClient.invalidateQueries({ queryKey: CATEGORIES_KEY }),
         queryClient.invalidateQueries({ queryKey: SAISIES_KEY }),
         queryClient.invalidateQueries({ queryKey: SECTIONS_KEY }),
+        // Un mot ajouté aux mots-clés n'est plus une recherche sans résultat
+        queryClient.invalidateQueries({ queryKey: RECHERCHES_KEY }),
       ]),
   })
 }

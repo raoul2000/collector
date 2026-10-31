@@ -200,6 +200,8 @@ section       (id, nom, ordre)                                  -- groupe de cat
 categorie     (id, nom, section_id NULL, unite ENUM('kg','L','unite'), ordre, active, code_reference, mots_cles NULL)
 format        (id, categorie_id, contenance INT NULL, libelle NULL, ordre)  -- g ou ml ; libellé de variante
 appareil      (id CHAR(36) UUID, prenom, cree_le, vu_le)
+recherche     (id CHAR(36) UUID, campagne_id, appareil_id, terme, categorie_id NULL, cherche_le)  -- recherches sans résultat
+recherche_ignoree (terme)                                         -- mots écartés par un responsable
 saisie        (id CHAR(36) UUID généré côté client,
                campagne_id, magasin_id, appareil_id, categorie_id,
                quantite INT, contenance_unitaire INT NULL,      -- g ou ml ; NULL si unité ou contenance inconnue

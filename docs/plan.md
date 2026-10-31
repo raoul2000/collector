@@ -217,7 +217,7 @@ Décisions (31/10/2026) :
 - ⬜ Remplacement de la liste d'essai en production (décision du 31/10/2026 : repartir de zéro, il n'y a que des saisies d'essai) : déploiement, puis `reinitialiser-referentiel.sql` dans phpMyAdmin ([déploiement](deploiement.md), section 5.3)
 - ✅ Récents : les 4 dernières catégories utilisées sur le téléphone (d'après ses saisies, sans doublon, hors saisies supprimées et catégories retirées), avec le nom de leur section, en haut d'une grille de plus de 8 catégories
 - ✅ Recherche par mots-clés : colonne `mots_cles` (migration 005), champ « Mots-clés » des catégories, mots-clés pré-remplis dans `liste-benevoles.csv` ; champ « Rechercher un produit » sur l'écran de saisie (hors ligne, sans accents ni majuscules, débuts de mots, singulier/pluriel), variantes ouvertes directement, « Autre » proposé sans résultat
-- ⬜ Recherches sans résultat : remontée à la synchronisation, liste pour les responsables
+- ✅ Recherches sans résultat : mot cherché et catégorie choisie ensuite, mémorisés sur le téléphone et envoyés avec la synchronisation (`recherches` / `recherchesRecues`, migration 006) ; cadre « Recherches sans résultat » de l'onglet Catégories (regroupement sans accents ni majuscules, catégorie le plus souvent choisie, **Ajouter** aux mots-clés, **Ignorer**)
 
 ### 4.3 Recette ⬜
 - Simulation de collecte avec plusieurs téléphones (Android et iPhone)
@@ -311,3 +311,4 @@ Environnement de développement : voir le [README](../README.md). La base locale
 | 31/10/2026 | Référentiel Croix-Rouge, étape 3 : liste des bénévoles (7 sections, 35 catégories, CSV source et SQL généré), script de remise à zéro pour la production, générateur de saisies de démonstration |
 | 31/10/2026 | Référentiel Croix-Rouge, étape 4 : catégories récentes en haut de la grille de saisie |
 | 31/10/2026 | Référentiel Croix-Rouge, étape 5 : recherche d'une catégorie par mots-clés (migration `005_mots_cles.sql`) |
+| 31/10/2026 | Référentiel Croix-Rouge, étape 6 : recherches sans résultat (migration `006_recherches.sql`, `/api/admin/recherches`) |

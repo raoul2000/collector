@@ -136,6 +136,14 @@ final readonly class CategorieRepository
     }
 
     /**
+     * @param list<string> $motsCles
+     */
+    public function setMotsCles(int $id, array $motsCles): void
+    {
+        $this->db->prepare('UPDATE categorie SET mots_cles = ? WHERE id = ?')->execute([self::motsClesSql($motsCles), $id]);
+    }
+
+    /**
      * Réordonne les catégories selon la liste d'identifiants (ordre = 10, 20, 30…).
      *
      * @param list<int> $ids

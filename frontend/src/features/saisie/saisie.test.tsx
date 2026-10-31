@@ -321,6 +321,33 @@ describe('Écran de saisie', () => {
     expect(screen.getByRole('button', { name: /Pâtes/ })).toBeInTheDocument()
   })
 
+  it('mémorise une recherche sans résultat avec la catégorie choisie ensuite', async () => {
+    const autre = { ...SAVON, id: 9, nom: 'Autre' }
+    const user = await demarrer({ ...REFERENTIEL, categories: [PATES, HUILE, SAVON, autre] })
+    const champ = await screen.findByRole('searchbox', { name: 'Rechercher un produit' })
+
+    await user.type(champ, 'gnocchi')
+    await user.click(screen.getByRole('button', { name: 'Voir toutes les catégories' }))
+    await user.click(screen.getByRole('button', { name: /Pâtes/ }))
+    await waitFor(async () => expect(await db.recherches.toArray()).toEqual([expect.objectContaining({ campagneId: 7, terme: 'gnocchi', categorieId: 1 })]))
+    await user.click(screen.getByRole('button', { name: 'Changer de catégorie' }))
+
+    // Une recherche fructueuse n'est pas mémorisée
+    await user.type(screen.getByRole('searchbox', { name: 'Rechercher un produit' }), 'huile')
+    await user.click(screen.getByRole('button', { name: /Huile/ }))
+    await user.click(screen.getByRole('button', { name: 'Changer de catégorie' }))
+
+    await user.type(screen.getByRole('searchbox', { name: 'Rechercher un produit' }), 'boulgour')
+    await user.click(screen.getByRole('button', { name: /Autre/ }))
+
+    await waitFor(async () =>
+      expect((await db.recherches.toArray()).map((r) => [r.terme, r.categorieId]).sort()).toEqual([
+        ['boulgour', 9],
+        ['gnocchi', 1],
+      ]),
+    )
+  })
+
   it('affiche une grille simple sans sections', async () => {
     await demarrer()
 

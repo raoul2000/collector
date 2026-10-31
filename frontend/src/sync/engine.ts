@@ -4,6 +4,9 @@ import { db, META } from '../db/db'
 import { enregistrerReferentiel } from '../db/referentiel'
 import { useBenevoleStore } from '../stores/benevole'
 import { appliquerChangement, appliquerResultat, versEnvoi } from './merge'
+
+/** Recherches sans résultat envoyées par échange (le serveur en accepte 100) */
+const TAILLE_LOT_RECHERCHES = 100
 import { useSyncStore } from './syncStore'
 
 /**
@@ -68,14 +71,17 @@ async function envoyerSaisies(appareilId: string, prenom: string): Promise<void>
     const aEnvoyer = await db.saisies.where('aEnvoyer').equals(1).limit(TAILLE_LOT).toArray()
     const envoyees = aEnvoyer.map(versEnvoi)
     const curseur = (await db.meta.get(META.curseur))?.valeur ?? null
+    // Les recherches sans résultat accompagnent le premier échange
+    const recherches = lot === 0 ? await db.recherches.limit(TAILLE_LOT_RECHERCHES).toArray() : []
 
     const reponse = await request<SyncResponse>('sync', {
       method: 'POST',
-      body: { prenom, curseur, saisies: envoyees } satisfies SyncRequest,
+      body: { prenom, curseur, saisies: envoyees, recherches } satisfies SyncRequest,
       headers: { 'X-Device-Id': appareilId },
     })
 
-    await db.transaction('rw', db.saisies, db.meta, async () => {
+    await db.transaction('rw', db.saisies, db.meta, db.recherches, async () => {
+      await db.recherches.bulkDelete(reponse.recherchesRecues ?? [])
       for (const resultat of reponse.resultats) {
         const envoyee = envoyees.find((s) => s.id === resultat.id)
         if (!envoyee) {

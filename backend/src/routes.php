@@ -8,6 +8,7 @@ use App\Controller\Admin\AppareilController;
 use App\Controller\Admin\CampagneController;
 use App\Controller\Admin\CategorieController;
 use App\Controller\Admin\MagasinController;
+use App\Controller\Admin\RechercheController;
 use App\Controller\Admin\SaisieController;
 use App\Controller\Admin\SectionController;
 use App\Controller\AdminAuthController;
@@ -25,6 +26,7 @@ use App\Repository\CampagneRepository;
 use App\Repository\CategorieRepository;
 use App\Repository\JournalRepository;
 use App\Repository\MagasinRepository;
+use App\Repository\RechercheRepository;
 use App\Repository\SaisieRepository;
 use App\Repository\SectionRepository;
 use App\Saisie\SaisieRules;
@@ -84,6 +86,7 @@ return static function (App $app): void {
             new AppareilRepository($db()),
             new SaisieRepository($db()),
             new SaisieRules($db()),
+            new RechercheRepository($db()),
         )->sync($q);
 
         // Bilan de l'échange, pour le journal
@@ -150,6 +153,17 @@ return static function (App $app): void {
         new SectionRepository($db()),
         new JournalRepository($db()),
     );
+    $recherches = static fn (): RechercheController => new RechercheController(
+        $db(),
+        new CampagneRepository($db()),
+        new RechercheRepository($db()),
+        new CategorieRepository($db()),
+        new JournalRepository($db()),
+    );
+    $r->get('/api/admin/recherches', $admin(static fn ($q, $p) => $recherches()->list($q, $p)));
+    $r->post('/api/admin/recherches/mot-cle', $admin(static fn ($q, $p) => $recherches()->ajouterMotCle($q, $p)));
+    $r->post('/api/admin/recherches/ignorer', $admin(static fn ($q, $p) => $recherches()->ignorer($q, $p)));
+
     $r->get('/api/admin/sections', $admin(static fn ($q, $p) => $sections()->list($q, $p)));
     $r->post('/api/admin/sections', $admin(static fn ($q, $p) => $sections()->create($q, $p)));
     $r->put('/api/admin/sections/ordre', $admin(static fn ($q, $p) => $sections()->reorder($q, $p)));

@@ -1,5 +1,5 @@
 import Dexie, { type EntityTable } from 'dexie'
-import type { Referentiel } from '../api/types'
+import type { RechercheEnvoyee, Referentiel } from '../api/types'
 
 /**
  * Saisie conservée sur le téléphone. C'est la source de vérité de l'interface bénévole :
@@ -39,6 +39,9 @@ export interface ReferentielLocal {
   misAJourLe: string
 }
 
+/** Recherche sans résultat en attente d'envoi (supprimée dès que le serveur l'a reçue) */
+export type RechercheLocale = RechercheEnvoyee
+
 export interface Meta {
   cle: string
   valeur: string
@@ -48,6 +51,7 @@ export class CollectorDb extends Dexie {
   saisies!: EntityTable<SaisieLocale, 'id'>
   referentiel!: EntityTable<ReferentielLocal, 'cle'>
   meta!: EntityTable<Meta, 'cle'>
+  recherches!: EntityTable<RechercheLocale, 'id'>
 
   constructor(name = 'collector') {
     super(name)
@@ -57,6 +61,7 @@ export class CollectorDb extends Dexie {
       referentiel: 'cle',
       meta: 'cle',
     })
+    this.version(2).stores({ recherches: 'id' })
   }
 }
 

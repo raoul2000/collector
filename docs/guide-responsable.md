@@ -75,6 +75,8 @@ La colonne **Code** affiche le code de référence de la catégorie. Pour retrou
 
 Onglet **Appareils** (actualisé toutes les 30 secondes) : un téléphone par ligne, avec le prénom du bénévole, le **code de l'appareil** (8 caractères, aussi affiché sur le téléphone dans **Réglages** › Synchronisation), le magasin de sa dernière saisie, ses saisies et articles, l'heure de sa dernière saisie et de sa **dernière synchronisation**. Tant que l'application est ouverte avec du réseau, le téléphone se synchronise toutes les 30 secondes : **Connecté** signifie une synchronisation récente (moins de 2 minutes, réglable dans la configuration du serveur). **Voir ses saisies** ouvre l'onglet **Saisies** limité à ce téléphone, même si deux bénévoles ont le même prénom.
 
+**Recherches sans résultat** (onglet **Catégories**, cadre du même nom, actualisé toutes les 30 secondes) : les mots que les bénévoles ont tapés dans la recherche sans trouver de catégorie, avec le nombre de fois et la catégorie qu'ils ont le plus souvent choisie ensuite. **Ajouter** ajoute le mot aux mots-clés de la catégorie proposée (ou d'une autre, à choisir) : la recherche suivante aboutira, sur tous les téléphones, après leur prochaine synchronisation. **Ignorer** écarte un mot sans intérêt (faute de frappe, produit hors collecte). Un coup d'œil de temps en temps pendant la collecte suffit.
+
 | Situation | Que faire |
 |---|---|
 | Voyant **Hors ligne** | Normal sans réseau : il peut continuer, les saisies partiront seules. |

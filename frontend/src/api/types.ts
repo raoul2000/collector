@@ -174,16 +174,30 @@ export interface ResultatSync {
   saisie?: SaisieServeur
 }
 
+/** Recherche sans résultat d'un bénévole, et catégorie choisie ensuite */
+export interface RechercheEnvoyee {
+  /** UUID généré sur le téléphone */
+  id: string
+  campagneId: number
+  terme: string
+  categorieId: number | null
+  /** ISO 8601 avec fuseau */
+  chercheLe: string
+}
+
 export interface SyncRequest {
   prenom: string
   curseur: string | null
   saisies: SaisieEnvoyee[]
+  recherches: RechercheEnvoyee[]
 }
 
 export interface SyncResponse {
   resultats: ResultatSync[]
   changements: SaisieServeur[]
   curseur: string
+  /** Recherches enregistrées (absent d'un serveur antérieur : elles seront renvoyées) */
+  recherchesRecues?: string[]
 }
 
 // --- Saisies (administration) --------------------------------------------------------------------
@@ -257,6 +271,20 @@ export interface AppareilAdmin {
   /** Temps écoulé depuis la dernière synchronisation, selon l'horloge du serveur */
   vuIlYaSecondes: number
   connecte: boolean
+}
+
+export interface RechercheGroupee {
+  /** Forme la plus tapée */
+  terme: string
+  nombre: number
+  derniere: string
+  /** Catégorie le plus souvent choisie ensuite */
+  categorie: { id: number; nom: string } | null
+}
+
+export interface ListeRecherches {
+  campagne: { id: number; nom: string }
+  recherches: RechercheGroupee[]
 }
 
 export interface ListeAppareils {

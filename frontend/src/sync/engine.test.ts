@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { Referentiel, SaisieServeur, SyncRequest } from '../api/types'
 import { db, META } from '../db/db'
+import { enregistrerRecherche } from '../db/recherches'
 import { creerSaisie } from '../db/saisies'
 import { useBenevoleStore } from '../stores/benevole'
 import { fakeApi, type FakeRoute } from '../test/fakeApi'
@@ -101,6 +102,25 @@ describe('synchroniser', () => {
     await synchroniser()
 
     expect(await db.saisies.get(saisie.id)).toMatchObject({ quantite: 3, corrigeParResponsable: 'Paul', aEnvoyer: 0 })
+  })
+
+  it('envoie les recherches sans résultat et oublie celles reçues par le serveur', async () => {
+    await enregistrerRecherche(1, '  gnocchi ', 3, new Date('2026-11-27T09:15:00Z'))
+    await enregistrerRecherche(1, 'boulgour', null)
+    await enregistrerRecherche(1, 'ab', null)
+    const [gnocchi, boulgour] = await db.recherches.toArray().then((r) => r.sort((a, b) => a.terme.localeCompare(b.terme)).reverse())
+    const api = fakeApi({
+      'GET /api/referentiel': { body: REFERENTIEL },
+      'POST /api/sync': { body: { resultats: [], changements: [], curseur: '2026-11-27 10:19:55.000', recherchesRecues: [gnocchi!.id] } },
+    })
+
+    expect(await synchroniser()).toBe(true)
+
+    const envoyees = (api.calls.find((c) => c.path === '/api/sync')!.body as SyncRequest).recherches
+    expect(envoyees).toHaveLength(2)
+    expect(envoyees).toContainEqual({ id: gnocchi!.id, campagneId: 1, terme: 'gnocchi', categorieId: 3, chercheLe: expect.stringMatching(/^2026-11-27T\d\d:15:00[+-]\d\d:\d\d$/) })
+    // Trop courte : jamais enregistrée ; non reçue : renvoyée la fois suivante
+    expect(await db.recherches.toArray()).toEqual([boulgour])
   })
 
   it('envoie les saisies par lots', async () => {

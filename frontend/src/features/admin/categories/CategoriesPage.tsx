@@ -15,6 +15,7 @@ import { handleMutationError } from '../errors'
 import { PageHeader } from '../PageHeader'
 import { CategorieFormDialog } from './CategorieFormDialog'
 import pageStyles from './CategoriesPage.module.css'
+import { RecherchesSansResultat } from './RecherchesSansResultat'
 import { SectionFormDialog } from './SectionFormDialog'
 
 /** Nouvel ordre d'une liste après déplacement d'un élément d'un cran */
@@ -149,6 +150,8 @@ export function CategoriesPage() {
           </Table>
         )}
       </Card>
+
+      <RecherchesSansResultat categories={categories.data ?? []} />
 
       {categories.isPending && <p className={styles.loading}>Chargement…</p>}
       {categories.isError && <Alert kind="error">{categories.error.message}</Alert>}

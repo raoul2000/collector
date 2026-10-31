@@ -75,6 +75,11 @@ final class SaisieRules
         return ['categorieId' => $categorieId, 'quantite' => $quantite, 'contenanceUnitaire' => $contenance, 'formatId' => $formatId];
     }
 
+    public function categorieExiste(int $id): bool
+    {
+        return isset($this->unites()[$id]);
+    }
+
     public function magasinExiste(int $id): bool
     {
         $this->magasins ??= array_fill_keys($this->ids('magasin'), true);

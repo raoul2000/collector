@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { CategorieRef, FormatRef, SectionRef } from '../../api/types'
 import { Alert } from '../../components/Alert'
 import { Tile } from '../../components/Tile'
 import { toast } from '../../components/toast'
+import { enregistrerRecherche } from '../../db/recherches'
 import { creerSaisie, supprimerSaisie, useCategoriesRecentes } from '../../db/saisies'
 import { demanderSynchro } from '../../sync/engine'
 import { useBenevole } from '../benevole/context'
@@ -40,6 +41,24 @@ export function SaisiePage() {
   )
   const recentes = (idsRecents ?? []).flatMap((id) => referentiel.categories.find((c) => c.id === id) ?? [])
 
+  // Dernière recherche restée sans résultat : enregistrée avec la catégorie finalement choisie (ou aucune si le
+  // bénévole quitte l'écran), pour que les responsables complètent les mots-clés
+  const sansResultat = useRef<{ campagneId: number; terme: string } | null>(null)
+  useEffect(() => {
+    const sansReponse = normaliser(recherche) !== '' && rechercher(recherche, referentiel.categories, referentiel.sections).length === 0
+    if (referentiel.campagne && sansReponse) {
+      sansResultat.current = { campagneId: referentiel.campagne.id, terme: recherche }
+    }
+  }, [recherche, referentiel])
+  useEffect(
+    () => () => {
+      if (sansResultat.current) {
+        void enregistrerRecherche(sansResultat.current.campagneId, sansResultat.current.terme, null)
+      }
+    },
+    [],
+  )
+
   // La possibilité d'annuler disparaît après quelques secondes
   useEffect(() => {
     if (!derniere) {
@@ -74,6 +93,10 @@ export function SaisiePage() {
   }
 
   const choisir = (choisie: CategorieRef, bouton?: FormatRef) => {
+    if (sansResultat.current) {
+      void enregistrerRecherche(sansResultat.current.campagneId, sansResultat.current.terme, choisie.id)
+      sansResultat.current = null
+    }
     setCategorie(choisie)
     setBoutonInitial(bouton)
     setRecherche('')

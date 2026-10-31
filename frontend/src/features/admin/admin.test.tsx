@@ -315,6 +315,41 @@ describe('Catégories', () => {
     )
   })
 
+  it('présente les recherches sans résultat, à ajouter aux mots-clés ou à ignorer', async () => {
+    const user = userEvent.setup()
+    const api = fakeApi({
+      ...SESSION_OK,
+      'GET /api/admin/sections': { body: [] },
+      'GET /api/admin/categories': { body: [categorie(1, 'Pâtes, semoule'), categorie(2, 'Riz')] },
+      'GET /api/admin/recherches': {
+        body: {
+          campagne: { id: 2, nom: 'Collecte 2026' },
+          recherches: [
+            { terme: 'gnocchi', nombre: 4, derniere: '2026-11-27T10:41:00+01:00', categorie: { id: 1, nom: 'Pâtes, semoule' } },
+            { terme: 'boulgour', nombre: 1, derniere: '2026-11-27T09:00:00+01:00', categorie: null },
+          ],
+        },
+      },
+      'POST /api/admin/recherches/mot-cle': { body: categorie(1, 'Pâtes, semoule', { motsCles: ['gnocchi'] }) },
+      'POST /api/admin/recherches/ignorer': { status: 204 },
+    })
+    renderApp('/admin/categories')
+
+    const cadre = (await screen.findByRole('heading', { name: 'Recherches sans résultat' })).closest('section')!
+    expect(within(cadre).getByText(/Collecte 2026/)).toBeInTheDocument()
+    expect(within(cadre).getByLabelText('Catégorie pour « gnocchi »')).toHaveValue('1')
+    expect(within(cadre).getByLabelText('Catégorie pour « boulgour »')).toHaveValue('')
+    expect(within(cadre).getAllByRole('button', { name: 'Ajouter' })[1]).toBeDisabled()
+
+    await user.click(within(cadre).getAllByRole('button', { name: 'Ajouter' })[0]!)
+    await waitFor(() =>
+      expect(api.calls.find((c) => c.path === '/api/admin/recherches/mot-cle')?.body).toEqual({ terme: 'gnocchi', categorieId: 1 }),
+    )
+
+    await user.click(within(cadre).getByRole('button', { name: 'Ignorer « boulgour »' }))
+    await waitFor(() => expect(api.calls.find((c) => c.path === '/api/admin/recherches/ignorer')?.body).toEqual({ terme: 'boulgour' }))
+  })
+
   it('verrouille l’unité d’une catégorie qui a des saisies', async () => {
     const user = userEvent.setup()
     fakeApi({ ...SESSION_OK, 'GET /api/admin/sections': { body: [] },

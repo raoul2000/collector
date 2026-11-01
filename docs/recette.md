@@ -99,6 +99,16 @@ Scénarios à dérouler en production (https://collecte.exdata.info), avant la c
 | I5 | Téléphone hors ligne pendant un changement, puis retour du réseau | Message et point rouge au retour du réseau | | | |
 | I6 ★ | Activer une nouvelle campagne (avec H3) | La liste repart vide | | | |
 
+## J. Thème sombre
+
+| # | Action | Résultat attendu | Android | iPhone | Remarques |
+|---|---|---|---|---|---|
+| J1 ★ | Dans Réglages, choisir **Sombre** | Toute l'interface passe en sombre, sans changement de disposition | | | |
+| J2 ★ | Parcourir Saisir, un formulaire de saisie, Mes saisies, Collecte, Réglages | Tout est lisible : bandeau de confirmation, messages, voyant de synchronisation, boîtes de dialogue | | | |
+| J3 | Fermer complètement, puis rouvrir, y compris en mode avion | Le thème choisi est conservé | | | |
+| J4 | Depuis Réglages, ouvrir l'espace responsable | Il reste en thème standard | | | |
+| J5 | Utiliser le thème sombre dehors, puis le thème standard | Noter l'écart de lisibilité | | | |
+
 ## Anomalies
 
 | # | Scénario | Téléphone | Description | Bloquant ? | État |

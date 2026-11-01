@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useLayoutEffect } from 'react'
 import { NavLink, Outlet } from 'react-router'
 import { Alert } from '../../components/Alert'
 import { Button } from '../../components/Button'
@@ -29,10 +29,22 @@ export function BenevoleLayout() {
   const referentiel = useReferentiel()
   const prenom = useBenevoleStore((s) => s.prenom)
   const magasinId = useBenevoleStore((s) => s.magasinId)
+  const theme = useBenevoleStore((s) => s.theme)
   const enLigne = useSyncStore((s) => s.enLigne)
   const erreur = useSyncStore((s) => s.erreur)
 
   useEffect(() => demarrerSynchro(), [])
+
+  // Propre à l'espace des bénévoles : retiré en passant à l'espace responsable, avant l'affichage pour éviter un éclair
+  useLayoutEffect(() => {
+    if (theme === 'standard') {
+      return
+    }
+    document.documentElement.dataset.theme = theme
+    return () => {
+      delete document.documentElement.dataset.theme
+    }
+  }, [theme])
 
   const magasin = referentiel?.data.magasins.find((m) => m.id === magasinId)
 

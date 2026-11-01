@@ -18,7 +18,7 @@
   width: min(28rem, 100%);
   padding: var(--space-2) var(--space-2) var(--space-2) var(--space-4);
   border-radius: var(--radius-md);
-  color: #fff;
+  color: var(--color-on-fill);
   font-weight: var(--font-weight-medium);
   box-shadow: var(--shadow-md);
   pointer-events: auto;
@@ -30,15 +30,15 @@
 }
 
 .success {
-  background: var(--color-success);
+  background: var(--color-success-fill);
 }
 
 .error {
-  background: var(--color-danger);
+  background: var(--color-danger-fill);
 }
 
 .info {
-  background: var(--color-info);
+  background: var(--color-info-fill);
 }
 
 .dismiss {

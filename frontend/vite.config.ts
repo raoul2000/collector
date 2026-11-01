@@ -56,6 +56,7 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     setupFiles: ['./src/test/setup.ts'],
-    css: { modules: { classNameStrategy: 'non-scoped' } },
+    // theme.css est lu par le test des contrastes
+    css: { include: [/theme.css/], modules: { classNameStrategy: 'non-scoped' } },
   },
 })

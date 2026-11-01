@@ -14,7 +14,7 @@
   gap: var(--space-3);
   min-height: calc(var(--header-height) + var(--safe-top));
   padding: var(--safe-top) var(--space-4) 0;
-  background: var(--color-primary);
+  background: var(--color-primary-fill);
   color: var(--color-on-primary);
 }
 

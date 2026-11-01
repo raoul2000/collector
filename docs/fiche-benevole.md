@@ -50,5 +50,6 @@ Onglet **Mes saisies** → touchez la saisie → modifiez-la ou **Supprimez**-la
 
 - **Vérifiez le magasin** affiché en haut de l'écran. Pour en changer : onglet **Réglages**.
 - Gardez **le même téléphone et le même navigateur** pendant toute la collecte (pas de navigation privée).
+- Onglet **Réglages** : le thème **Sombre**, moins éblouissant en intérieur. En plein jour, le thème **Standard** reste le plus lisible.
 - Onglet **Collecte** : les produits à privilégier, à indiquer aux donateurs qui demandent quoi donner, et les chiffres de votre magasin et de toute la collecte. Un point rouge sur l'onglet signale que cette liste a changé.
 - Pensez à la **batterie** : baissez la luminosité, prévoyez une batterie externe si possible.

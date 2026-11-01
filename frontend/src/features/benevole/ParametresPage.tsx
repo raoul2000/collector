@@ -3,6 +3,7 @@ import { Link } from 'react-router'
 import { Button } from '../../components/Button'
 import { Card } from '../../components/Card'
 import { TextField } from '../../components/TextField'
+import { Tile } from '../../components/Tile'
 import { toast } from '../../components/toast'
 import { useBenevoleStore } from '../../stores/benevole'
 import { demanderSynchro, synchroniser } from '../../sync/engine'
@@ -17,7 +18,7 @@ import { useInstallPrompt } from './useInstallPrompt'
  */
 export function ParametresPage() {
   const { referentiel, magasin, prenom } = useBenevole()
-  const { appareilId, setPrenom, setMagasin } = useBenevoleStore()
+  const { appareilId, setPrenom, setMagasin, theme, setTheme } = useBenevoleStore()
   const { derniereSynchro, enCours } = useSyncStore()
   const install = useInstallPrompt()
 
@@ -67,6 +68,19 @@ export function ParametresPage() {
             Enregistrer
           </Button>
         </form>
+      </Card>
+
+      <Card title="Thème">
+        <div className={styles.section}>
+          <div className={styles.themes}>
+            <Tile selected={theme === 'standard'} detail="Le plus lisible en plein jour" onClick={() => setTheme('standard')}>
+              Standard
+            </Tile>
+            <Tile selected={theme === 'sombre'} detail="Moins éblouissant en intérieur" onClick={() => setTheme('sombre')}>
+              Sombre
+            </Tile>
+          </div>
+        </div>
       </Card>
 
       {!install.installee && (

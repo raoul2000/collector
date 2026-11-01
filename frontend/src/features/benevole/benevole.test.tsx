@@ -26,6 +26,7 @@ beforeEach(async () => {
   await Promise.all(db.tables.map((table) => table.clear()))
   localStorage.clear()
   useBenevoleStore.setState({ appareilId: '11111111-1111-4111-8111-111111111111', prenom: null, magasinId: null })
+  useBenevoleStore.setState({ theme: 'standard' })
   useSyncStore.setState({ enCours: false, enLigne: true, derniereSynchro: null, erreur: null })
 })
 

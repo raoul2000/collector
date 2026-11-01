@@ -13,8 +13,8 @@
   margin: 0 auto;
   padding: var(--space-3) var(--space-4);
   border-radius: var(--radius-md);
-  background: var(--color-info);
-  color: #fff;
+  background: var(--color-info-fill);
+  color: var(--color-on-fill);
   font-weight: var(--font-weight-medium);
   box-shadow: var(--shadow-lg);
 }
@@ -25,7 +25,7 @@
 }
 
 .later {
-  color: #fff;
+  color: var(--color-on-fill);
 }
 
 .later:hover:not(:disabled) {

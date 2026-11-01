@@ -32,7 +32,7 @@ Scénarios à dérouler en production (https://collecte.exdata.info), avant la c
 | B3 | Utiliser le champ libre (750 g, 1,5 L), puis « Contenance inconnue » | Valeur exacte ; avertissement, puis article compté sans poids | | | |
 | B4 | Tester les limites : quantité 51, 1000, 0, contenance 30 kg | Confirmation à 51, refus des autres valeurs | | | |
 | B5 | Annuler la dernière saisie | Saisie retirée, y compris côté serveur | | | |
-| B6 | Vérifier les récents et la barre de sections | Les 4 dernières catégories en haut, accès direct aux sections | | | |
+| B6 | Saisir plusieurs fois quelques produits, puis vérifier les fréquents et la barre de sections | Les 4 catégories les plus saisies sur ce téléphone pendant la campagne, sans « Autre » ; à égalité, les boutons ne bougent pas ; accès direct aux sections | | | |
 | B7 ★ | Rechercher « riz », « thon », « CAFE », « céréale » (accents, majuscules, singulier) | Bons résultats, variante ouverte directement | | | |
 | B8 | Chercher un mot inconnu, puis choisir une catégorie | Le mot remonte dans « Recherches sans résultat » avec la catégorie choisie | | | |
 

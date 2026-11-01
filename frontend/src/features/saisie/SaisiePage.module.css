@@ -144,8 +144,8 @@
   margin-top: var(--space-2);
 }
 
-/* Récents : raccourci à part, dans un panneau teinté */
-.recents {
+/* Fréquents : raccourci à part, dans un panneau teinté */
+.frequents {
   margin-top: 0;
   padding: var(--space-3);
   border-radius: var(--radius-lg);
@@ -161,7 +161,7 @@
   font-size: var(--font-size-lg);
 }
 
-.recents .titreSection {
+.frequents .titreSection {
   padding-bottom: 0;
   border-bottom: none;
   color: var(--color-primary);

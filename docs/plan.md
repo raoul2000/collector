@@ -331,3 +331,4 @@ Environnement de développement : voir le [README](../README.md). La base locale
 | 01/11/2026 | Thème sombre de l'espace des bénévoles, au choix dans Réglages (couleurs uniquement, contrastes vérifiés par `theme.test.ts`) ; déployé |
 | 01/11/2026 | Saisie : retour en haut de page à l'ouverture d'une catégorie (page décalée sur Android, cause non reproduite en simulation) ; déployé, correction confirmée sur téléphone Android |
 | 01/11/2026 | Catégorie « Autre » : précision obligatoire du bénévole (migration `009_precision_produit.sql`, option « Précision obligatoire », champ `precisionProduit`), lisible par les responsables, lien depuis la Réception AÏDA ; déployé et validé |
+| 01/11/2026 | Saisie : « Fréquents » remplace « Récents » (4 catégories les plus saisies sur le téléphone pendant la campagne, sans « Autre », boutons stables à égalité) ; à déployer |

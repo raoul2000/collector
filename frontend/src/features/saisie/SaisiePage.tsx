@@ -5,7 +5,7 @@ import { Tile } from '../../components/Tile'
 import { toast } from '../../components/toast'
 import { cx } from '../../lib/cx'
 import { enregistrerRecherche } from '../../db/recherches'
-import { creerSaisie, supprimerSaisie, useCategoriesRecentes } from '../../db/saisies'
+import { creerSaisie, supprimerSaisie, useCategoriesFrequentes } from '../../db/saisies'
 import { demanderSynchro } from '../../sync/engine'
 import { useBenevole } from '../benevole/context'
 import { boutonsCategorie, libelleBouton, libelleSaisie, varianteSaisie } from './libelle'
@@ -22,11 +22,11 @@ export const GARDE_ANNULATION_MS = 500
 
 const DETAIL_UNITE = { kg: 'poids', L: 'volume', unite: 'à l\'unité' } as const
 
-/** Catégories récentes affichées en haut de la grille */
-export const NB_RECENTES = 4
+/** Catégories fréquentes affichées en haut de la grille */
+export const NB_FREQUENTES = 4
 
-/** En dessous, la grille tient presque sur un écran : la ligne des récentes n'apporterait rien */
-export const SEUIL_RECENTES = 8
+/** En dessous, la grille tient presque sur un écran : les catégories fréquentes n'apporteraient rien */
+export const SEUIL_FREQUENTES = 8
 
 /**
  * Saisie des dons : choix de la catégorie, puis du poids / volume et de la quantité.
@@ -39,11 +39,13 @@ export function SaisiePage() {
   const [boutonInitial, setBoutonInitial] = useState<FormatRef>()
   const [recherche, setRecherche] = useState('')
   const [derniere, setDerniere] = useState<{ id: string; libelle: string; le: number } | null>(null)
-  const idsRecents = useCategoriesRecentes(
-    referentiel.categories.length > SEUIL_RECENTES ? referentiel.categories.map((c) => c.id) : [],
-    NB_RECENTES,
+  const idsFrequents = useCategoriesFrequentes(
+    referentiel.campagne?.id,
+    // « Autre » doit rester rare : pas de raccourci vers une catégorie qui demande une description
+    referentiel.categories.length > SEUIL_FREQUENTES ? referentiel.categories.filter((c) => !c.precisionRequise).map((c) => c.id) : [],
+    NB_FREQUENTES,
   )
-  const recentes = (idsRecents ?? []).flatMap((id) => referentiel.categories.find((c) => c.id === id) ?? [])
+  const frequentes = (idsFrequents ?? []).flatMap((id) => referentiel.categories.find((c) => c.id === id) ?? [])
 
   // Dernière recherche restée sans résultat : enregistrée avec la catégorie finalement choisie (ou aucune si le
   // bénévole quitte l'écran), pour que les responsables complètent les mots-clés
@@ -174,13 +176,13 @@ export function SaisiePage() {
             />
           ) : (
             <>
-              {recentes.length > 0 && (
-                <section className={cx(styles.groupe, styles.recents)} aria-labelledby="categories-recentes">
-                  <h2 id="categories-recentes" className={styles.titreSection}>
-                    Récents
+              {frequentes.length > 0 && (
+                <section className={cx(styles.groupe, styles.frequents)} aria-labelledby="categories-frequentes">
+                  <h2 id="categories-frequentes" className={styles.titreSection}>
+                    Fréquents
                   </h2>
                   <div className={styles.grid}>
-                    {recentes.map((c) => (
+                    {frequentes.map((c) => (
                       // Hors de sa section, un nom comme « Légumes » a besoin de son contexte (Conserves)
                       <Tile key={c.id} onClick={() => choisir(c)} detail={nomSection(c)}>
                         {c.nom}

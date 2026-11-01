@@ -56,26 +56,44 @@ export function useMesSaisies(): SaisieLocale[] | undefined {
 }
 
 /**
- * Catégories des saisies les plus récentes du téléphone (sans doublon, de la plus récente à la plus ancienne),
- * parmi les catégories connues : les dons d'une collecte se répètent beaucoup.
+ * Catégories les plus souvent saisies, de la plus fréquente à la moins fréquente, d'après des saisies en ordre
+ * chronologique. Chaque saisie compte pour un, quelle que soit sa quantité. Une catégorie ne monte que si elle dépasse
+ * la précédente : à égalité, elle garde sa place et les boutons bougent le moins possible.
  */
-export function useCategoriesRecentes(connues: number[], nombre: number): number[] | undefined {
+export function classerFrequentes(categoriesSaisies: number[], nombre: number): number[] {
+  const comptes = new Map<number, number>()
+  const ordre: number[] = []
+  for (const id of categoriesSaisies) {
+    const compte = (comptes.get(id) ?? 0) + 1
+    comptes.set(id, compte)
+    let position = ordre.indexOf(id)
+    if (position < 0) {
+      position = ordre.push(id) - 1
+    }
+    while (position > 0 && comptes.get(ordre[position - 1]!)! < compte) {
+      ordre[position] = ordre[position - 1]!
+      ordre[position - 1] = id
+      position--
+    }
+  }
+  return ordre.slice(0, nombre)
+}
+
+/**
+ * Catégories les plus fréquentes du téléphone pour une campagne, parmi celles proposées (saisies supprimées exclues).
+ */
+export function useCategoriesFrequentes(campagneId: number | undefined, proposees: number[], nombre: number): number[] | undefined {
   return useLiveQuery(
     async () => {
-      const autorisees = new Set(connues)
-      const ids: number[] = []
-      await db.saisies
-        .orderBy('saisieLe')
-        .reverse()
-        .until(() => ids.length >= nombre)
-        .each((s) => {
-          if (!s.supprime && autorisees.has(s.categorieId) && !ids.includes(s.categorieId)) {
-            ids.push(s.categorieId)
-          }
-        })
-      return ids
+      const autorisees = new Set(proposees)
+      const saisies = await db.saisies
+        .filter((s) => !s.supprime && s.campagneId === campagneId && autorisees.has(s.categorieId))
+        .toArray()
+      // saisieLe est à la seconde : les millisecondes départagent deux saisies rapprochées, sinon ordonnées au hasard
+      saisies.sort((a, b) => a.saisieLe.localeCompare(b.saisieLe) || a.modifieLe.localeCompare(b.modifieLe))
+      return classerFrequentes(saisies.map((s) => s.categorieId), nombre)
     },
-    [connues.join(','), nombre],
+    [campagneId, proposees.join(','), nombre],
   )
 }
 

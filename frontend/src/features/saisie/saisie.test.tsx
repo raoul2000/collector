@@ -5,7 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { Referentiel } from '../../api/types'
 import { db } from '../../db/db'
 import { enregistrerReferentiel } from '../../db/referentiel'
-import { creerSaisie } from '../../db/saisies'
+import { classerFrequentes, creerSaisie } from '../../db/saisies'
 import { useBenevoleStore } from '../../stores/benevole'
 import { useSyncStore } from '../../sync/syncStore'
 import { renderApp } from '../../test/renderApp'
@@ -314,40 +314,73 @@ describe('Écran de saisie', () => {
     await waitFor(async () => expect(await saisies()).toEqual([expect.objectContaining({ contenanceUnitaire: 500, formatId: null })]))
   })
 
-  it('propose les catégories récentes en haut d’une grille longue', async () => {
-    const categories = Array.from({ length: 10 }, (_, i) => ({ ...SAVON, id: 100 + i, nom: `Catégorie ${i}` }))
-    const base = { campagneId: 7, magasinId: 4, quantite: 1, contenanceUnitaire: null }
-    await creerSaisie({ ...base, categorieId: 101 }, new Date('2026-10-01T09:00:00Z'))
-    await creerSaisie({ ...base, categorieId: 105 }, new Date('2026-10-01T09:01:00Z'))
-    await creerSaisie({ ...base, categorieId: 101 }, new Date('2026-10-01T09:02:00Z'))
-    const supprimee = await creerSaisie({ ...base, categorieId: 107 }, new Date('2026-10-01T09:03:00Z'))
-    await db.saisies.update(supprimee.id, { supprime: true })
-    // Catégorie retirée de la collecte
-    await creerSaisie({ ...base, categorieId: 999 }, new Date('2026-10-01T09:04:00Z'))
+  describe('catégories fréquentes', () => {
+    const CATEGORIES = Array.from({ length: 10 }, (_, i) => ({ ...SAVON, id: 100 + i, nom: `Catégorie ${i}` }))
+    const BASE = { campagneId: 7, magasinId: 4, quantite: 1, contenanceUnitaire: null }
+    const noms = (region: HTMLElement) => within(region).getAllByRole('button').map((b) => b.textContent)
 
-    const user = await demarrer({ ...REFERENTIEL, categories })
+    it('propose les plus saisies du téléphone, en haut d’une grille longue', async () => {
+      await creerSaisie({ ...BASE, categorieId: 105 }, new Date('2026-10-01T09:00:00Z'))
+      await creerSaisie({ ...BASE, categorieId: 101 }, new Date('2026-10-01T09:01:00Z'))
+      await creerSaisie({ ...BASE, categorieId: 101 }, new Date('2026-10-01T09:02:00Z'))
+      // Une grosse quantité ne compte que pour une saisie
+      await creerSaisie({ ...BASE, categorieId: 103, quantite: 50 }, new Date('2026-10-01T09:03:00Z'))
+      const supprimee = await creerSaisie({ ...BASE, categorieId: 107 }, new Date('2026-10-01T09:04:00Z'))
+      await db.saisies.update(supprimee.id, { supprime: true })
+      // Catégorie retirée de la collecte, autre campagne
+      await creerSaisie({ ...BASE, categorieId: 999 }, new Date('2026-10-01T09:05:00Z'))
+      await creerSaisie({ ...BASE, categorieId: 108, campagneId: 6 }, new Date('2026-10-01T09:06:00Z'))
 
-    const recents = await screen.findByRole('region', { name: 'Récents' })
-    expect(within(recents).getAllByRole('button').map((b) => b.textContent)).toEqual(['Catégorie 1', 'Catégorie 5'])
+      const user = await demarrer({ ...REFERENTIEL, categories: CATEGORIES })
 
-    await user.click(within(recents).getByRole('button', { name: 'Catégorie 5' }))
-    expect(screen.getByRole('heading', { name: 'Catégorie 5' })).toBeInTheDocument()
-    await user.click(screen.getByRole('button', { name: 'Valider' }))
+      const frequents = await screen.findByRole('region', { name: 'Fréquents' })
+      expect(noms(frequents)).toEqual(['Catégorie 1', 'Catégorie 5', 'Catégorie 3'])
 
-    await waitFor(() =>
-      expect(within(screen.getByRole('region', { name: 'Récents' })).getAllByRole('button').map((b) => b.textContent)).toEqual([
-        'Catégorie 5',
-        'Catégorie 1',
-      ]),
-    )
+      // Une saisie de plus à égalité : Catégorie 1 garde sa place
+      await user.click(within(frequents).getByRole('button', { name: 'Catégorie 5' }))
+      expect(screen.getByRole('heading', { name: 'Catégorie 5' })).toBeInTheDocument()
+      await user.click(screen.getByRole('button', { name: 'Valider' }))
+      await screen.findByRole('button', { name: 'Annuler' })
+      expect(noms(screen.getByRole('region', { name: 'Fréquents' }))).toEqual(['Catégorie 1', 'Catégorie 5', 'Catégorie 3'])
+
+      // Elle la dépasse à la suivante
+      await user.click(within(screen.getByRole('region', { name: 'Fréquents' })).getByRole('button', { name: 'Catégorie 5' }))
+      await user.click(screen.getByRole('button', { name: 'Valider' }))
+      await waitFor(() => expect(noms(screen.getByRole('region', { name: 'Fréquents' }))).toEqual(['Catégorie 5', 'Catégorie 1', 'Catégorie 3']))
+    })
+
+    it('garde l’ordre de saisie à égalité, même dans la même seconde', async () => {
+      // Plusieurs catégories : l'identifiant aléatoire des saisies ne doit pas décider de l'ordre
+      const ids = [104, 102, 106, 100]
+      for (const [i, categorieId] of ids.entries()) {
+        await creerSaisie({ ...BASE, categorieId }, new Date(`2026-10-01T09:00:00.${100 + i}Z`))
+      }
+      await demarrer({ ...REFERENTIEL, categories: CATEGORIES })
+
+      expect(noms(await screen.findByRole('region', { name: 'Fréquents' }))).toEqual(['Catégorie 4', 'Catégorie 2', 'Catégorie 6', 'Catégorie 0'])
+    })
+
+    it('ne propose pas une catégorie à précision obligatoire', async () => {
+      await creerSaisie({ ...BASE, categorieId: 100, precisionProduit: 'couscous' })
+      await creerSaisie({ ...BASE, categorieId: 101 })
+      await demarrer({ ...REFERENTIEL, categories: CATEGORIES.map((c) => (c.id === 100 ? { ...c, precisionRequise: true } : c)) })
+
+      expect(noms(await screen.findByRole('region', { name: 'Fréquents' }))).toEqual(['Catégorie 1'])
+    })
+
+    it('n’apparaît pas pour une grille courte ni avant la première saisie', async () => {
+      await creerSaisie({ ...BASE, categorieId: 1, contenanceUnitaire: 500 })
+      await demarrer()
+
+      expect(await screen.findByRole('button', { name: /Pâtes/ })).toBeInTheDocument()
+      expect(screen.queryByRole('region', { name: 'Fréquents' })).not.toBeInTheDocument()
+    })
   })
 
-  it('n’affiche pas de récents pour une grille courte', async () => {
-    await creerSaisie({ campagneId: 7, magasinId: 4, categorieId: 1, quantite: 1, contenanceUnitaire: 500 })
-    await demarrer()
-
-    expect(await screen.findByRole('button', { name: /Pâtes/ })).toBeInTheDocument()
-    expect(screen.queryByRole('region', { name: 'Récents' })).not.toBeInTheDocument()
+  it('classe les catégories sans les déplacer à égalité', () => {
+    expect(classerFrequentes([1, 2, 2, 1, 3], 4)).toEqual([2, 1, 3])
+    expect(classerFrequentes([1, 2, 3, 3, 4, 5], 2)).toEqual([3, 1])
+    expect(classerFrequentes([], 4)).toEqual([])
   })
 
   it('trouve une catégorie ou une variante par la recherche', async () => {

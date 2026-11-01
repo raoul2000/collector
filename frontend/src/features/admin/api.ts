@@ -3,6 +3,7 @@ import { api, ApiError } from '../../api/client'
 import type {
   AdminSession,
   BilanAdmin,
+  ReceptionAida,
   Campagne,
   CampagneInput,
   Categorie,
@@ -289,6 +290,21 @@ export function useBilan(campagne: number | undefined, magasin: number | undefin
     queryKey: ['admin', 'bilans', { campagne, magasin }],
     queryFn: ({ signal }) => api.get<BilanAdmin>(`admin/bilans?${params}`, signal),
     refetchInterval: BILAN_REFRESH_MS,
+    placeholderData: keepPreviousData,
+  })
+}
+
+/**
+ * Réception AÏDA d'une campagne (la campagne active si non précisée), éventuellement limitée à un magasin.
+ */
+export function useReceptionAida(campagne: number | undefined, magasin: number | undefined) {
+  const params = new URLSearchParams()
+  if (campagne) params.set('campagne', String(campagne))
+  if (magasin) params.set('magasin', String(magasin))
+
+  return useQuery({
+    queryKey: ['admin', 'bilans', 'aida', { campagne, magasin }],
+    queryFn: ({ signal }) => api.get<ReceptionAida>(`admin/bilans/aida?${params}`, signal),
     placeholderData: keepPreviousData,
   })
 }

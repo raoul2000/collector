@@ -198,7 +198,7 @@ magasin       (id, nom, ville, actif)
 campagne_magasin (campagne_id, magasin_id)
 section       (id, nom, ordre)                                  -- groupe de catégories (repère de la grille)
 categorie     (id, nom, section_id NULL, unite ENUM('kg','L','unite'), ordre, active, code_reference, mots_cles NULL)
-format        (id, categorie_id, contenance INT NULL, libelle NULL, ordre)  -- g ou ml ; libellé de variante
+format        (id, categorie_id, contenance INT NULL, libelle NULL, code_aida NULL, ordre)  -- g ou ml ; libellé de variante ; article AÏDA visé
 appareil      (id CHAR(36) UUID, prenom, cree_le, vu_le)
 recherche     (id CHAR(36) UUID, campagne_id, appareil_id, terme, categorie_id NULL, cherche_le)  -- recherches sans résultat
 recherche_ignoree (terme)                                         -- mots écartés par un responsable
@@ -250,6 +250,7 @@ Volumétrie estimée : quelques dizaines de milliers de lignes par campagne, ce 
 | PUT | `/api/admin/categories/ordre` | Nouvel ordre d'affichage |
 | PUT, DELETE | `/api/admin/categories/{id}` | Modification (dont formats), suppression si aucune saisie |
 | GET | `/api/admin/bilans?campagne=&magasin=` | Bilan complet : totaux, par catégorie, par heure, par magasin |
+| GET | `/api/admin/bilans/aida?campagne=&magasin=` | Réception AÏDA : nombre d'articles par code, à vérifier, non rapprochés |
 | GET | `/api/admin/saisies?campagne=&magasin=&categorie=&prenom=&supprimees=1&page=&parPage=` | Saisies des bénévoles (paginées) |
 | PUT, DELETE | `/api/admin/saisies/{id}` | Correction, suppression logique (transmises au téléphone) |
 

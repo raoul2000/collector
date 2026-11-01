@@ -231,14 +231,16 @@ Décisions (31/10/2026) :
 - ✅ [Guide du responsable](guide-responsable.md) : préparation (magasins, catégories, campagne, essai), suivi et corrections pendant la collecte, clôture, questions fréquentes
 - ⬜ Version imprimable de la fiche bénévole avec l'adresse et le QR code
 
-### 4.5 Rapprochement AÏDA ⬜ (après la collecte)
+### 4.5 Rapprochement AÏDA ✅ (à mettre en production)
+
+Réalisé le 01/11/2026, sans attendre la collecte : migration `007_codes_aida.sql` (colonne et codes de la liste), `GET /api/admin/bilans/aida`, écran « Réception AÏDA » depuis les Bilans. Les codes ne sont pas envoyés aux téléphones. À valider sur les vraies saisies après la collecte.
 
 Décisions (01/11/2026) : les codes sont **saisis à la main dans AÏDA**, le bilan sert donc de liste à ressaisir (pas d'import de fichier) ; **pas de valorisation en euros** ; aucun changement pour les bénévoles, pas de champ de précision sur « Autre ». Sans tarifs ni import, ni table d'articles ni lecture du `.ods` : le CSV versionné suffit.
 
-- Code AÏDA par bouton : nouvelle colonne sur `format`, pré-remplie depuis `liste-benevoles.csv`, modifiable dans l'onglet Catégories ; `code_reference` de la catégorie sert de code par défaut (catégories sans variante, contenance inconnue)
-- Rattachement d'une saisie : bouton choisi → son code ; contenance libre → format le plus proche, signalé « à vérifier » ; contenance inconnue → code par défaut, signalé « à vérifier » ; « Autre » → listé « non rapproché »
-- Bilan « Réception AÏDA » d'une campagne : code, dénomination et nombre d'articles, dans un ordre commode pour la ressaisie, total général et filtre par magasin ; saisies à vérifier et non rapprochées à part ; version imprimable et export Excel
-- Limites à rappeler dans le bilan : chiffres déclarés par les bénévoles, à contrôler par rapport à l'entrepôt ; hygiène et entretien sur les articles génériques
+- ✅ Code AÏDA par bouton : nouvelle colonne sur `format`, pré-remplie depuis `liste-benevoles.csv`, modifiable dans l'onglet Catégories ; `code_reference` de la catégorie sert de code par défaut (catégories sans variante, contenance inconnue)
+- ✅ Rattachement d'une saisie : bouton choisi → son code ; contenance libre → format le plus proche (à égale distance, le plus petit), signalé « à vérifier » sauf correspondance exacte avec un seul format ; contenance inconnue → code par défaut, sinon premier bouton, signalé « à vérifier » ; « Autre » → listé « non rapproché »
+- ✅ Bilan « Réception AÏDA » d'une campagne : code, dénomination et nombre d'articles, dans un ordre commode pour la ressaisie, total général et filtre par magasin ; saisies à vérifier et non rapprochées à part ; version imprimable et export Excel
+- ✅ Limite rappelée dans le bilan : chiffres déclarés par les bénévoles, à contrôler par rapport à l'entrepôt (hygiène et entretien restent sur les articles génériques)
 
 ### Bonus : scan des codes-barres ⬜ (pas pour l'édition 2026)
 - Complément à la grille : un bouton « Scanner » pré-remplit catégorie et poids exact
@@ -272,7 +274,7 @@ Mise à jour de la production : `node scripts/deployer.mjs` (mot de passe SFTP d
 
 Prochaines étapes possibles :
 1. **Recette sur de vrais téléphones** (4.3), Android et iPhone, avec la nouvelle liste : dérouler les [scénarios](recette.md) et noter les résultats.
-2. **Rapprochement AÏDA** (4.5), après la collecte ; scan des codes-barres en bonus, plus tard (pas pour l'édition 2026).
+2. **Rapprochement AÏDA** (4.5) : développé le 01/11/2026, à mettre en production (migration 007) ; scan des codes-barres en bonus, plus tard (pas pour l'édition 2026).
 3. **En dernier** (décision du 29/10/2026), une fois toutes les fonctionnalités réalisées et validées : **version imprimable de la fiche bénévole** avec l'adresse et un QR code, pour ne pas avoir à la refaire après chaque évolution.
 
 Environnement de développement : voir le [README](../README.md). La base locale `collector` contient la liste des bénévoles et environ 800 saisies de démonstration ; `php bin/migrate.php --fresh --seed` puis `php bin/generer-demo.php` la remettent à zéro.
@@ -321,3 +323,4 @@ Environnement de développement : voir le [README](../README.md). La base locale
 | 31/10/2026 | Mise en production du référentiel Croix-Rouge (migrations 003 à 006, remise à zéro de la liste) : tests concluants |
 | 01/11/2026 | Étape 4.3 : scénarios de recette validés (`docs/recette.md`) |
 | 01/11/2026 | Étape 4.5 cadrée : codes saisis à la main dans AÏDA, pas de valorisation en euros, pas de table d'articles |
+| 01/11/2026 | Étape 4.5 réalisée : code AÏDA des boutons (migration `007_codes_aida.sql`), écran « Réception AÏDA » (`GET /api/admin/bilans/aida`), impression et export Excel ; pas encore en production |

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Link } from 'react-router'
 import { Alert } from '../../../components/Alert'
 import { Button } from '../../../components/Button'
 import { Card } from '../../../components/Card'
@@ -55,9 +56,14 @@ export function BilansPage() {
         description={`Actualisés automatiquement toutes les ${BILAN_REFRESH_MS / 1000} secondes.`}
         actions={
           data && (
-            <Button variant="secondary" loading={exportEnCours} onClick={() => void exporter(data.campagne.id)}>
-              Exporter la campagne (Excel)
-            </Button>
+            <div className={styles.actions}>
+              <Link to="/admin/bilans/aida" className={styles.lien}>
+                Réception AÏDA
+              </Link>
+              <Button variant="secondary" loading={exportEnCours} onClick={() => void exporter(data.campagne.id)}>
+                Exporter la campagne (Excel)
+              </Button>
+            </div>
           )
         }
       />

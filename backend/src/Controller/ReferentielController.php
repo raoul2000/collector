@@ -43,7 +43,11 @@ final readonly class ReferentielController
                     'motsCles' => $c['motsCles'],
                     // Contenances seules, pour les versions de l'application antérieures aux variantes
                     'formats' => array_values(array_unique(array_filter(array_column($c['formats'], 'contenance')))),
-                    'boutons' => $c['formats'],
+                    // Sans le code AÏDA, inutile aux téléphones
+                    'boutons' => array_map(
+                        static fn (array $f): array => ['id' => $f['id'], 'contenance' => $f['contenance'], 'libelle' => $f['libelle']],
+                        $c['formats'],
+                    ),
                 ],
                 $this->categories->findActiveWithFormats(),
             ),

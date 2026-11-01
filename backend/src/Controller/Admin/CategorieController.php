@@ -27,6 +27,8 @@ final readonly class CategorieController
 
     public const int MOTS_CLES_MAX = 500;
 
+    public const int CODE_AIDA_MAX = 50;
+
     public function __construct(
         private PDO $db,
         private CategorieRepository $categories,
@@ -146,8 +148,10 @@ final readonly class CategorieController
      * facultatif ; un libellé seul pour une catégorie à l'unité. Un nombre seul est accepté comme contenance
      * (versions de l'espace responsable antérieures aux variantes).
      *
-     * @param list<int> $existants identifiants des formats actuels de la catégorie
-     * @return list<array{id: int|null, contenance: int|null, libelle: string|null}>
+     * Sans code AÏDA transmis (versions antérieures de l'espace responsable), un format existant garde le sien.
+     *
+     * @param array<int, string|null> $existants code AÏDA des formats actuels de la catégorie, par identifiant
+     * @return list<array{id: int|null, contenance: int|null, libelle: string|null, codeAida: string|null}>
      */
     private function formats(Validator $v, mixed $items, string $unite, array $existants): array
     {
@@ -175,10 +179,14 @@ final readonly class CategorieController
             $contenance = $item['contenance'] ?? null;
             $libelle = is_string($item['libelle'] ?? null) ? trim($item['libelle']) : null;
             $libelle = $libelle === '' ? null : $libelle;
+            $codeAida = array_key_exists('codeAida', $item) ? $item['codeAida'] : (is_int($id) ? $existants[$id] ?? null : null);
+            $codeAida = is_string($codeAida) ? trim($codeAida) : $codeAida;
+            $codeAida = $codeAida === '' ? null : $codeAida;
 
             $erreur = match (true) {
                 $id !== null && !is_int($id) => 'Format invalide.',
-                $id !== null && !in_array($id, $existants, true) => 'Format inconnu pour cette catégorie.',
+                $id !== null && !array_key_exists($id, $existants) => 'Format inconnu pour cette catégorie.',
+                $codeAida !== null && (!is_string($codeAida) || mb_strlen($codeAida) > self::CODE_AIDA_MAX) => 'Code AÏDA invalide (' . self::CODE_AIDA_MAX . ' caractères au maximum).',
                 $libelle !== null && mb_strlen($libelle) > self::LIBELLE_MAX => 'Un libellé ne doit pas dépasser ' . self::LIBELLE_MAX . ' caractères.',
                 $unite === 'unite' && $contenance !== null => 'Une catégorie comptée à l\'unité n\'a pas de contenance : indiquez seulement le libellé de la variante.',
                 $unite === 'unite' && $libelle === null => 'Chaque variante doit avoir un libellé.',
@@ -198,7 +206,7 @@ final readonly class CategorieController
                 return [];
             }
             $vus[$cle] = true;
-            $formats[] = ['id' => $id, 'contenance' => $contenance, 'libelle' => $libelle];
+            $formats[] = ['id' => $id, 'contenance' => $contenance, 'libelle' => $libelle, 'codeAida' => $codeAida];
         }
 
         return $formats;
@@ -206,7 +214,7 @@ final readonly class CategorieController
 
     /**
      * @param array<string, mixed>|null $existing catégorie modifiée (null pour une création)
-     * @return array{nom: string, sectionId: int|null, unite: string, ordre: int|null, active: bool, codeReference: string|null, motsCles: list<string>, formats: list<array{id: int|null, contenance: int|null, libelle: string|null}>}
+     * @return array{nom: string, sectionId: int|null, unite: string, ordre: int|null, active: bool, codeReference: string|null, motsCles: list<string>, formats: list<array{id: int|null, contenance: int|null, libelle: string|null, codeAida: string|null}>}
      */
     private function validate(Request $request, ?array $existing): array
     {
@@ -231,7 +239,7 @@ final readonly class CategorieController
 
         $formats = [];
         if ($unite !== null) {
-            $formats = $this->formats($v, $request->json()['formats'] ?? [], $unite, $existing === null ? [] : $this->categories->formatIds($existing['id']));
+            $formats = $this->formats($v, $request->json()['formats'] ?? [], $unite, array_column($existing['formats'] ?? [], 'codeAida', 'id'));
 
             if ($existing !== null && $unite !== $existing['unite'] && $existing['nbSaisies'] > 0) {
                 $v->addError('unite', 'Impossible de changer l\'unité : des saisies existent pour cette catégorie.');

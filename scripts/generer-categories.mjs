@@ -12,7 +12,7 @@
  *
  * Les identifiants sont attribués par la base (AUTO_INCREMENT) : après une remise à zéro, une ancienne saisie
  * restée sur un téléphone ne peut pas être rattachée par erreur à une nouvelle catégorie.
- * Le code AÏDA n'est pas encore importé : il servira au rapprochement avec AÏDA (plan, 4.5).
+ * Le code AÏDA d'une ligne va sur son bouton, ou sur la catégorie si elle n'a pas de bouton (plan, 4.5).
  */
 import { readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
@@ -24,19 +24,21 @@ const source = 'docs/categories/liste-benevoles.csv'
 const [entete, ...lignes] = readFileSync(join(racine, source), 'utf8').trim().split(/\r?\n/).map((l) => l.split(';'))
 const col = Object.fromEntries(entete.map((nom, i) => [nom, i]))
 
-/** @type {Map<string, Map<string, {unite: string, motsCles: string|null, boutons: {contenance: number|null, libelle: string|null}[]}>>} */
+/** @type {Map<string, Map<string, {unite: string, motsCles: string|null, code: string|null, boutons: {contenance: number|null, libelle: string|null, code: string|null}[]}>>} */
 const sections = new Map()
 for (const ligne of lignes) {
   const [section, categorie, unite] = [ligne[col.section], ligne[col.categorie], ligne[col.unite]]
   if (!['kg', 'L', 'unite'].includes(unite)) throw new Error(`${categorie} : unité inconnue « ${unite} »`)
   const categories = sections.get(section) ?? sections.set(section, new Map()).get(section)
-  const cat = categories.get(categorie) ?? categories.set(categorie, { unite, motsCles: null, boutons: [] }).get(categorie)
+  const cat = categories.get(categorie) ?? categories.set(categorie, { unite, motsCles: null, code: null, boutons: [] }).get(categorie)
   cat.motsCles ??= ligne[col.mots_cles] || null
   if (cat.unite !== unite) throw new Error(`${categorie} : unités différentes`)
   const contenance = ligne[col.contenance] === '' ? null : Number(ligne[col.contenance])
   const libelle = ligne[col.variante] || null
+  const code = ligne[col.code_aida] || null
   // Ligne sans contenance ni variante : catégorie sans bouton
-  if (contenance !== null || libelle !== null) cat.boutons.push({ contenance, libelle })
+  if (contenance !== null || libelle !== null) cat.boutons.push({ contenance, libelle, code })
+  else cat.code = code
 }
 
 const sql = (valeur) => (valeur === null ? 'NULL' : typeof valeur === 'number' ? String(valeur) : `'${valeur.replaceAll("'", "''")}'`)
@@ -46,15 +48,15 @@ let ordreSection = 0
 let ordreCategorie = 0
 for (const [section, categories] of sections) {
   insertions.push('', `-- ${section}`, `INSERT INTO section (nom, ordre) VALUES (${sql(section)}, ${(ordreSection += 10)});`, 'SET @section = LAST_INSERT_ID();')
-  for (const [nom, { unite, motsCles, boutons }] of categories) {
+  for (const [nom, { unite, motsCles, code, boutons }] of categories) {
     insertions.push(
-      `INSERT INTO categorie (nom, section_id, unite, ordre, mots_cles) VALUES (${sql(nom)}, @section, ${sql(unite)}, ${(ordreCategorie += 10)}, ${sql(motsCles)});`,
+      `INSERT INTO categorie (nom, section_id, unite, ordre, code_reference, mots_cles) VALUES (${sql(nom)}, @section, ${sql(unite)}, ${(ordreCategorie += 10)}, ${sql(code)}, ${sql(motsCles)});`,
     )
     if (boutons.length > 0) {
       insertions.push(
         'SET @categorie = LAST_INSERT_ID();',
-        `INSERT INTO format (categorie_id, contenance, libelle, ordre) VALUES ${boutons
-          .map((b, i) => `(@categorie, ${sql(b.contenance)}, ${sql(b.libelle)}, ${i + 1})`)
+        `INSERT INTO format (categorie_id, contenance, libelle, code_aida, ordre) VALUES ${boutons
+          .map((b, i) => `(@categorie, ${sql(b.contenance)}, ${sql(b.libelle)}, ${sql(b.code)}, ${i + 1})`)
           .join(', ')};`,
       )
     }

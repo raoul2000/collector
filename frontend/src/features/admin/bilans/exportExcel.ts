@@ -1,6 +1,6 @@
 import type { Column } from 'write-excel-file/universal'
 import { api } from '../../../api/client'
-import type { ExportSaisies, SaisieExport, Unite } from '../../../api/types'
+import type { ExportSaisies, ReceptionAida, SaisieExport, Unite } from '../../../api/types'
 
 const entete = (value: string) => ({ value, fontWeight: 'bold' as const })
 
@@ -76,4 +76,38 @@ export async function exporterCampagne(campagneId: number): Promise<number> {
   const blob = await writeExcelFile(donnees.saisies, { columns: COLONNES, sheet: 'Saisies', stickyRowsCount: 1 }).toBlob()
   telecharger(blob, `${nomFichier(donnees.campagne.nom)}.xlsx`)
   return donnees.saisies.length
+}
+
+interface LigneAida {
+  code?: string
+  produit: string
+  articles: number
+  aVerifier?: number
+}
+
+const COLONNES_AIDA: Column<LigneAida>[] = [
+  { header: entete('Code AÏDA'), cell: (l) => ({ value: l.code }), width: 16 },
+  { header: entete('Produit'), cell: (l) => ({ value: l.produit }), width: 44 },
+  { header: entete('Articles'), cell: (l) => ({ value: l.articles }), width: 10 },
+  { header: entete('Dont à vérifier'), cell: (l) => ({ value: l.aVerifier }), width: 14 },
+]
+
+/** Lignes du fichier : les articles à saisir, puis les catégories sans code */
+export function lignesAida(reception: ReceptionAida): LigneAida[] {
+  return [
+    ...reception.articles.map((a) => ({
+      code: a.code,
+      produit: a.libelles.join(', '),
+      articles: a.nbArticles,
+      aVerifier: a.aVerifier > 0 ? a.aVerifier : undefined,
+    })),
+    ...reception.nonRapprochees.map((c) => ({ produit: `Non rapproché : ${c.nom}`, articles: c.nbArticles })),
+  ]
+}
+
+/** Exporte la réception AÏDA affichée dans un fichier Excel téléchargé par le navigateur. */
+export async function exporterReceptionAida(reception: ReceptionAida, nomMagasin: string | undefined): Promise<void> {
+  const { default: writeExcelFile } = await import('write-excel-file/universal')
+  const blob = await writeExcelFile(lignesAida(reception), { columns: COLONNES_AIDA, sheet: 'Réception AÏDA', stickyRowsCount: 1 }).toBlob()
+  telecharger(blob, `${nomFichier(['reception-aida', reception.campagne.nom, nomMagasin].filter(Boolean).join(' '))}.xlsx`)
 }

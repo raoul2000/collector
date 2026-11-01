@@ -136,6 +136,34 @@ final readonly class BilanRepository
     }
 
     /**
+     * Nombre d'articles par catégorie, bouton choisi et contenance, pour le rapprochement avec AÏDA.
+     *
+     * @return list<array{categorieId: int, formatId: int|null, contenance: int|null, nbArticles: int, nbSaisies: int}>
+     */
+    public function parBouton(int $campagneId, ?int $magasinId): array
+    {
+        [$where, $params] = self::filtre($campagneId, $magasinId);
+        $stmt = $this->db->prepare(
+            "SELECT s.categorie_id, s.format_id, s.contenance_unitaire, SUM(s.quantite) AS nb_articles, COUNT(*) AS nb_saisies
+             FROM saisie s
+             WHERE {$where}
+             GROUP BY s.categorie_id, s.format_id, s.contenance_unitaire",
+        );
+        $stmt->execute($params);
+
+        return array_map(
+            static fn (array $row): array => [
+                'categorieId' => (int) $row['categorie_id'],
+                'formatId' => $row['format_id'] === null ? null : (int) $row['format_id'],
+                'contenance' => $row['contenance_unitaire'] === null ? null : (int) $row['contenance_unitaire'],
+                'nbArticles' => (int) $row['nb_articles'],
+                'nbSaisies' => (int) $row['nb_saisies'],
+            ],
+            $stmt->fetchAll(),
+        );
+    }
+
+    /**
      * Totaux généraux, déduits des totaux par catégorie.
      *
      * @param list<array{unite: string, nbSaisies: int, nbArticles: int, contenance: int|null, sansContenance: int}> $categories

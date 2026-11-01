@@ -15,8 +15,8 @@ use PDO;
  *     id: int, nom: string, sectionId: int|null, unite: 'kg'|'L'|'unite', ordre: int, active: bool,
  *     codeReference: string|null, motsCles: list<string>, formats: list<Format>, nbSaisies: int
  * }
- * @phpstan-type Format array{id: int, contenance: int|null, libelle: string|null}
- * @phpstan-type FormatInput array{id: int|null, contenance: int|null, libelle: string|null}
+ * @phpstan-type Format array{id: int, contenance: int|null, libelle: string|null, codeAida: string|null}
+ * @phpstan-type FormatInput array{id: int|null, contenance: int|null, libelle: string|null, codeAida: string|null}
  */
 final readonly class CategorieRepository
 {
@@ -162,19 +162,6 @@ final readonly class CategorieRepository
     }
 
     /**
-     * Identifiants des formats d'une catégorie.
-     *
-     * @return list<int>
-     */
-    public function formatIds(int $categorieId): array
-    {
-        $stmt = $this->db->prepare('SELECT id FROM format WHERE categorie_id = ?');
-        $stmt->execute([$categorieId]);
-
-        return array_map(intval(...), $stmt->fetchAll(PDO::FETCH_COLUMN));
-    }
-
-    /**
      * Remplace les formats d'une catégorie. Un format existant (id) est modifié sur place : les saisies faites
      * avec ce bouton y restent rattachées. Les formats absents de la liste sont supprimés (leurs saisies gardent
      * leur contenance, sans variante).
@@ -189,13 +176,13 @@ final readonly class CategorieRepository
             . ($gardes === [] ? '' : ' AND id NOT IN (' . implode(',', array_fill(0, count($gardes), '?')) . ')'),
         )->execute([$id, ...$gardes]);
 
-        $insert = $this->db->prepare('INSERT INTO format (categorie_id, contenance, libelle, ordre) VALUES (?, ?, ?, ?)');
-        $update = $this->db->prepare('UPDATE format SET contenance = ?, libelle = ?, ordre = ? WHERE id = ? AND categorie_id = ?');
+        $insert = $this->db->prepare('INSERT INTO format (categorie_id, contenance, libelle, code_aida, ordre) VALUES (?, ?, ?, ?, ?)');
+        $update = $this->db->prepare('UPDATE format SET contenance = ?, libelle = ?, code_aida = ?, ordre = ? WHERE id = ? AND categorie_id = ?');
         foreach ($formats as $index => $format) {
             if ($format['id'] === null) {
-                $insert->execute([$id, $format['contenance'], $format['libelle'], $index + 1]);
+                $insert->execute([$id, $format['contenance'], $format['libelle'], $format['codeAida'], $index + 1]);
             } else {
-                $update->execute([$format['contenance'], $format['libelle'], $index + 1, $format['id'], $id]);
+                $update->execute([$format['contenance'], $format['libelle'], $format['codeAida'], $index + 1, $format['id'], $id]);
             }
         }
     }
@@ -238,7 +225,7 @@ final readonly class CategorieRepository
 
         $ids = array_column($rows, 'id');
         $stmt = $this->db->prepare(
-            'SELECT id, categorie_id, contenance, libelle FROM format
+            'SELECT id, categorie_id, contenance, libelle, code_aida FROM format
              WHERE categorie_id IN (' . implode(',', array_fill(0, count($ids), '?')) . ')
              ORDER BY ordre, id',
         );
@@ -250,6 +237,7 @@ final readonly class CategorieRepository
                 'id' => (int) $format['id'],
                 'contenance' => $format['contenance'] === null ? null : (int) $format['contenance'],
                 'libelle' => $format['libelle'],
+                'codeAida' => $format['code_aida'],
             ];
         }
 

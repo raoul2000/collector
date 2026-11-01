@@ -115,7 +115,7 @@ export function CategorieFormDialog({ categorie, onClose }: CategorieFormDialogP
           </Select>
           <TextField
             label="Code de référence"
-            hint="Facultatif (liste Croix-Rouge)."
+            hint="Code AÏDA de la catégorie, utilisé si elle n'a pas de bouton ou si la contenance est inconnue."
             value={codeReference}
             onChange={(e) => setCodeReference(e.target.value)}
             error={errors.codeReference}

@@ -99,6 +99,11 @@ export interface Section {
   nbCategories: number
 }
 
+/** Bouton vu par les responsables, avec l'article AÏDA visé */
+export interface FormatAdmin extends FormatRef {
+  codeAida?: string | null
+}
+
 export interface Categorie {
   id: number
   nom: string
@@ -108,7 +113,7 @@ export interface Categorie {
   active: boolean
   codeReference: string | null
   motsCles: string[]
-  formats: FormatRef[]
+  formats: FormatAdmin[]
   nbSaisies: number
 }
 
@@ -117,6 +122,7 @@ export interface FormatInput {
   id?: number
   contenance: number | null
   libelle: string | null
+  codeAida?: string | null
 }
 
 export interface CategorieInput {
@@ -373,6 +379,22 @@ export interface BilanAdmin {
   categories: BilanCategorie[]
   heures: BilanHeure[]
   magasins: BilanMagasin[]
+}
+
+/** Nombre d'articles à saisir dans AÏDA pour un code */
+export interface ArticleAida {
+  code: string
+  libelles: string[]
+  nbArticles: number
+  aVerifier: number
+}
+
+export interface ReceptionAida {
+  campagne: CampagneBilan
+  magasinId: number | null
+  articles: ArticleAida[]
+  nonRapprochees: { categorieId: number; nom: string; nbArticles: number; nbSaisies: number }[]
+  totaux: { nbArticles: number; aVerifier: number; nonRapproches: number }
 }
 
 export type BilanPublic =

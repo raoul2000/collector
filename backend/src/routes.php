@@ -71,7 +71,7 @@ return static function (App $app): void {
         new SectionRepository($db()),
     )->show($q));
 
-    $bilans = static fn (): BilanController => new BilanController(new CampagneRepository($db()), new BilanRepository($db()));
+    $bilans = static fn (): BilanController => new BilanController(new CampagneRepository($db()), new BilanRepository($db()), new CategorieRepository($db()));
     $r->get('/api/bilans', static fn (Request $q) => $bilans()->public($q));
 
     $r->post('/api/sync', static function (Request $q) use ($app, $db): JsonResponse {
@@ -185,6 +185,7 @@ return static function (App $app): void {
         new CampagneRepository($db()),
     );
     $r->get('/api/admin/bilans', $admin(static fn ($q, $p) => $bilans()->admin($q, $p)));
+    $r->get('/api/admin/bilans/aida', $admin(static fn ($q, $p) => $bilans()->aida($q, $p)));
 
     $r->get('/api/admin/saisies', $admin(static fn ($q, $p) => $saisies()->list($q, $p)));
     $r->get('/api/admin/saisies/export', $admin(static fn ($q, $p) => $saisies()->export($q, $p)));

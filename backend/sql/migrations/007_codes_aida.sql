@@ -1,0 +1,77 @@
+-- Rapprochement AÏDA : code de l'article visé par chaque bouton (un même article peut couvrir plusieurs boutons).
+-- Le code de référence de la catégorie reste le code par défaut, notamment pour une catégorie sans bouton.
+
+ALTER TABLE format ADD COLUMN code_aida VARCHAR(50) NULL COMMENT 'article AÏDA visé par ce bouton' AFTER libelle;
+
+-- Codes de docs/categories/liste-benevoles.csv pour une base où cette liste est déjà installée (sans effet sinon).
+-- Une catégorie ou un bouton renommé depuis reste sans code : à compléter dans l'onglet Catégories.
+UPDATE format f JOIN categorie c ON c.id = f.categorie_id SET f.code_aida = '2000000007380' WHERE c.nom = 'Pâtes, semoule' AND f.contenance <=> 250 AND f.libelle <=> NULL;
+UPDATE format f JOIN categorie c ON c.id = f.categorie_id SET f.code_aida = '2000000007397' WHERE c.nom = 'Pâtes, semoule' AND f.contenance <=> 500 AND f.libelle <=> NULL;
+UPDATE format f JOIN categorie c ON c.id = f.categorie_id SET f.code_aida = '2000000007403' WHERE c.nom = 'Pâtes, semoule' AND f.contenance <=> 1000 AND f.libelle <=> NULL;
+UPDATE format f JOIN categorie c ON c.id = f.categorie_id SET f.code_aida = '2000000007410' WHERE c.nom = 'Riz' AND f.contenance <=> 500 AND f.libelle <=> NULL;
+UPDATE format f JOIN categorie c ON c.id = f.categorie_id SET f.code_aida = '2000000007427' WHERE c.nom = 'Riz' AND f.contenance <=> 1000 AND f.libelle <=> NULL;
+UPDATE format f JOIN categorie c ON c.id = f.categorie_id SET f.code_aida = '2000000004242' WHERE c.nom = 'Purée' AND f.contenance <=> 125 AND f.libelle <=> 'Sachet';
+UPDATE format f JOIN categorie c ON c.id = f.categorie_id SET f.code_aida = '2000000004259' WHERE c.nom = 'Purée' AND f.contenance <=> 500 AND f.libelle <=> 'Boîte';
+UPDATE format f JOIN categorie c ON c.id = f.categorie_id SET f.code_aida = '2000000007359' WHERE c.nom = 'Farine' AND f.contenance <=> 1000 AND f.libelle <=> NULL;
+UPDATE format f JOIN categorie c ON c.id = f.categorie_id SET f.code_aida = '2000000007731' WHERE c.nom = 'Légumes secs' AND f.contenance <=> 500 AND f.libelle <=> NULL;
+UPDATE format f JOIN categorie c ON c.id = f.categorie_id SET f.code_aida = '2000000014067' WHERE c.nom = 'Légumes secs' AND f.contenance <=> 1000 AND f.libelle <=> NULL;
+UPDATE format f JOIN categorie c ON c.id = f.categorie_id SET f.code_aida = '2000000007090' WHERE c.nom = 'Soupes' AND f.contenance <=> NULL AND f.libelle <=> 'Sachet';
+UPDATE format f JOIN categorie c ON c.id = f.categorie_id SET f.code_aida = '2000000009056' WHERE c.nom = 'Soupes' AND f.contenance <=> NULL AND f.libelle <=> 'Brique 25 cl';
+UPDATE format f JOIN categorie c ON c.id = f.categorie_id SET f.code_aida = '2000000007458' WHERE c.nom = 'Soupes' AND f.contenance <=> NULL AND f.libelle <=> 'Brique 1 L';
+UPDATE format f JOIN categorie c ON c.id = f.categorie_id SET f.code_aida = '2000000019758' WHERE c.nom = 'Huile' AND f.contenance <=> 1000 AND f.libelle <=> 'Olive / colza';
+UPDATE format f JOIN categorie c ON c.id = f.categorie_id SET f.code_aida = '2000000007472' WHERE c.nom = 'Huile' AND f.contenance <=> 1000 AND f.libelle <=> 'Tournesol, autres';
+UPDATE IGNORE categorie SET code_reference = '2000000008103' WHERE nom = 'Sauces, condiments, épices' AND code_reference IS NULL;
+UPDATE IGNORE categorie SET code_reference = '2000000008110' WHERE nom = 'Apéritif, chips' AND code_reference IS NULL;
+UPDATE format f JOIN categorie c ON c.id = f.categorie_id SET f.code_aida = '2000000007588' WHERE c.nom = 'Conserves de légumes' AND f.contenance <=> 140 AND f.libelle <=> '1/6';
+UPDATE format f JOIN categorie c ON c.id = f.categorie_id SET f.code_aida = '2000000007595' WHERE c.nom = 'Conserves de légumes' AND f.contenance <=> 220 AND f.libelle <=> '1/4';
+UPDATE format f JOIN categorie c ON c.id = f.categorie_id SET f.code_aida = '2000000007601' WHERE c.nom = 'Conserves de légumes' AND f.contenance <=> 400 AND f.libelle <=> '1/2';
+UPDATE format f JOIN categorie c ON c.id = f.categorie_id SET f.code_aida = '2000000007618' WHERE c.nom = 'Conserves de légumes' AND f.contenance <=> 800 AND f.libelle <=> '4/4';
+UPDATE format f JOIN categorie c ON c.id = f.categorie_id SET f.code_aida = '2000000019697' WHERE c.nom = 'Légumineuses en conserve' AND f.contenance <=> 250 AND f.libelle <=> '1/4';
+UPDATE format f JOIN categorie c ON c.id = f.categorie_id SET f.code_aida = '2000000019680' WHERE c.nom = 'Légumineuses en conserve' AND f.contenance <=> 400 AND f.libelle <=> '1/2';
+UPDATE format f JOIN categorie c ON c.id = f.categorie_id SET f.code_aida = '2000000019673' WHERE c.nom = 'Légumineuses en conserve' AND f.contenance <=> 800 AND f.libelle <=> '4/4';
+UPDATE format f JOIN categorie c ON c.id = f.categorie_id SET f.code_aida = '2000000007700' WHERE c.nom = 'Plats cuisinés' AND f.contenance <=> 400 AND f.libelle <=> NULL;
+UPDATE format f JOIN categorie c ON c.id = f.categorie_id SET f.code_aida = '2000000007717' WHERE c.nom = 'Plats cuisinés' AND f.contenance <=> 800 AND f.libelle <=> NULL;
+UPDATE format f JOIN categorie c ON c.id = f.categorie_id SET f.code_aida = '2000000007694' WHERE c.nom = 'Plats cuisinés' AND f.contenance <=> 1200 AND f.libelle <=> NULL;
+UPDATE format f JOIN categorie c ON c.id = f.categorie_id SET f.code_aida = '2000000007687' WHERE c.nom = 'Conserves de viande' AND f.contenance <=> 250 AND f.libelle <=> NULL;
+UPDATE format f JOIN categorie c ON c.id = f.categorie_id SET f.code_aida = '2000000007670' WHERE c.nom = 'Conserves de viande' AND f.contenance <=> 400 AND f.libelle <=> NULL;
+UPDATE format f JOIN categorie c ON c.id = f.categorie_id SET f.code_aida = '2000000007656' WHERE c.nom = 'Conserves de poisson' AND f.contenance <=> 150 AND f.libelle <=> NULL;
+UPDATE format f JOIN categorie c ON c.id = f.categorie_id SET f.code_aida = '2000000007663' WHERE c.nom = 'Conserves de poisson' AND f.contenance <=> 300 AND f.libelle <=> NULL;
+UPDATE format f JOIN categorie c ON c.id = f.categorie_id SET f.code_aida = '2000000007366' WHERE c.nom = 'Fruits au sirop' AND f.contenance <=> 400 AND f.libelle <=> NULL;
+UPDATE format f JOIN categorie c ON c.id = f.categorie_id SET f.code_aida = '2000000007373' WHERE c.nom = 'Fruits au sirop' AND f.contenance <=> 800 AND f.libelle <=> NULL;
+UPDATE format f JOIN categorie c ON c.id = f.categorie_id SET f.code_aida = '2000000007823' WHERE c.nom = 'Desserts en conserve' AND f.contenance <=> 250 AND f.libelle <=> NULL;
+UPDATE format f JOIN categorie c ON c.id = f.categorie_id SET f.code_aida = '2000000007830' WHERE c.nom = 'Desserts en conserve' AND f.contenance <=> 500 AND f.libelle <=> NULL;
+UPDATE format f JOIN categorie c ON c.id = f.categorie_id SET f.code_aida = '2000000007311' WHERE c.nom = 'Café' AND f.contenance <=> 250 AND f.libelle <=> NULL;
+UPDATE IGNORE categorie SET code_reference = '2000000008097' WHERE nom = 'Thé, infusion, café soluble' AND code_reference IS NULL;
+UPDATE format f JOIN categorie c ON c.id = f.categorie_id SET f.code_aida = '2000000007335' WHERE c.nom = 'Chocolat' AND f.contenance <=> 100 AND f.libelle <=> 'Tablette';
+UPDATE format f JOIN categorie c ON c.id = f.categorie_id SET f.code_aida = '2000000007342' WHERE c.nom = 'Chocolat' AND f.contenance <=> 400 AND f.libelle <=> 'Poudre';
+UPDATE format f JOIN categorie c ON c.id = f.categorie_id SET f.code_aida = '2000000009100' WHERE c.nom = 'Biscuits, céréales' AND f.contenance <=> 20 AND f.libelle <=> 'Mini';
+UPDATE format f JOIN categorie c ON c.id = f.categorie_id SET f.code_aida = '2000000011394' WHERE c.nom = 'Biscuits, céréales' AND f.contenance <=> 250 AND f.libelle <=> NULL;
+UPDATE format f JOIN categorie c ON c.id = f.categorie_id SET f.code_aida = '2000000004273' WHERE c.nom = 'Biscuits, céréales' AND f.contenance <=> 500 AND f.libelle <=> NULL;
+UPDATE format f JOIN categorie c ON c.id = f.categorie_id SET f.code_aida = '2000000007526' WHERE c.nom = 'Confiture, pâte à tartiner' AND f.contenance <=> 370 AND f.libelle <=> NULL;
+UPDATE format f JOIN categorie c ON c.id = f.categorie_id SET f.code_aida = '2000000007533' WHERE c.nom = 'Confiture, pâte à tartiner' AND f.contenance <=> 750 AND f.libelle <=> NULL;
+UPDATE format f JOIN categorie c ON c.id = f.categorie_id SET f.code_aida = '2000000005454' WHERE c.nom = 'Compote' AND f.contenance <=> 100 AND f.libelle <=> 'Gourde';
+UPDATE format f JOIN categorie c ON c.id = f.categorie_id SET f.code_aida = '2000000007540' WHERE c.nom = 'Compote' AND f.contenance <=> 400 AND f.libelle <=> NULL;
+UPDATE format f JOIN categorie c ON c.id = f.categorie_id SET f.code_aida = '2000000007564' WHERE c.nom = 'Compote' AND f.contenance <=> 650 AND f.libelle <=> NULL;
+UPDATE format f JOIN categorie c ON c.id = f.categorie_id SET f.code_aida = '2000000007502' WHERE c.nom = 'Sucre' AND f.contenance <=> 1000 AND f.libelle <=> NULL;
+UPDATE format f JOIN categorie c ON c.id = f.categorie_id SET f.code_aida = '2000000007809' WHERE c.nom = 'Fruits secs' AND f.contenance <=> 250 AND f.libelle <=> NULL;
+UPDATE format f JOIN categorie c ON c.id = f.categorie_id SET f.code_aida = '2000000007809' WHERE c.nom = 'Fruits secs' AND f.contenance <=> 500 AND f.libelle <=> NULL;
+UPDATE IGNORE categorie SET code_reference = '2000000008080' WHERE nom = 'Bonbons, confiserie' AND code_reference IS NULL;
+UPDATE format f JOIN categorie c ON c.id = f.categorie_id SET f.code_aida = '2000000008004' WHERE c.nom = 'Eau' AND f.contenance <=> 500 AND f.libelle <=> NULL;
+UPDATE format f JOIN categorie c ON c.id = f.categorie_id SET f.code_aida = '2000000008004' WHERE c.nom = 'Eau' AND f.contenance <=> 1500 AND f.libelle <=> NULL;
+UPDATE format f JOIN categorie c ON c.id = f.categorie_id SET f.code_aida = '2000000004235' WHERE c.nom = 'Jus, sodas' AND f.contenance <=> 330 AND f.libelle <=> NULL;
+UPDATE format f JOIN categorie c ON c.id = f.categorie_id SET f.code_aida = '2000000004228' WHERE c.nom = 'Jus, sodas' AND f.contenance <=> 1500 AND f.libelle <=> NULL;
+UPDATE format f JOIN categorie c ON c.id = f.categorie_id SET f.code_aida = '2000000011370' WHERE c.nom = 'Lait' AND f.contenance <=> 1000 AND f.libelle <=> NULL;
+UPDATE format f JOIN categorie c ON c.id = f.categorie_id SET f.code_aida = '2000000005201' WHERE c.nom = 'Petits pots' AND f.contenance <=> NULL AND f.libelle <=> 'Fruits';
+UPDATE format f JOIN categorie c ON c.id = f.categorie_id SET f.code_aida = '2000000005218' WHERE c.nom = 'Petits pots' AND f.contenance <=> NULL AND f.libelle <=> 'Légumes';
+UPDATE format f JOIN categorie c ON c.id = f.categorie_id SET f.code_aida = '2000000005225' WHERE c.nom = 'Petits pots' AND f.contenance <=> NULL AND f.libelle <=> 'Viande / poisson';
+UPDATE format f JOIN categorie c ON c.id = f.categorie_id SET f.code_aida = '2000000009025' WHERE c.nom = 'Lait infantile' AND f.contenance <=> NULL AND f.libelle <=> '1er âge';
+UPDATE format f JOIN categorie c ON c.id = f.categorie_id SET f.code_aida = '2000000009018' WHERE c.nom = 'Lait infantile' AND f.contenance <=> NULL AND f.libelle <=> '2e âge';
+UPDATE format f JOIN categorie c ON c.id = f.categorie_id SET f.code_aida = '2000000009001' WHERE c.nom = 'Lait infantile' AND f.contenance <=> NULL AND f.libelle <=> 'Croissance';
+UPDATE IGNORE categorie SET code_reference = '2000000007847' WHERE nom = 'Céréales bébé' AND code_reference IS NULL;
+UPDATE IGNORE categorie SET code_reference = '2000000009865' WHERE nom = 'Hygiène' AND code_reference IS NULL;
+UPDATE format f JOIN categorie c ON c.id = f.categorie_id SET f.code_aida = '2000000005270' WHERE c.nom = 'Couches' AND f.contenance <=> NULL AND f.libelle <=> 'T1-2';
+UPDATE format f JOIN categorie c ON c.id = f.categorie_id SET f.code_aida = '2000000005287' WHERE c.nom = 'Couches' AND f.contenance <=> NULL AND f.libelle <=> 'T3';
+UPDATE format f JOIN categorie c ON c.id = f.categorie_id SET f.code_aida = '2000000005294' WHERE c.nom = 'Couches' AND f.contenance <=> NULL AND f.libelle <=> 'T4';
+UPDATE format f JOIN categorie c ON c.id = f.categorie_id SET f.code_aida = '2000000005300' WHERE c.nom = 'Couches' AND f.contenance <=> NULL AND f.libelle <=> 'T5';
+UPDATE format f JOIN categorie c ON c.id = f.categorie_id SET f.code_aida = '2000000005317' WHERE c.nom = 'Couches' AND f.contenance <=> NULL AND f.libelle <=> 'T6';
+UPDATE IGNORE categorie SET code_reference = '2000000009858' WHERE nom = 'Entretien, lessive' AND code_reference IS NULL;

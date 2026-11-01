@@ -28,7 +28,7 @@ Onglet **Catégories** :
 - **Mesure** : *Poids (kg)*, *Volume (L)* ou *Quantité seule*. Elle n'est plus modifiable dès qu'une saisie existe dans la catégorie.
 - **Formats** : les contenances proposées en raccourci (ex. 250 g, 500 g, 1 kg). Quelques formats bien choisis accélèrent beaucoup la saisie ; les bénévoles peuvent toujours saisir une autre valeur.
 - **Variantes** : un format peut porter un libellé, pour distinguer deux produits de même contenance (Huile : « Olive / colza » 1 L et « Tournesol, autres » 1 L). Une catégorie en *Quantité seule* peut aussi proposer des variantes, sans contenance (Couches : T1-2, T3, T4…) ; le bénévole peut alors préciser la variante, sans y être obligé. La variante choisie apparaît dans les saisies (« 2 × Huile Olive / colza 1 L ») et dans l'export Excel (colonne *Variante*). Modifier le libellé ou la contenance d'un format existant conserve le lien avec ses saisies ; retirer un format laisse ses saisies sans variante.
-- **Code de référence** : facultatif, pour faire le lien avec la liste de la Croix-Rouge.
+- **Code de référence** : facultatif, le code AÏDA de la catégorie. Il sert si elle n'a pas de bouton (Hygiène, par exemple) ou si la contenance est inconnue. Chaque format ou variante a aussi son propre champ **Code AÏDA** ; plusieurs boutons peuvent partager le même code.
 - **Mots-clés** : séparés par des virgules (ex. *lentilles, pois chiches, flageolets*). Le bénévole qui hésite tape un mot dans le champ **Rechercher un produit** en haut de l'écran de saisie : les catégories dont le nom, la section, une variante ou un mot-clé commence par ce mot s'affichent (sans tenir compte des accents, des majuscules ni du pluriel). Taper le nom d'une variante (« tournesol », « T4 ») ouvre directement la saisie sur ce bouton. Sans résultat, la catégorie **Autre** est proposée.
 
 ### 1.3 Campagne
@@ -101,7 +101,8 @@ Ajouter une catégorie oubliée est possible : elle apparaît sur les téléphon
 1. **Laissez la campagne active quelques heures** (ou jusqu'au lendemain) : des téléphones restés hors ligne peuvent encore envoyer leurs dernières saisies. Demandez aux bénévoles d'ouvrir l'application une fois connectés, jusqu'à voir *À jour*.
 2. Quand les chiffres ne bougent plus, **désactivez la campagne** (onglet **Campagnes**).
 3. Consultez les **Bilans** de la campagne (ils restent consultables en choisissant la campagne). Le bouton **Exporter la campagne (Excel)** fournit le détail des saisies (voir 2.1) ; conservez ce fichier avec la sauvegarde.
-4. Faites (ou faites faire) une **sauvegarde de la base** (voir [déploiement](deploiement.md), section Sauvegardes).
+4. **Saisie dans AÏDA** : depuis les Bilans, ouvrez **Réception AÏDA**, choisissez la campagne et, si besoin, le magasin. La page donne le nombre d'articles par code, à imprimer ou à exporter en Excel. La colonne **Dont à vérifier** compte les articles dont le code a été déduit (contenance libre ou inconnue) ; **Non rapprochés** liste ceux sans code, comme *Autre*, à classer à la main. Ces chiffres sont ceux déclarés par les bénévoles : contrôlez-les par rapport à ce qui est reçu à l'entrepôt.
+5. Faites (ou faites faire) une **sauvegarde de la base** (voir [déploiement](deploiement.md), section Sauvegardes).
 
 **L'année suivante :** créez une nouvelle campagne, cochez les magasins participants et activez-la. Magasins et catégories sont conservés d'une année sur l'autre ; les bilans des campagnes précédentes restent consultables.
 

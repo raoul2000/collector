@@ -89,6 +89,18 @@ export function FormatsEditor({ unite, value, onChange, error }: FormatsEditorPr
             return (
               <li key={format.id ?? `n-${format.contenance}-${format.libelle}`} className={styles.chip}>
                 {texteFormat}
+                <input
+                  className={styles.code}
+                  aria-label={`Code AÏDA de ${texteFormat}`}
+                  placeholder="Code AÏDA"
+                  value={format.codeAida ?? ''}
+                  maxLength={50}
+                  onChange={(e) => onChange(value.map((f) => (f === format ? { ...f, codeAida: e.target.value } : f)))}
+                  onKeyDown={(e) => {
+                    // Entrée n'envoie pas le formulaire pendant la saisie d'un code
+                    if (e.key === 'Enter') e.preventDefault()
+                  }}
+                />
                 <button
                   type="button"
                   className={styles.remove}

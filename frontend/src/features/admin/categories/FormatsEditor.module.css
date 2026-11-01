@@ -96,3 +96,15 @@
   font-weight: var(--font-weight-medium);
   color: var(--color-danger);
 }
+
+.code {
+  width: 10rem;
+  min-width: 0;
+  min-height: 32px;
+  padding: 0 var(--space-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  font-size: var(--font-size-sm);
+  font-weight: normal;
+}

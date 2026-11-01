@@ -79,3 +79,23 @@
 .infobulleDetail {
   color: var(--color-text-muted);
 }
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.lien {
+  font-weight: var(--font-weight-medium);
+}
+
+/* Sur papier : la liste seule */
+@media print {
+  .actions,
+  .lien,
+  .filtres {
+    display: none;
+  }
+}

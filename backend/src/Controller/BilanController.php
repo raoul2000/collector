@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Aida\RapprochementAida;
 use App\Http\HttpException;
 use App\Http\JsonResponse;
 use App\Http\Request;
 use App\Repository\BilanRepository;
 use App\Repository\CampagneRepository;
+use App\Repository\CategorieRepository;
 
 /**
  * Bilans de la collecte : complets pour les responsables, réduits pour motiver les bénévoles.
@@ -18,6 +20,7 @@ final readonly class BilanController
     public function __construct(
         private CampagneRepository $campagnes,
         private BilanRepository $bilans,
+        private CategorieRepository $categories,
     ) {
     }
 
@@ -27,11 +30,7 @@ final readonly class BilanController
      */
     public function admin(Request $request, string $prenom): JsonResponse
     {
-        $campagneId = self::id($request->query('campagne'));
-        $campagne = $campagneId === null ? $this->campagnes->findActive() : $this->campagnes->find($campagneId);
-        if ($campagne === null) {
-            throw HttpException::notFound($campagneId === null ? 'Aucune campagne active.' : 'Campagne introuvable.');
-        }
+        $campagne = $this->campagneDemandee($request);
         $magasinId = self::id($request->query('magasin'));
 
         $categories = $this->bilans->parCategorie($campagne['id'], $magasinId);
@@ -43,6 +42,22 @@ final readonly class BilanController
             'categories' => $categories,
             'heures' => $this->bilans->parHeure($campagne['id'], $magasinId),
             'magasins' => $this->bilans->parMagasin($campagne['id']),
+        ]);
+    }
+
+    /**
+     * Réception AÏDA (espace responsable) : nombre d'articles à ressaisir par code, pour une campagne
+     * (la campagne active par défaut) et éventuellement un seul magasin.
+     */
+    public function aida(Request $request, string $prenom): JsonResponse
+    {
+        $campagne = $this->campagneDemandee($request);
+        $magasinId = self::id($request->query('magasin'));
+
+        return new JsonResponse([
+            'campagne' => self::campagne($campagne),
+            'magasinId' => $magasinId,
+            ...RapprochementAida::calculer($this->categories->findAll(), $this->bilans->parBouton($campagne['id'], $magasinId)),
         ]);
     }
 
@@ -71,6 +86,20 @@ final readonly class BilanController
             'general' => BilanRepository::totaux($this->bilans->parCategorie($campagne['id'], null)),
             'classement' => $classement,
         ]);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function campagneDemandee(Request $request): array
+    {
+        $campagneId = self::id($request->query('campagne'));
+        $campagne = $campagneId === null ? $this->campagnes->findActive() : $this->campagnes->find($campagneId);
+        if ($campagne === null) {
+            throw HttpException::notFound($campagneId === null ? 'Aucune campagne active.' : 'Campagne introuvable.');
+        }
+
+        return $campagne;
     }
 
     private static function id(?string $value): ?int

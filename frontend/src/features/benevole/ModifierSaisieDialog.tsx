@@ -83,6 +83,8 @@ export function ModifierSaisieDialog({ saisie, categories, onClose }: ModifierSa
               initial={
                 initial && { quantite: initial.quantite, contenanceUnitaire: initial.contenanceUnitaire, formatId: initial.formatId ?? null }
               }
+              precisionRequise={categorie.precisionRequise}
+              precisionInitiale={saisie.precisionProduit ?? ''}
               submitLabel="Enregistrer"
               onSubmit={(contenu) => void enregistrer(contenu)}
             />

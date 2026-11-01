@@ -3,6 +3,7 @@ import type { Unite } from '../../api/types'
 import { Button } from '../../components/Button'
 import { ConfirmDialog } from '../../components/ConfirmDialog'
 import { QuantityStepper } from '../../components/QuantityStepper'
+import { TextField } from '../../components/TextField'
 import { Tile } from '../../components/Tile'
 import { CONTENANCE_MAX, parseContenance, UNITES_SAISIE } from '../../lib/contenance'
 import { formatContenance } from '../../lib/format'
@@ -17,6 +18,8 @@ export interface ContenuForm {
   contenanceUnitaire: number | null
   /** Bouton choisi (null : contenance libre, inconnue, ou aucune variante choisie) */
   formatId: number | null
+  /** Description du produit, pour une catégorie qui l'exige */
+  precisionProduit?: string
 }
 
 export interface SaisieFormProps {
@@ -25,6 +28,10 @@ export interface SaisieFormProps {
   boutons: BoutonSaisie[]
   /** Valeurs initiales (modification d'une saisie) */
   initial?: ContenuForm
+  /** Le bénévole doit décrire le produit (« Autre ») */
+  precisionRequise?: boolean
+  /** Texte de départ : mot cherché sans résultat, ou texte déjà saisi */
+  precisionInitiale?: string
   submitLabel: string
   onSubmit: (contenu: ContenuForm) => void
 }
@@ -55,7 +62,7 @@ function choixInitial(unite: Unite, boutons: BoutonSaisie[], initial?: ContenuFo
  * Détail d'une saisie pour une catégorie : contenance (formats et variantes prédéfinis, valeur libre ou inconnue)
  * et quantité. Pour une catégorie à l'unité, les variantes éventuelles (ex. tailles de couches) sont facultatives.
  */
-export function SaisieForm({ unite, boutons, initial, submitLabel, onSubmit }: SaisieFormProps) {
+export function SaisieForm({ unite, boutons, initial, precisionRequise = false, precisionInitiale = '', submitLabel, onSubmit }: SaisieFormProps) {
   const id = useId()
   const avecContenance = unite !== 'unite'
   const unitesSaisie = avecContenance ? UNITES_SAISIE[unite] : []
@@ -69,6 +76,8 @@ export function SaisieForm({ unite, boutons, initial, submitLabel, onSubmit }: S
     autreInitial ? (unite === 'L' ? 'ml' : 'g') : (unitesSaisie[0]?.symbole ?? ''),
   )
   const [erreur, setErreur] = useState<string | null>(null)
+  const [precision, setPrecision] = useState(precisionInitiale)
+  const [erreurPrecision, setErreurPrecision] = useState<string>()
   const [confirmation, setConfirmation] = useState<{ messages: string[]; contenu: ContenuForm } | null>(null)
 
   const choisir = (nouveau: Choix) => {
@@ -78,6 +87,11 @@ export function SaisieForm({ unite, boutons, initial, submitLabel, onSubmit }: S
 
   const valider = (event: FormEvent) => {
     event.preventDefault()
+
+    if (precisionRequise && precision.trim() === '') {
+      setErreurPrecision('Indiquez de quel produit il s\'agit (ou « illisible », « ne sais pas »).')
+      return
+    }
 
     let contenanceUnitaire: number | null = null
     const bouton = choix?.type === 'format' ? boutons[choix.index] : undefined
@@ -102,7 +116,12 @@ export function SaisieForm({ unite, boutons, initial, submitLabel, onSubmit }: S
       }
     }
 
-    const contenu = { quantite, contenanceUnitaire, formatId: bouton?.id ?? null }
+    const contenu: ContenuForm = {
+      quantite,
+      contenanceUnitaire,
+      formatId: bouton?.id ?? null,
+      ...(precisionRequise ? { precisionProduit: precision.trim() } : {}),
+    }
     const messages = [
       ...(avecContenance && choix?.type === 'inconnue'
         ? [`${unite === 'kg' ? 'Le poids' : 'Le volume'} de ces articles ne sera pas comptabilisé.`]
@@ -118,6 +137,22 @@ export function SaisieForm({ unite, boutons, initial, submitLabel, onSubmit }: S
 
   return (
     <form className={styles.form} onSubmit={valider} noValidate>
+      {precisionRequise && (
+        <TextField
+          label="De quel produit s'agit-il ?"
+          hint="Décrivez le produit uniquement, sans nom de personne."
+          value={precision}
+          maxLength={100}
+          error={erreurPrecision}
+          autoFocus={precision === ''}
+          enterKeyHint="done"
+          onChange={(e) => {
+            setPrecision(e.target.value)
+            setErreurPrecision(undefined)
+          }}
+        />
+      )}
+
       {avecContenance && (
         <fieldset className={styles.fieldset} aria-describedby={erreur ? `${id}-erreur` : undefined}>
           <legend className={styles.legend}>{unite === 'kg' ? 'Poids d\'un article' : 'Volume d\'un article'}</legend>

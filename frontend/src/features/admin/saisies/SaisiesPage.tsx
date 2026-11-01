@@ -44,6 +44,7 @@ export function SaisiesPage() {
     page: 1,
     campagne: campagneDemandee,
     appareil: searchParams.get('appareil') ?? undefined,
+    categorie: Number(searchParams.get('categorie')) || undefined,
   })
   const [prenom, setPrenom] = useState('')
   const [code, setCode] = useState('')
@@ -259,7 +260,10 @@ export function SaisiesPage() {
                     {saisie.codeAida ?? <SansCode saisie={saisie} categories={categories.data} onOuvrir={setCategorieACompleter} />}
                     {saisie.codeAVerifier && <div className={styles.muted}>à vérifier</div>}
                   </td>
-                  <td>{libelleAdmin(saisie)}</td>
+                  <td>
+                    {libelleAdmin(saisie)}
+                    {saisie.precisionProduit && <div className={styles.muted}>« {saisie.precisionProduit} »</div>}
+                  </td>
                   <td>
                     {saisie.supprime ? (
                       <Badge kind="danger">Supprimée</Badge>

@@ -29,7 +29,7 @@ final class CategorieControllerTest extends ApiTestCase
         $formats = $response->data['formats'];
         self::assertSame(
             ['id' => $response->data['id'], 'nom' => 'Pâtes', 'sectionId' => null, 'unite' => 'kg', 'ordre' => 50, 'active' => true,
-                'codeReference' => null, 'motsCles' => [], 'formats' => $formats, 'nbSaisies' => 0, 'privilegiee' => false],
+                'codeReference' => null, 'motsCles' => [], 'formats' => $formats, 'nbSaisies' => 0, 'privilegiee' => false, 'precisionRequise' => false],
             $response->data,
         );
         // Contenances seules (forme antérieure aux variantes) : acceptées, sans libellé

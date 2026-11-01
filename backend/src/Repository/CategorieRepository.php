@@ -13,7 +13,7 @@ use PDO;
  *
  * @phpstan-type Categorie array{
  *     id: int, nom: string, sectionId: int|null, unite: 'kg'|'L'|'unite', ordre: int, active: bool,
- *     codeReference: string|null, motsCles: list<string>, formats: list<Format>, nbSaisies: int, privilegiee: bool
+ *     codeReference: string|null, motsCles: list<string>, formats: list<Format>, nbSaisies: int, privilegiee: bool, precisionRequise: bool
  * }
  * @phpstan-type Format array{id: int, contenance: int|null, libelle: string|null, codeAida: string|null}
  * @phpstan-type FormatInput array{id: int|null, contenance: int|null, libelle: string|null, codeAida: string|null}
@@ -21,7 +21,7 @@ use PDO;
 final readonly class CategorieRepository
 {
     private const string SELECT =
-        'SELECT c.id, c.nom, c.section_id, c.unite, c.ordre, c.active, c.code_reference, c.mots_cles,
+        'SELECT c.id, c.nom, c.section_id, c.unite, c.ordre, c.active, c.code_reference, c.mots_cles, c.precision_requise,
                 (SELECT COUNT(*) FROM saisie s WHERE s.categorie_id = c.id) AS nb_saisies,
                 EXISTS (SELECT 1 FROM categorie_privilegiee cp JOIN campagne ca ON ca.id = cp.campagne_id AND ca.active = 1
                         WHERE cp.categorie_id = c.id) AS privilegiee
@@ -107,10 +107,11 @@ final readonly class CategorieRepository
         ?string $codeReference,
         array $motsCles,
         array $formats,
+        bool $precisionRequise,
     ): int {
         $this->db->prepare(
-            'INSERT INTO categorie (nom, section_id, unite, ordre, active, code_reference, mots_cles) VALUES (?, ?, ?, ?, ?, ?, ?)',
-        )->execute([$nom, $sectionId, $unite, $ordre, (int) $active, $codeReference, self::motsClesSql($motsCles)]);
+            'INSERT INTO categorie (nom, section_id, unite, ordre, active, code_reference, mots_cles, precision_requise) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+        )->execute([$nom, $sectionId, $unite, $ordre, (int) $active, $codeReference, self::motsClesSql($motsCles), (int) $precisionRequise]);
         $id = (int) $this->db->lastInsertId();
         $this->setFormats($id, $formats);
 
@@ -130,10 +131,11 @@ final readonly class CategorieRepository
         ?string $codeReference,
         array $motsCles,
         array $formats,
+        bool $precisionRequise,
     ): void {
         $this->db->prepare(
-            'UPDATE categorie SET nom = ?, section_id = ?, unite = ?, ordre = ?, active = ?, code_reference = ?, mots_cles = ? WHERE id = ?',
-        )->execute([$nom, $sectionId, $unite, $ordre, (int) $active, $codeReference, self::motsClesSql($motsCles), $id]);
+            'UPDATE categorie SET nom = ?, section_id = ?, unite = ?, ordre = ?, active = ?, code_reference = ?, mots_cles = ?, precision_requise = ? WHERE id = ?',
+        )->execute([$nom, $sectionId, $unite, $ordre, (int) $active, $codeReference, self::motsClesSql($motsCles), (int) $precisionRequise, $id]);
         $this->setFormats($id, $formats);
     }
 
@@ -268,6 +270,7 @@ final readonly class CategorieRepository
                 'formats' => $formats[(int) $row['id']] ?? [],
                 'nbSaisies' => (int) $row['nb_saisies'],
                 'privilegiee' => (bool) $row['privilegiee'],
+                'precisionRequise' => (bool) $row['precision_requise'],
             ],
             $rows,
         );

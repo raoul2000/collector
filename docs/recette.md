@@ -109,6 +109,17 @@ Scénarios à dérouler en production (https://collecte.exdata.info), avant la c
 | J4 | Depuis Réglages, ouvrir l'espace responsable | Il reste en thème standard | | | |
 | J5 | Utiliser le thème sombre dehors, puis le thème standard | Noter l'écart de lisibilité | | | |
 
+## K. Précision de la catégorie « Autre »
+
+| # | Action | Résultat attendu | Android | iPhone | Remarques |
+|---|---|---|---|---|---|
+| K1 ★ | Choisir « Autre », puis Valider sans rien écrire | Saisie refusée, message demandant de décrire le produit | | | |
+| K2 ★ | Écrire « couscous en boîte », valider, y compris en mode avion puis au retour du réseau | Texte visible dans Mes saisies et, après envoi, dans l'onglet Saisies | | | |
+| K3 | Rechercher un mot inconnu, puis choisir « Autre » | Le champ est pré-rempli avec ce mot | | | |
+| K4 ★ | Le responsable passe la saisie sur une vraie catégorie | Elle quitte « Autre », le texte reste affiché comme trace, sur le téléphone aussi | | | |
+| K5 | Depuis Réception AÏDA, suivre le lien des « Non rapprochés » | Les saisies de « Autre » sont listées | | | |
+| K6 | Vérifier l'export Excel des saisies | Colonne « Précision du bénévole » remplie | | | |
+
 ## Anomalies
 
 | # | Scénario | Téléphone | Description | Bloquant ? | État |

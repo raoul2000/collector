@@ -197,7 +197,7 @@ campagne      (id, nom, date_debut, date_fin, active, cree_le)
 magasin       (id, nom, ville, actif)
 campagne_magasin (campagne_id, magasin_id)
 section       (id, nom, ordre)                                  -- groupe de catégories (repère de la grille)
-categorie     (id, nom, section_id NULL, unite ENUM('kg','L','unite'), ordre, active, code_reference, mots_cles NULL)
+categorie     (id, nom, section_id NULL, unite ENUM('kg','L','unite'), ordre, active, code_reference, mots_cles NULL, precision_requise)
 format        (id, categorie_id, contenance INT NULL, libelle NULL, code_aida NULL, ordre)  -- g ou ml ; libellé de variante ; article AÏDA visé
 appareil      (id CHAR(36) UUID, prenom, cree_le, vu_le)
 recherche     (id CHAR(36) UUID, campagne_id, appareil_id, terme, categorie_id NULL, cherche_le)  -- recherches sans résultat
@@ -207,6 +207,7 @@ saisie        (id CHAR(36) UUID généré côté client,
                campagne_id, magasin_id, appareil_id, categorie_id,
                quantite INT, contenance_unitaire INT NULL,      -- g ou ml ; NULL si unité ou contenance inconnue
                format_id NULL,                                  -- bouton choisi (format ou variante)
+               precision_produit NULL,                          -- description libre du bénévole (« Autre »)
                saisie_le DATETIME,                              -- heure de saisie sur le téléphone
                modifie_le DATETIME, supprime_le DATETIME NULL,  -- suppression logique
                modifie_par_responsable VARCHAR NULL,            -- prénom du responsable ayant corrigé

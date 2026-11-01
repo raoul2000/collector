@@ -58,6 +58,7 @@ final readonly class CategorieController
                 $data['codeReference'],
                 $data['motsCles'],
                 $data['formats'],
+                $data['precisionRequise'],
             );
             $this->journal->log($prenom, 'creation', 'categorie', $id, ['apres' => $this->categories->find($id)]);
 
@@ -83,6 +84,7 @@ final readonly class CategorieController
                 $data['codeReference'],
                 $data['motsCles'],
                 $data['formats'],
+                $data['precisionRequise'],
             );
             $this->journal->log($prenom, 'modification', 'categorie', $avant['id'], [
                 'avant' => $avant,
@@ -240,7 +242,7 @@ final readonly class CategorieController
 
     /**
      * @param array<string, mixed>|null $existing catégorie modifiée (null pour une création)
-     * @return array{nom: string, sectionId: int|null, unite: string, ordre: int|null, active: bool, codeReference: string|null, motsCles: list<string>, formats: list<array{id: int|null, contenance: int|null, libelle: string|null, codeAida: string|null}>}
+     * @return array{nom: string, sectionId: int|null, unite: string, ordre: int|null, active: bool, codeReference: string|null, motsCles: list<string>, formats: list<array{id: int|null, contenance: int|null, libelle: string|null, codeAida: string|null}>, precisionRequise: bool}
      */
     private function validate(Request $request, ?array $existing): array
     {
@@ -249,6 +251,7 @@ final readonly class CategorieController
         $unite = $v->enum('unite', self::UNITES);
         $ordre = $v->int('ordre', 0, 1_000_000, optional: true);
         $active = $v->bool('active', optional: true) ?? $existing['active'] ?? true;
+        $precisionRequise = $v->bool('precisionRequise', optional: true) ?? $existing['precisionRequise'] ?? false;
         $codeReference = $v->string('codeReference', max: 50, optional: true);
         $codeReference = $codeReference === '' ? null : $codeReference;
         // Texte séparé par des virgules ; absent : inchangés
@@ -289,6 +292,7 @@ final readonly class CategorieController
             'codeReference' => $codeReference,
             'motsCles' => $motsCles,
             'formats' => $formats,
+            'precisionRequise' => $precisionRequise,
         ];
     }
 }

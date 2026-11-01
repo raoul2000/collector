@@ -44,6 +44,8 @@ export interface CategorieRef {
   unite: Unite
   /** Mots-clés de recherche (absents d'une copie locale antérieure à la recherche) */
   motsCles?: string[]
+  /** Le bénévole doit décrire le produit (« Autre ») */
+  precisionRequise?: boolean
   /** Contenances seules (versions de l'application antérieures aux variantes) */
   formats: number[]
   /** Boutons proposés à la saisie (absent d'une copie locale antérieure aux variantes) */
@@ -119,6 +121,8 @@ export interface Categorie {
   nbSaisies: number
   /** Produit à privilégier pour la campagne active */
   privilegiee?: boolean
+  /** Le bénévole doit décrire le produit (« Autre ») */
+  precisionRequise?: boolean
 }
 
 /** Format envoyé à l'enregistrement d'une catégorie : sans identifiant, c'est un nouveau bouton */
@@ -138,6 +142,7 @@ export interface CategorieInput {
   /** Mots-clés séparés par des virgules */
   motsCles: string
   formats: FormatInput[]
+  precisionRequise?: boolean
 }
 
 // --- Synchronisation (bénévole) ------------------------------------------------------------------
@@ -152,6 +157,8 @@ export interface SaisieEnvoyee {
   contenanceUnitaire: number | null
   /** Bouton choisi (null : contenance libre ou inconnue) */
   formatId: number | null
+  /** Description du produit par le bénévole */
+  precisionProduit?: string | null
   saisieLe: string
   modifieLe: string
   supprime: boolean
@@ -169,6 +176,7 @@ export interface SaisieServeur {
   contenanceUnitaire: number | null
   /** Absent d'une réponse d'un serveur antérieur aux variantes */
   formatId?: number | null
+  precisionProduit?: string | null
   saisieLe: string
   modifieLe: string
   supprime: boolean
@@ -232,6 +240,8 @@ export interface SaisieAdmin {
   codeAida: string | null
   /** Le code a été déduit de la contenance */
   codeAVerifier: boolean
+  /** Description du produit par le bénévole, conservée après correction */
+  precisionProduit?: string | null
   formatId: number | null
   /** Libellé de la variante choisie */
   formatLibelle: string | null
@@ -317,6 +327,7 @@ export interface SaisieExport {
   codeAVerifier: boolean
   /** Libellé de la variante choisie */
   variante: string | null
+  precisionProduit?: string | null
   unite: Unite
   quantite: number
   contenanceUnitaire: number | null

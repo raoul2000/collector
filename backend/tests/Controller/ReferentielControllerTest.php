@@ -63,9 +63,9 @@ final class ReferentielControllerTest extends ApiTestCase
         $boutons = array_column($data['categories'], 'boutons');
         self::assertSame(
             [
-                ['id' => $pates, 'nom' => 'Pâtes', 'sectionId' => null, 'unite' => 'kg', 'motsCles' => ['coquillettes', 'spaghetti'], 'formats' => [250, 500, 1000], 'boutons' => $boutons[0]],
-                ['id' => $huile, 'nom' => 'Huile', 'sectionId' => null, 'unite' => 'L', 'motsCles' => [], 'formats' => [1000], 'boutons' => $boutons[1]],
-                ['id' => $savon, 'nom' => 'Savon', 'sectionId' => null, 'unite' => 'unite', 'motsCles' => [], 'formats' => [], 'boutons' => []],
+                ['id' => $pates, 'nom' => 'Pâtes', 'sectionId' => null, 'unite' => 'kg', 'motsCles' => ['coquillettes', 'spaghetti'], 'precisionRequise' => false, 'formats' => [250, 500, 1000], 'boutons' => $boutons[0]],
+                ['id' => $huile, 'nom' => 'Huile', 'sectionId' => null, 'unite' => 'L', 'motsCles' => [], 'precisionRequise' => false, 'formats' => [1000], 'boutons' => $boutons[1]],
+                ['id' => $savon, 'nom' => 'Savon', 'sectionId' => null, 'unite' => 'unite', 'motsCles' => [], 'precisionRequise' => false, 'formats' => [], 'boutons' => []],
             ],
             $data['categories'],
         );

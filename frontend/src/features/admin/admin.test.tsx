@@ -205,6 +205,7 @@ describe('Catégories', () => {
         { contenance: 500, libelle: null },
         { contenance: 1500, libelle: null },
       ],
+      precisionRequise: false,
     })
   })
 

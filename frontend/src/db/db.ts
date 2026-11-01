@@ -16,6 +16,8 @@ export interface SaisieLocale {
   contenanceUnitaire: number | null
   /** Bouton choisi (null : contenance libre ou inconnue ; absent des saisies antérieures aux variantes) */
   formatId?: number | null
+  /** Description du produit par le bénévole (« Autre ») */
+  precisionProduit?: string | null
   /** Heure du don (ISO 8601 avec fuseau) */
   saisieLe: string
   /** Dernière modification (ISO 8601 avec millisecondes et fuseau) */

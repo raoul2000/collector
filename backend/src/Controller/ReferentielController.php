@@ -42,6 +42,7 @@ final readonly class ReferentielController
                     'sectionId' => $c['sectionId'],
                     'unite' => $c['unite'],
                     'motsCles' => $c['motsCles'],
+                    'precisionRequise' => $c['precisionRequise'],
                     // Contenances seules, pour les versions de l'application antérieures aux variantes
                     'formats' => array_values(array_unique(array_filter(array_column($c['formats'], 'contenance')))),
                     // Sans le code AÏDA, inutile aux téléphones

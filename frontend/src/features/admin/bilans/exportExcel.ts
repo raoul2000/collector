@@ -30,6 +30,7 @@ export const COLONNES: Column<SaisieExport>[] = [
   { header: entete('Bénévole'), cell: (s) => ({ value: s.prenom }), width: 14 },
   { header: entete('Catégorie'), cell: (s) => ({ value: s.categorie }), width: 28 },
   { header: entete('Variante'), cell: (s) => ({ value: s.variante ?? undefined }), width: 16 },
+  { header: entete('Précision du bénévole'), cell: (s) => ({ value: s.precisionProduit ?? undefined }), width: 28 },
   { header: entete('Code AÏDA'), cell: (s) => ({ value: s.codeAida ?? undefined }), width: 16 },
   { header: entete('Code à vérifier'), cell: (s) => ({ value: s.codeAVerifier ? 'Oui' : undefined }), width: 10 },
   { header: entete('Unité'), cell: (s) => ({ value: LIBELLES_UNITE[s.unite] }), width: 8 },

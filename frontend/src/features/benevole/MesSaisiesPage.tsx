@@ -73,6 +73,7 @@ export function MesSaisiesPage() {
                         varianteSaisie(categories.get(saisie.categorieId), saisie.formatId),
                       )}
                     </span>
+                    {saisie.precisionProduit && <span className={styles.magasin}>{saisie.precisionProduit}</span>}
                     {saisie.magasinId !== magasin.id && (
                       <span className={styles.magasin}>{magasins.get(saisie.magasinId) ?? 'Autre magasin'}</span>
                     )}

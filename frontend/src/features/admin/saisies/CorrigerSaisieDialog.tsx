@@ -62,6 +62,7 @@ export function CorrigerSaisieDialog({ saisie, categories, magasins, onClose }: 
             </option>
           ))}
         </Select>
+        {saisie.precisionProduit && <p>Précision du bénévole : « {saisie.precisionProduit} »</p>}
         <Select label="Catégorie" value={categorieId} onChange={(e) => setCategorieId(Number(e.target.value))}>
           {categories.map((c) => (
             <option key={c.id} value={c.id}>

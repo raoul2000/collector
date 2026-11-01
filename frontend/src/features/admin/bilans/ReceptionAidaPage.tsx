@@ -154,7 +154,9 @@ export function ReceptionAidaPage() {
                     <tr key={c.categorieId}>
                       <td>{c.nom}</td>
                       <td className={adminStyles.numeric}>{formatNombre(c.nbArticles)}</td>
-                      <td className={adminStyles.numeric}>{pluriel(c.nbSaisies, 'saisie')}</td>
+                      <td className={adminStyles.numeric}>
+                        <Link to={`/admin/saisies?campagne=${data.campagne.id}&categorie=${c.categorieId}`}>{pluriel(c.nbSaisies, 'saisie')}</Link>
+                      </td>
                     </tr>
                   ))}
                 </tbody>

@@ -164,6 +164,45 @@ describe('Écran de saisie', () => {
     await waitFor(async () => expect((await saisies())[0]).toMatchObject({ supprime: true, aEnvoyer: 1 }))
   })
 
+  describe('catégorie à précision obligatoire', () => {
+    const AVEC_AUTRE: Referentiel = {
+      ...REFERENTIEL,
+      version: 'avec-autre',
+      categories: [...REFERENTIEL.categories, { id: 99, nom: 'Autre', unite: 'unite', formats: [], precisionRequise: true }],
+    }
+
+    it('exige une description du produit, puis l\'enregistre', async () => {
+      const user = await demarrer(AVEC_AUTRE)
+
+      await user.click(await screen.findByRole('button', { name: /^Autre/ }))
+      await user.click(screen.getByRole('button', { name: 'Valider' }))
+      expect(await screen.findByText(/Indiquez de quel produit il s'agit/)).toBeInTheDocument()
+      expect(await saisies()).toHaveLength(0)
+
+      await user.type(screen.getByLabelText(/De quel produit s'agit-il/), '  couscous en boîte ')
+      await user.click(screen.getByRole('button', { name: 'Valider' }))
+
+      await waitFor(async () => expect((await saisies())[0]).toMatchObject({ categorieId: 99, precisionProduit: 'couscous en boîte' }))
+    })
+
+    it('pré-remplit la description avec le mot cherché sans résultat', async () => {
+      const user = await demarrer(AVEC_AUTRE)
+
+      await user.type(await screen.findByLabelText('Rechercher un produit'), 'zzzz')
+      await user.click(await screen.findByRole('button', { name: /^Autre/ }))
+
+      expect(screen.getByLabelText(/De quel produit s'agit-il/)).toHaveValue('zzzz')
+    })
+
+    it('ne demande rien pour une catégorie ordinaire', async () => {
+      const user = await demarrer()
+
+      await user.click(await screen.findByRole('button', { name: /Savon/ }))
+
+      expect(screen.queryByLabelText(/De quel produit s'agit-il/)).not.toBeInTheDocument()
+    })
+  })
+
   it('remonte en haut de la page à l\'ouverture d\'une catégorie', async () => {
     const user = await demarrer()
     const scrollTo = vi.spyOn(window, 'scrollTo').mockImplementation(() => undefined)

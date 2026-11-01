@@ -29,6 +29,8 @@ use PDO;
  */
 final readonly class SyncController
 {
+    public const int PRECISION_MAX = 100;
+
     public const int MAX_SAISIES = 200;
 
     public const int MAX_RECHERCHES = 100;
@@ -139,6 +141,8 @@ final readonly class SyncController
         $modifieLe = $v->datetime('modifieLe');
         $supprime = $v->bool('supprime');
         $base = $v->string('baseMajLe', max: 30, optional: true);
+        // Jamais de refus sur ce texte : une saisie déjà faite sur le téléphone ne doit pas être perdue pour lui
+        $precision = is_string($item['precisionProduit'] ?? null) ? mb_substr(trim($item['precisionProduit']), 0, self::PRECISION_MAX) : '';
 
         if ($campagneId !== null && !$this->rules->campagneExiste($campagneId)) {
             $v->addError('campagneId', 'Campagne inconnue.');
@@ -158,6 +162,7 @@ final readonly class SyncController
             'quantite' => (int) $contenu['quantite'],
             'contenanceUnitaire' => $contenu['contenanceUnitaire'],
             'formatId' => $contenu['formatId'],
+            'precisionProduit' => $precision === '' ? null : $precision,
             'saisieLe' => $saisieLe,
             'modifieLe' => $modifieLe,
             'supprime' => (bool) $supprime,

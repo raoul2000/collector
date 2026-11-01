@@ -220,7 +220,7 @@ Décisions (31/10/2026) :
 - ✅ Recherches sans résultat : mot cherché et catégorie choisie ensuite, mémorisés sur le téléphone et envoyés avec la synchronisation (`recherches` / `recherchesRecues`, migration 006) ; cadre « Recherches sans résultat » de l'onglet Catégories (regroupement sans accents ni majuscules, catégorie le plus souvent choisie, **Ajouter** aux mots-clés, **Ignorer**)
 
 ### 4.3 Recette 🔄
-- ✅ [Scénarios de recette](recette.md) validés le 01/11/2026 (45 scénarios avec les produits à privilégier et le thème sombre, Android et iPhone) ; à dérouler, nombre de participants à fixer
+- ✅ [Scénarios de recette](recette.md) validés le 01/11/2026 (51 scénarios avec les produits à privilégier, le thème sombre et « Autre », Android et iPhone) ; à dérouler, nombre de participants à fixer
 - Simulation de collecte avec plusieurs téléphones (Android et iPhone)
 - Scénarios de coupure réseau, de changement de magasin, de corrections
 - Vérification des exigences : saisie < 5 s, chargement initial < 300 Ko, lisibilité en extérieur
@@ -330,3 +330,4 @@ Environnement de développement : voir le [README](../README.md). La base locale
 | 01/11/2026 | Produits à privilégier : liste par campagne choisie par les responsables (migration `008_categories_privilegiees.sql`, `PUT /api/admin/categories/{id}/privilegiee`, champ `privilegiees` du référentiel), affichée dans l'onglet Collecte, message et point rouge au changement ; déployé et validé |
 | 01/11/2026 | Thème sombre de l'espace des bénévoles, au choix dans Réglages (couleurs uniquement, contrastes vérifiés par `theme.test.ts`) ; déployé |
 | 01/11/2026 | Saisie : retour en haut de page à l'ouverture d'une catégorie (page décalée sur Android, cause non reproduite en simulation) ; déployé, correction confirmée sur téléphone Android |
+| 01/11/2026 | Catégorie « Autre » : précision obligatoire du bénévole (migration `009_precision_produit.sql`, option « Précision obligatoire », champ `precisionProduit`), lisible par les responsables, lien depuis la Réception AÏDA ; à déployer |

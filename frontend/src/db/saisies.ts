@@ -9,6 +9,8 @@ export interface ContenuSaisie {
   contenanceUnitaire: number | null
   /** Bouton choisi ; absent : aucun */
   formatId?: number | null
+  /** Description du produit, pour une catégorie qui l'exige ; absente : inchangée */
+  precisionProduit?: string
 }
 
 export interface NouvelleSaisie extends ContenuSaisie {

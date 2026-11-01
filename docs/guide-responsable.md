@@ -64,6 +64,10 @@ Les bénévoles voient de leur côté (onglet **Collecte**) les chiffres de leur
 
 Pour orienter les donateurs, cochez les produits qui manquent dans la colonne **À privilégier** de l'onglet **Catégories**. La liste est commune à tous les magasins et propre à la campagne active : elle repart vide à la campagne suivante. Les bénévoles la retrouvent dans leur onglet **Collecte**. Un téléphone connecté reçoit le changement en 30 secondes environ, avec un message et un point rouge sur l'onglet.
 
+### Saisies « Autre »
+
+Pour une catégorie avec **Précision obligatoire**, cochée sur *Autre*, le bénévole doit décrire le produit. Le texte apparaît sous le produit dans l'onglet **Saisies** et dans l'export Excel. Pour les retrouver, filtrez sur la catégorie *Autre* ou suivez le lien du cadre **Non rapprochés** de **Réception AÏDA**. Cliquez sur **Corriger** pour choisir la bonne catégorie : le texte reste conservé comme trace. Pour lever un doute, retrouvez le bénévole grâce à son prénom, son magasin et l'heure de la saisie.
+
 ### 2.2 Corriger une erreur
 
 Onglet **Saisies** : filtrez par magasin, catégorie, prénom du bénévole ou **code** AÏDA (il suffit d'en taper une partie).

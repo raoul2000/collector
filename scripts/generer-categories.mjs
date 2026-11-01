@@ -50,7 +50,7 @@ for (const [section, categories] of sections) {
   insertions.push('', `-- ${section}`, `INSERT INTO section (nom, ordre) VALUES (${sql(section)}, ${(ordreSection += 10)});`, 'SET @section = LAST_INSERT_ID();')
   for (const [nom, { unite, motsCles, code, boutons }] of categories) {
     insertions.push(
-      `INSERT INTO categorie (nom, section_id, unite, ordre, code_reference, mots_cles) VALUES (${sql(nom)}, @section, ${sql(unite)}, ${(ordreCategorie += 10)}, ${sql(code)}, ${sql(motsCles)});`,
+      `INSERT INTO categorie (nom, section_id, unite, ordre, code_reference, mots_cles, precision_requise) VALUES (${sql(nom)}, @section, ${sql(unite)}, ${(ordreCategorie += 10)}, ${sql(code)}, ${sql(motsCles)}, ${nom === 'Autre' ? 1 : 0});`,
     )
     if (boutons.length > 0) {
       insertions.push(

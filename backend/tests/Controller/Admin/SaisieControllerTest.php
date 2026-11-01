@@ -307,12 +307,12 @@ final class SaisieControllerTest extends ApiTestCase
         self::assertSame([
             [
                 'saisieLe' => '2026-11-27 10:00:00', 'magasin' => 'Lidl', 'ville' => 'Centre', 'prenom' => 'Marie',
-                'categorie' => 'Pâtes', 'codeAida' => 'EPI-01', 'codeAVerifier' => true, 'variante' => 'Coquillettes', 'unite' => 'kg', 'quantite' => 1,
+                'categorie' => 'Pâtes', 'codeAida' => 'EPI-01', 'codeAVerifier' => true, 'variante' => 'Coquillettes', 'precisionProduit' => null, 'unite' => 'kg', 'quantite' => 1,
                 'contenanceUnitaire' => 500, 'corrigeParResponsable' => null,
             ],
             [
                 'saisieLe' => '2026-11-27 11:00:00', 'magasin' => 'Auchan', 'ville' => '', 'prenom' => 'Marie',
-                'categorie' => 'Savon', 'codeAida' => null, 'codeAVerifier' => false, 'variante' => null, 'unite' => 'unite', 'quantite' => 3,
+                'categorie' => 'Savon', 'codeAida' => null, 'codeAVerifier' => false, 'variante' => null, 'precisionProduit' => null, 'unite' => 'unite', 'quantite' => 3,
                 'contenanceUnitaire' => null, 'corrigeParResponsable' => 'Paul',
             ],
         ], $response->data['saisies']);

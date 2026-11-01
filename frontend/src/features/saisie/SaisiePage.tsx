@@ -48,6 +48,8 @@ export function SaisiePage() {
   // Dernière recherche restée sans résultat : enregistrée avec la catégorie finalement choisie (ou aucune si le
   // bénévole quitte l'écran), pour que les responsables complètent les mots-clés
   const sansResultat = useRef<{ campagneId: number; terme: string } | null>(null)
+  // Mot cherché sans résultat : point de départ de la description du produit
+  const [precisionInitiale, setPrecisionInitiale] = useState('')
   useEffect(() => {
     const sansReponse = normaliser(recherche) !== '' && rechercher(recherche, referentiel.categories, referentiel.sections).length === 0
     if (referentiel.campagne && sansReponse) {
@@ -98,6 +100,7 @@ export function SaisiePage() {
   }
 
   const choisir = (choisie: CategorieRef, bouton?: FormatRef) => {
+    setPrecisionInitiale(sansResultat.current?.terme.trim() ?? '')
     if (sansResultat.current) {
       void enregistrerRecherche(sansResultat.current.campagneId, sansResultat.current.terme, choisie.id)
       sansResultat.current = null
@@ -203,6 +206,8 @@ export function SaisiePage() {
             unite={categorie.unite}
             boutons={boutonsCategorie(categorie)}
             initial={boutonInitial && { quantite: 1, contenanceUnitaire: boutonInitial.contenance, formatId: boutonInitial.id }}
+            precisionRequise={categorie.precisionRequise}
+            precisionInitiale={precisionInitiale}
             submitLabel="Valider"
             onSubmit={(contenu) => void enregistrer(categorie, contenu)}
           />

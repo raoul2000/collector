@@ -40,6 +40,7 @@ describe('appliquerResultat', () => {
 
   it('accepte : la saisie n’est plus à envoyer et prend la version serveur', () => {
     expect(appliquerResultat(locale, envoyee, { id: 'a', statut: 'ok', saisie: serveur })).toEqual({
+      precisionProduit: null,
       ...locale,
       aEnvoyer: 0,
       baseMajLe: '2026-11-27 10:15:01.000',

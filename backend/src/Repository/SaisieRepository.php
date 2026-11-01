@@ -16,8 +16,8 @@ use PDO;
  * @phpstan-type SaisieRow array<string, mixed> ligne brute de la table saisie
  * @phpstan-type Saisie array{
  *     id: string, campagneId: int, magasinId: int, categorieId: int, quantite: int,
- *     contenanceUnitaire: int|null, formatId: int|null, saisieLe: string, modifieLe: string, supprime: bool,
- *     corrigeParResponsable: string|null, majLe: string
+ *     contenanceUnitaire: int|null, formatId: int|null, precisionProduit: string|null, saisieLe: string, modifieLe: string,
+ *     supprime: bool, corrigeParResponsable: string|null, majLe: string
  * }
  */
 final readonly class SaisieRepository
@@ -51,16 +51,16 @@ final readonly class SaisieRepository
     /**
      * @param array{
      *     id: string, campagneId: int, magasinId: int, categorieId: int, quantite: int,
-     *     contenanceUnitaire: int|null, formatId: int|null, saisieLe: DateTimeImmutable, modifieLe: DateTimeImmutable,
-     *     supprime: bool
+     *     contenanceUnitaire: int|null, formatId: int|null, precisionProduit: string|null, saisieLe: DateTimeImmutable,
+     *     modifieLe: DateTimeImmutable, supprime: bool
      * } $saisie
      */
     public function insert(string $appareilId, array $saisie): void
     {
         $this->db->prepare(
             'INSERT INTO saisie (id, campagne_id, magasin_id, appareil_id, categorie_id, quantite, contenance_unitaire,
-                                 format_id, saisie_le, modifie_le, supprime_le)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                                 format_id, precision_produit, saisie_le, modifie_le, supprime_le)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
         )->execute([
             $saisie['id'],
             $saisie['campagneId'],
@@ -70,6 +70,7 @@ final readonly class SaisieRepository
             $saisie['quantite'],
             $saisie['contenanceUnitaire'],
             $saisie['formatId'],
+            $saisie['precisionProduit'],
             self::datetime($saisie['saisieLe']),
             self::datetimeMs($saisie['modifieLe']),
             $saisie['supprime'] ? self::datetimeMs($saisie['modifieLe']) : null,
@@ -77,11 +78,13 @@ final readonly class SaisieRepository
     }
 
     /**
-     * Mise à jour par le téléphone qui a créé la saisie.
+     * Mise à jour par le téléphone qui a créé la saisie. Sans précision envoyée (téléphone pas encore à jour, autre
+     * catégorie), le texte existant est conservé.
      *
      * @param array{
      *     campagneId: int, magasinId: int, categorieId: int, quantite: int, contenanceUnitaire: int|null,
-     *     formatId: int|null, saisieLe: DateTimeImmutable, modifieLe: DateTimeImmutable, supprime: bool
+     *     formatId: int|null, precisionProduit: string|null, saisieLe: DateTimeImmutable, modifieLe: DateTimeImmutable,
+     *     supprime: bool
      * } $saisie
      */
     public function updateFromDevice(string $id, array $saisie): void
@@ -89,7 +92,7 @@ final readonly class SaisieRepository
         $this->db->prepare(
             'UPDATE saisie
              SET campagne_id = ?, magasin_id = ?, categorie_id = ?, quantite = ?, contenance_unitaire = ?, format_id = ?,
-                 saisie_le = ?, modifie_le = ?,
+                 precision_produit = COALESCE(?, precision_produit), saisie_le = ?, modifie_le = ?,
                  supprime_le = IF(?, COALESCE(supprime_le, ?), NULL)
              WHERE id = ?',
         )->execute([
@@ -99,6 +102,7 @@ final readonly class SaisieRepository
             $saisie['quantite'],
             $saisie['contenanceUnitaire'],
             $saisie['formatId'],
+            $saisie['precisionProduit'],
             self::datetime($saisie['saisieLe']),
             self::datetimeMs($saisie['modifieLe']),
             (int) $saisie['supprime'],
@@ -201,7 +205,7 @@ final readonly class SaisieRepository
      *
      * @return list<array{
      *     saisieLe: string, magasin: string, ville: string, prenom: string, categorie: string,
-     *     codeAida: string|null, codeAVerifier: bool, variante: string|null, unite: string, quantite: int,
+     *     codeAida: string|null, codeAVerifier: bool, variante: string|null, precisionProduit: string|null, unite: string, quantite: int,
      *     contenanceUnitaire: int|null, corrigeParResponsable: string|null
      * }>
      */
@@ -210,7 +214,7 @@ final readonly class SaisieRepository
         $stmt = $this->db->prepare(
             'SELECT s.saisie_le, m.nom AS magasin, m.ville, a.prenom, c.nom AS categorie, c.unite,
                     ' . RapprochementAida::CODE . ' AS code_aida, ' . RapprochementAida::A_VERIFIER . ' AS code_a_verifier,
-                    f.libelle AS variante, s.quantite, s.contenance_unitaire, s.modifie_par_responsable
+                    f.libelle AS variante, s.precision_produit, s.quantite, s.contenance_unitaire, s.modifie_par_responsable
              FROM saisie s
              JOIN appareil a ON a.id = s.appareil_id
              JOIN magasin m ON m.id = s.magasin_id
@@ -230,6 +234,7 @@ final readonly class SaisieRepository
             'codeAida' => $row['code_aida'] === null ? null : (string) $row['code_aida'],
             'codeAVerifier' => (bool) $row['code_a_verifier'],
             'variante' => $row['variante'] === null ? null : (string) $row['variante'],
+            'precisionProduit' => $row['precision_produit'] === null ? null : (string) $row['precision_produit'],
             'unite' => (string) $row['unite'],
             'quantite' => (int) $row['quantite'],
             'contenanceUnitaire' => $row['contenance_unitaire'] === null ? null : (int) $row['contenance_unitaire'],
@@ -331,6 +336,7 @@ final readonly class SaisieRepository
             'saisieLe' => new DateTimeImmutable((string) $row['saisie_le'], $tz)->format(DATE_ATOM),
             'modifieLe' => new DateTimeImmutable((string) $row['modifie_le'], $tz)->format('Y-m-d\TH:i:s.vP'),
             'supprime' => $row['supprime_le'] !== null,
+            'precisionProduit' => $row['precision_produit'],
             'corrigeParResponsable' => $row['modifie_par_responsable'],
             'majLe' => (string) $row['maj_le'],
         ];

@@ -197,7 +197,7 @@ Objectif : suivre la collecte en temps réel et motiver les bénévoles.
 - ✅ Vérifié en local : import de `installation.sql` sur une base vide, reconnaissance par `migrate.php`, API du paquet fonctionnelle ; correction de l'encodage des accents à l'import en ligne de commande (`SET NAMES utf8mb4`)
 - ✅ Installation sur Ionos le 28/10/2026 : https://collecte.exdata.info (SFTP seulement, pas de SSH) ; `RewriteBase` ajouté aux `.htaccess` (sans lui, erreur 500 sur toute adresse réécrite) ; premiers essais réels concluants (campagne, saisies)
 
-### 4.2 Référentiel Croix-Rouge 🔄
+### 4.2 Référentiel Croix-Rouge ✅
 
 Source : planche « Articles génériques » de la Croix-Rouge (AÏDA, version du 08/07/2026, onglet « Planche générique ») : fichier `.ods` d'origine non versionné (19 Mo) ; extrait versionné dans `docs/categories/planche-aida-2026-07-08.csv` (rubrique, dénomination, code AÏDA, tarif) : ~160 articles en 29 rubriques, un code AÏDA (EAN-13) par article, c'est-à-dire par rubrique **et** format.
 
@@ -214,12 +214,13 @@ Décisions (31/10/2026) :
 - ✅ Sections : table `section` (migration 003), sections dans l'onglet Catégories (création, renommage, ordre, suppression sans perte des catégories), section de chaque catégorie, référentiel (`sections`, `sectionId`), grille groupée et barre de raccourcis sur l'écran de saisie
 - ✅ Variantes : libellé des formats, variantes sans contenance pour les catégories à l'unité (migration 004), bouton choisi enregistré dans la saisie (`formatId` : synchronisation, Mes saisies, correction, liste des saisies, colonne « Variante » de l'export) ; identifiants des formats conservés à la modification ; référentiel compatible avec les versions antérieures (`formats` en contenances, `boutons` complets) ; bouton incohérent ignoré à la synchronisation, refusé en correction
 - ✅ Liste Croix-Rouge : `docs/categories/liste-benevoles.csv` (7 sections, 35 catégories, une ligne par bouton avec l'article AÏDA visé, pour 4.5), SQL généré par `scripts/generer-categories.mjs` (`categories_initiales.sql`, `reinitialiser-referentiel.sql`) ; données de développement sur la nouvelle liste (`bin/generer-demo.php`)
-- ⬜ Remplacement de la liste d'essai en production (décision du 31/10/2026 : repartir de zéro, il n'y a que des saisies d'essai) : déploiement, puis `reinitialiser-referentiel.sql` dans phpMyAdmin ([déploiement](deploiement.md), section 5.3)
+- ✅ Remplacement de la liste d'essai en production (fait le 31/10/2026, tests concluants) (décision du 31/10/2026 : repartir de zéro, il n'y a que des saisies d'essai) : déploiement, puis `reinitialiser-referentiel.sql` dans phpMyAdmin ([déploiement](deploiement.md), section 5.3)
 - ✅ Récents : les 4 dernières catégories utilisées sur le téléphone (d'après ses saisies, sans doublon, hors saisies supprimées et catégories retirées), avec le nom de leur section, en haut d'une grille de plus de 8 catégories
 - ✅ Recherche par mots-clés : colonne `mots_cles` (migration 005), champ « Mots-clés » des catégories, mots-clés pré-remplis dans `liste-benevoles.csv` ; champ « Rechercher un produit » sur l'écran de saisie (hors ligne, sans accents ni majuscules, débuts de mots, singulier/pluriel), variantes ouvertes directement, « Autre » proposé sans résultat
 - ✅ Recherches sans résultat : mot cherché et catégorie choisie ensuite, mémorisés sur le téléphone et envoyés avec la synchronisation (`recherches` / `recherchesRecues`, migration 006) ; cadre « Recherches sans résultat » de l'onglet Catégories (regroupement sans accents ni majuscules, catégorie le plus souvent choisie, **Ajouter** aux mots-clés, **Ignorer**)
 
-### 4.3 Recette ⬜
+### 4.3 Recette 🔄
+- ✅ [Scénarios de recette](recette.md) validés le 01/11/2026 (34 scénarios, Android et iPhone) ; à dérouler, nombre de participants à fixer
 - Simulation de collecte avec plusieurs téléphones (Android et iPhone)
 - Scénarios de coupure réseau, de changement de magasin, de corrections
 - Vérification des exigences : saisie < 5 s, chargement initial < 300 Ko, lisibilité en extérieur
@@ -261,13 +262,14 @@ Décisions (31/10/2026) :
 
 ## Reprise du travail
 
-État au 29/10/2026 : lots 1, 2 et 3 terminés ; application en production sur https://collecte.exdata.info ; évolutions réalisées : code de référence dans les saisies, correction du magasin des saisies par le responsable, export Excel d'une campagne, liste des appareils, journal technique de l'API (voir [déploiement](deploiement.md), section 7), outil de mise à jour du serveur par SFTP (`scripts/deployer.mjs`, [déploiement](deploiement.md), section 5.1).
+État au 31/10/2026 : lots 1, 2 et 3 terminés ; référentiel Croix-Rouge (4.2) terminé et **en production** sur https://collecte.exdata.info (migrations 001 à 006, liste des bénévoles installée par `reinitialiser-referentiel.sql`, tests concluants). Évolutions réalisées : code de référence dans les saisies, correction du magasin des saisies par le responsable, export Excel d'une campagne, liste des appareils, journal technique de l'API (voir [déploiement](deploiement.md), section 7), outil de mise à jour du serveur par SFTP (`scripts/deployer.mjs`, [déploiement](deploiement.md), section 5.1), sections, variantes, récents, recherche par mots-clés, recherches sans résultat.
+
+Mise à jour de la production : `node scripts/deployer.mjs` (mot de passe SFTP demandé ; `--simulation` pour un essai à blanc). Modifier la liste des catégories : `docs/categories/liste-benevoles.csv`, puis `node scripts/generer-categories.mjs` (installation neuve) ; en production, la liste se modifie désormais depuis l'onglet Catégories (la remise à zéro supprimerait les saisies).
 
 Prochaines étapes possibles :
-1. **Référentiel Croix-Rouge** (4.2) : sections, variantes, nouvelle liste, récents, recherche, recherches sans résultat — avant la collecte.
-2. **Recette sur de vrais téléphones** (4.3), avec la nouvelle liste.
-3. **Rapprochement AÏDA** (4.5), après la collecte ; scan des codes-barres en bonus, plus tard.
-4. **En dernier** (décision du 29/10/2026), une fois toutes les fonctionnalités réalisées et validées : **version imprimable de la fiche bénévole** avec l'adresse et un QR code, pour ne pas avoir à la refaire après chaque évolution.
+1. **Recette sur de vrais téléphones** (4.3), Android et iPhone, avec la nouvelle liste : dérouler les [scénarios](recette.md) et noter les résultats.
+2. **Rapprochement AÏDA** (4.5), après la collecte ; scan des codes-barres en bonus, plus tard (pas pour l'édition 2026).
+3. **En dernier** (décision du 29/10/2026), une fois toutes les fonctionnalités réalisées et validées : **version imprimable de la fiche bénévole** avec l'adresse et un QR code, pour ne pas avoir à la refaire après chaque évolution.
 
 Environnement de développement : voir le [README](../README.md). La base locale `collector` contient la liste des bénévoles et environ 800 saisies de démonstration ; `php bin/migrate.php --fresh --seed` puis `php bin/generer-demo.php` la remettent à zéro.
 
@@ -312,3 +314,5 @@ Environnement de développement : voir le [README](../README.md). La base locale
 | 31/10/2026 | Référentiel Croix-Rouge, étape 4 : catégories récentes en haut de la grille de saisie |
 | 31/10/2026 | Référentiel Croix-Rouge, étape 5 : recherche d'une catégorie par mots-clés (migration `005_mots_cles.sql`) |
 | 31/10/2026 | Référentiel Croix-Rouge, étape 6 : recherches sans résultat (migration `006_recherches.sql`, `/api/admin/recherches`) |
+| 31/10/2026 | Mise en production du référentiel Croix-Rouge (migrations 003 à 006, remise à zéro de la liste) : tests concluants |
+| 01/11/2026 | Étape 4.3 : scénarios de recette validés (`docs/recette.md`) |

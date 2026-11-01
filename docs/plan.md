@@ -268,14 +268,18 @@ Décisions (01/11/2026) : les codes sont **saisis à la main dans AÏDA**, le bi
 
 ## Reprise du travail
 
-État au 01/11/2026 : lots 1, 2 et 3 terminés ; référentiel Croix-Rouge (4.2) et rapprochement AÏDA (4.5) terminés et **en production** sur https://collecte.exdata.info (migrations 001 à 009, liste des bénévoles installée par `reinitialiser-referentiel.sql`, tests concluants). Évolutions réalisées : code de référence dans les saisies, correction du magasin des saisies par le responsable, export Excel d'une campagne, liste des appareils, journal technique de l'API (voir [déploiement](deploiement.md), section 7), outil de mise à jour du serveur par SFTP (`scripts/deployer.mjs`, [déploiement](deploiement.md), section 5.1), sections, variantes, récents, recherche par mots-clés, recherches sans résultat.
+État au 01/11/2026 : **en attente de la recette de l'utilisateur**, aucune évolution en cours ni demandée. Tout le code est commité, déployé sur https://collecte.exdata.info (migrations 001 à 009) et validé par l'utilisateur, à une réserve près : le thème sombre est déployé, sa validation passe par le bloc J de la recette.
 
-Mise à jour de la production : `node scripts/deployer.mjs` (mot de passe SFTP demandé ; `--simulation` pour un essai à blanc). Modifier la liste des catégories : `docs/categories/liste-benevoles.csv`, puis `node scripts/generer-categories.mjs` (installation neuve) ; en production, la liste se modifie désormais depuis l'onglet Catégories (la remise à zéro supprimerait les saisies).
+Réalisé : lots 1, 2 et 3 ; référentiel Croix-Rouge (4.2 : sections, variantes, liste des bénévoles, recherche par mots-clés, recherches sans résultat) ; rapprochement AÏDA (4.5 : écran Réception AÏDA, code par bouton, mêmes règles dans l'onglet Saisies) ; correction du magasin, export Excel, appareils, journal technique, outil de déploiement ; et, côté bénévoles, bandeau de confirmation flottant, zones de saisie délimitées, section Fréquents, produits à privilégier, thème sombre, précision obligatoire de « Autre ».
 
-Prochaines étapes possibles :
-1. **Recette sur de vrais téléphones** (4.3), Android et iPhone, avec la nouvelle liste : dérouler les [scénarios](recette.md) et noter les résultats.
-2. **Rapprochement AÏDA** (4.5) : en production depuis le 01/11/2026 (migration 007), à éprouver sur les vraies saisies après la collecte ; scan des codes-barres en bonus, plus tard (pas pour l'édition 2026).
-3. **En dernier** (décision du 29/10/2026), une fois toutes les fonctionnalités réalisées et validées : **version imprimable de la fiche bénévole** avec l'adresse et un QR code, pour ne pas avoir à la refaire après chaque évolution.
+Mise à jour de la production : l'utilisateur lance lui-même `node scripts/deployer.mjs` (mot de passe SFTP demandé ; `--simulation` pour un essai à blanc). Modifier la liste des catégories : `docs/categories/liste-benevoles.csv`, puis `node scripts/generer-categories.mjs` (installation neuve) ; en production, la liste se modifie depuis l'onglet Catégories (la remise à zéro supprimerait les saisies).
+
+Prochaines étapes :
+1. **Recette sur de vrais téléphones** (4.3), Android et iPhone, par l'utilisateur, dans les prochains jours : 51 [scénarios](recette.md), nombre de participants à fixer. Il transmettra les anomalies et d'éventuels changements. H1 demande un déploiement pendant qu'un téléphone a des saisies en attente.
+2. **Après la collecte** : éprouver la Réception AÏDA sur les vraies saisies (ordre de la liste, volume « à vérifier », impression sur papier) ; scan des codes-barres en bonus, pas pour l'édition 2026.
+3. **En dernier** (décision du 29/10/2026), une fois toutes les fonctionnalités réalisées et validées : **version imprimable de la fiche bénévole** avec l'adresse et un QR code, en tenant compte du résultat de A3 (données entre Safari et l'icône sur iPhone).
+
+Points non vérifiés à surveiller pendant la recette : boîtes de dialogue et messages d'erreur en thème sombre (J2) ; bref éclair clair possible au démarrage en thème sombre ; saut vers une section depuis la barre des sections, le titre étant plus haut qu'avant ; modification du texte d'une saisie « Autre » depuis Mes saisies, et clavier du téléphone sur ce champ (K2). La campagne « Recette » restera dans l'historique : un script SQL a été proposé si l'utilisateur veut la retirer.
 
 Environnement de développement : voir le [README](../README.md). La base locale `collector` contient la liste des bénévoles et environ 800 saisies de démonstration ; `php bin/migrate.php --fresh --seed` puis `php bin/generer-demo.php` la remettent à zéro.
 
@@ -332,3 +336,4 @@ Environnement de développement : voir le [README](../README.md). La base locale
 | 01/11/2026 | Saisie : retour en haut de page à l'ouverture d'une catégorie (page décalée sur Android, cause non reproduite en simulation) ; déployé, correction confirmée sur téléphone Android |
 | 01/11/2026 | Catégorie « Autre » : précision obligatoire du bénévole (migration `009_precision_produit.sql`, option « Précision obligatoire », champ `precisionProduit`), lisible par les responsables, lien depuis la Réception AÏDA ; déployé et validé |
 | 01/11/2026 | Saisie : « Fréquents » remplace « Récents » (4 catégories les plus saisies sur le téléphone pendant la campagne, sans « Autre », boutons stables à égalité) ; déployé et validé |
+| 01/11/2026 | Fin de la session de travail : en attente de la recette de l'utilisateur, état noté dans « Reprise du travail » |

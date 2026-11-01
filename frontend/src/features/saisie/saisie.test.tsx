@@ -164,6 +164,16 @@ describe('Écran de saisie', () => {
     await waitFor(async () => expect((await saisies())[0]).toMatchObject({ supprime: true, aEnvoyer: 1 }))
   })
 
+  it('remonte en haut de la page à l\'ouverture d\'une catégorie', async () => {
+    const user = await demarrer()
+    const scrollTo = vi.spyOn(window, 'scrollTo').mockImplementation(() => undefined)
+
+    await user.click(await screen.findByRole('button', { name: /Pâtes/ }))
+
+    expect(scrollTo).toHaveBeenCalledWith({ top: 0 })
+    scrollTo.mockRestore()
+  })
+
   it('retire le bandeau de confirmation quand le bénévole passe au don suivant', async () => {
     const user = await demarrer()
 

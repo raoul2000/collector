@@ -102,6 +102,9 @@ export function SaisiePage() {
       void enregistrerRecherche(sansResultat.current.campagneId, sansResultat.current.terme, choisie.id)
       sansResultat.current = null
     }
+    // Avant que la grille laisse place au formulaire, bien plus court : sur Android, avec la barre d'adresse masquée par
+    // le défilement, la page pouvait sinon rester décalée vers le haut et cacher le bouton de retour
+    window.scrollTo?.({ top: 0 })
     // Le bénévole passe au don suivant : le bandeau ne doit pas masquer « Valider » (annulation encore possible dans Mes saisies)
     setDerniere(null)
     setCategorie(choisie)

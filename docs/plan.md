@@ -232,9 +232,13 @@ Décisions (31/10/2026) :
 - ⬜ Version imprimable de la fiche bénévole avec l'adresse et le QR code
 
 ### 4.5 Rapprochement AÏDA ⬜ (après la collecte)
-- Import de la planche AÏDA (script de lecture du `.ods`) dans une table d'articles : code, rubrique, dénomination, contenance nominale
-- Correspondance catégorie / bouton → article AÏDA, proposée automatiquement et modifiable ; article par défaut pour une contenance libre ou inconnue
-- Bilan « Réception AÏDA » d'une campagne : nombre d'articles par code, saisies non rapprochées, export Excel
+
+Décisions (01/11/2026) : les codes sont **saisis à la main dans AÏDA**, le bilan sert donc de liste à ressaisir (pas d'import de fichier) ; **pas de valorisation en euros** ; aucun changement pour les bénévoles, pas de champ de précision sur « Autre ». Sans tarifs ni import, ni table d'articles ni lecture du `.ods` : le CSV versionné suffit.
+
+- Code AÏDA par bouton : nouvelle colonne sur `format`, pré-remplie depuis `liste-benevoles.csv`, modifiable dans l'onglet Catégories ; `code_reference` de la catégorie sert de code par défaut (catégories sans variante, contenance inconnue)
+- Rattachement d'une saisie : bouton choisi → son code ; contenance libre → format le plus proche, signalé « à vérifier » ; contenance inconnue → code par défaut, signalé « à vérifier » ; « Autre » → listé « non rapproché »
+- Bilan « Réception AÏDA » d'une campagne : code, dénomination et nombre d'articles, dans un ordre commode pour la ressaisie, total général et filtre par magasin ; saisies à vérifier et non rapprochées à part ; version imprimable et export Excel
+- Limites à rappeler dans le bilan : chiffres déclarés par les bénévoles, à contrôler par rapport à l'entrepôt ; hygiène et entretien sur les articles génériques
 
 ### Bonus : scan des codes-barres ⬜ (pas pour l'édition 2026)
 - Complément à la grille : un bouton « Scanner » pré-remplit catégorie et poids exact
@@ -316,3 +320,4 @@ Environnement de développement : voir le [README](../README.md). La base locale
 | 31/10/2026 | Référentiel Croix-Rouge, étape 6 : recherches sans résultat (migration `006_recherches.sql`, `/api/admin/recherches`) |
 | 31/10/2026 | Mise en production du référentiel Croix-Rouge (migrations 003 à 006, remise à zéro de la liste) : tests concluants |
 | 01/11/2026 | Étape 4.3 : scénarios de recette validés (`docs/recette.md`) |
+| 01/11/2026 | Étape 4.5 cadrée : codes saisis à la main dans AÏDA, pas de valorisation en euros, pas de table d'articles |

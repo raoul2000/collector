@@ -85,6 +85,40 @@ final class ReceptionAidaTest extends ApiTestCase
         self::assertSame([['code' => 'EAU', 'libelles' => ['Eau 50 cl', 'Eau 1,5 L'], 'nbArticles' => 3, 'aVerifier' => 0]], $data['articles']);
     }
 
+    public function testSaisiesListAndExportShowTheSameCodeAsTheReception(): void
+    {
+        $this->loginAsAdmin();
+        $autre = $this->insert('categorie', ['nom' => 'Autre', 'unite' => 'unite', 'ordre' => 30]);
+        $bouton = $this->insertSaisie($this->campagne, $this->lidl, $this->pates, ['quantite' => 2, 'format_id' => $this->format500, 'saisie_le' => '2026-11-27 10:00:00']);
+        $libre = $this->insertSaisie($this->campagne, $this->lidl, $this->pates, ['quantite' => 3, 'contenance_unitaire' => 750, 'saisie_le' => '2026-11-27 11:00:00']);
+        $sansCode = $this->insertSaisie($this->campagne, $this->lidl, $autre, ['contenance_unitaire' => null, 'saisie_le' => '2026-11-27 12:00:00']);
+
+        $codes = function (array $query = []): array {
+            $saisies = $this->request('GET', '/api/admin/saisies', query: $query)->data['saisies'];
+
+            return array_column(array_map(static fn (array $s): array => ['id' => $s['id'], 'code' => [$s['codeAida'], $s['codeAVerifier']]], $saisies), 'code', 'id');
+        };
+        self::assertSame([$sansCode => [null, false], $libre => ['P500', true], $bouton => ['P500', false]], $codes());
+        self::assertSame([$sansCode => [null, false]], $codes(['sansCode' => '1']));
+        self::assertSame([$libre => ['P500', true], $bouton => ['P500', false]], $codes(['code' => 'p50']));
+
+        $export = $this->request('GET', '/api/admin/saisies/export', query: ['campagne' => (string) $this->campagne])->data['saisies'];
+        self::assertSame(['P500', 'P500', null], array_column($export, 'codeAida'));
+        self::assertSame([false, true, false], array_column($export, 'codeAVerifier'));
+
+        // Le responsable crée le format 750 g et lui donne un code : la saisie libre le prend, sans rien à vérifier
+        $this->request('PUT', '/api/admin/categories/' . $this->pates, ['nom' => 'Pâtes', 'unite' => 'kg', 'formats' => [
+            ['id' => $this->format500, 'contenance' => 500, 'codeAida' => 'P500'],
+            ['contenance' => 750, 'codeAida' => 'P750'],
+            ['id' => $this->format1000, 'contenance' => 1000, 'codeAida' => 'P1000'],
+        ]]);
+        self::assertSame(['P750', false], $codes()[$libre]);
+        self::assertContains(
+            ['code' => 'P750', 'libelles' => ['Pâtes 750 g'], 'nbArticles' => 3, 'aVerifier' => 0],
+            $this->request('GET', '/api/admin/bilans/aida')->data['articles'],
+        );
+    }
+
     public function testFiltersByCampaignAndStore(): void
     {
         $this->loginAsAdmin();

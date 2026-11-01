@@ -77,7 +77,7 @@ describe('Appareils (responsable)', () => {
       id: 'c3c3c3c3-0000-4000-8000-000000000003', campagneId: 2, magasinId: 4, categorieId: 1, quantite: 1,
       contenanceUnitaire: 500, saisieLe: '2026-11-27T10:15:00+01:00', modifieLe: '2026-11-27T10:15:00.000+01:00',
       supprime: false, corrigeParResponsable: null, prenom: 'Marie', magasinNom: 'Lidl', categorieNom: 'Pâtes',
-      unite: 'kg', codeReference: null, formatId: null, formatLibelle: null,
+      unite: 'kg', codeAida: null, codeAVerifier: false, formatId: null, formatLibelle: null,
     }
     const page = (saisies: SaisieAdmin[]): { body: PageSaisies } => ({ body: { saisies, total: saisies.length, page: 1, parPage: 50 } })
     const api = fakeApi({

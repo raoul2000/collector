@@ -224,8 +224,10 @@ export interface SaisieAdmin {
   magasinNom: string
   categorieNom: string
   unite: Unite
-  /** Code de référence actuel de la catégorie */
-  codeReference: string | null
+  /** Code AÏDA retenu selon le bouton ou la contenance (null : non rapprochée) */
+  codeAida: string | null
+  /** Le code a été déduit de la contenance */
+  codeAVerifier: boolean
   formatId: number | null
   /** Libellé de la variante choisie */
   formatLibelle: string | null
@@ -307,7 +309,8 @@ export interface SaisieExport {
   ville: string
   prenom: string
   categorie: string
-  codeReference: string | null
+  codeAida: string | null
+  codeAVerifier: boolean
   /** Libellé de la variante choisie */
   variante: string | null
   unite: Unite

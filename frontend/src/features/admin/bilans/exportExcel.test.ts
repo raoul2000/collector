@@ -10,7 +10,8 @@ const PATES: SaisieExport = {
   ville: 'Centre',
   prenom: 'Marie',
   categorie: 'Pâtes',
-  codeReference: 'EPI-01',
+  codeAida: 'EPI-01',
+  codeAVerifier: false,
   variante: null,
   unite: 'kg',
   quantite: 3,
@@ -30,7 +31,7 @@ describe('Export Excel', () => {
   })
 
   it('produit une feuille « Saisies » avec une ligne par saisie', async () => {
-    const huile: SaisieExport = { ...PATES, categorie: 'Huile', codeReference: null, unite: 'L', quantite: 2, contenanceUnitaire: 750, corrigeParResponsable: 'Paul' }
+    const huile: SaisieExport = { ...PATES, categorie: 'Huile', codeAida: null, codeAVerifier: false, unite: 'L', quantite: 2, contenanceUnitaire: 750, corrigeParResponsable: 'Paul' }
     const savon: SaisieExport = { ...PATES, categorie: 'Savon', unite: 'unite', quantite: 4, contenanceUnitaire: null }
 
     const blob = await writeExcelFile([PATES, huile, savon], { columns: COLONNES, sheet: 'Saisies' }).toBlob()

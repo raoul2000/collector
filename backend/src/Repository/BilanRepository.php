@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Repository;
 
+use App\Aida\RapprochementAida;
 use PDO;
 
 /**
@@ -136,26 +137,29 @@ final readonly class BilanRepository
     }
 
     /**
-     * Nombre d'articles par catégorie, bouton choisi et contenance, pour le rapprochement avec AÏDA.
+     * Nombre d'articles par catégorie, bouton visé et code AÏDA retenu, pour le rapprochement avec AÏDA.
      *
-     * @return list<array{categorieId: int, formatId: int|null, contenance: int|null, nbArticles: int, nbSaisies: int}>
+     * @return list<array{categorieId: int, formatId: int|null, code: string|null, aVerifier: bool, nbArticles: int, nbSaisies: int}>
      */
     public function parBouton(int $campagneId, ?int $magasinId): array
     {
         [$where, $params] = self::filtre($campagneId, $magasinId);
         $stmt = $this->db->prepare(
-            "SELECT s.categorie_id, s.format_id, s.contenance_unitaire, SUM(s.quantite) AS nb_articles, COUNT(*) AS nb_saisies
+            'SELECT s.categorie_id, cible.id AS cible_id, ' . RapprochementAida::CODE . ' AS code, ' . RapprochementAida::A_VERIFIER . ' AS a_verifier,
+                    SUM(s.quantite) AS nb_articles, COUNT(*) AS nb_saisies
              FROM saisie s
+             JOIN categorie c ON c.id = s.categorie_id' . RapprochementAida::JOIN_CIBLE . "
              WHERE {$where}
-             GROUP BY s.categorie_id, s.format_id, s.contenance_unitaire",
+             GROUP BY s.categorie_id, cible_id, code, a_verifier",
         );
         $stmt->execute($params);
 
         return array_map(
             static fn (array $row): array => [
                 'categorieId' => (int) $row['categorie_id'],
-                'formatId' => $row['format_id'] === null ? null : (int) $row['format_id'],
-                'contenance' => $row['contenance_unitaire'] === null ? null : (int) $row['contenance_unitaire'],
+                'formatId' => $row['cible_id'] === null ? null : (int) $row['cible_id'],
+                'code' => $row['code'] === null ? null : (string) $row['code'],
+                'aVerifier' => (bool) $row['a_verifier'],
                 'nbArticles' => (int) $row['nb_articles'],
                 'nbSaisies' => (int) $row['nb_saisies'],
             ],

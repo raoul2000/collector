@@ -112,7 +112,7 @@ describe('Bilans (responsable)', () => {
           saisies: [
             {
               saisieLe: '2026-11-27 10:15:00', magasin: 'Lidl', ville: '', prenom: 'Marie', categorie: 'Pâtes',
-              codeReference: null, unite: 'kg', quantite: 2, contenanceUnitaire: 500, corrigeParResponsable: null,
+              codeAida: null, codeAVerifier: false, unite: 'kg', quantite: 2, contenanceUnitaire: 500, corrigeParResponsable: null,
             },
           ],
         },

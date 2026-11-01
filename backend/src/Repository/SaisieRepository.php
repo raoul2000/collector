@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Repository;
 
+use App\Aida\RapprochementAida;
 use DateTimeImmutable;
 use PDO;
 
@@ -129,13 +130,14 @@ final readonly class SaisieRepository
     // --- Administration ------------------------------------------------------------------------
 
     private const string SELECT_DETAIL =
-        'SELECT s.*, a.prenom, m.nom AS magasin_nom, c.nom AS categorie_nom, c.unite, c.code_reference,
+        'SELECT s.*, a.prenom, m.nom AS magasin_nom, c.nom AS categorie_nom, c.unite,
+                ' . RapprochementAida::CODE . ' AS code_aida, ' . RapprochementAida::A_VERIFIER . ' AS code_a_verifier,
                 f.libelle AS format_libelle
          FROM saisie s
          JOIN appareil a ON a.id = s.appareil_id
          JOIN magasin m ON m.id = s.magasin_id
          JOIN categorie c ON c.id = s.categorie_id
-         LEFT JOIN format f ON f.id = s.format_id';
+         LEFT JOIN format f ON f.id = s.format_id' . RapprochementAida::JOIN_CIBLE;
 
     /**
      * Recherche paginée pour l'espace responsable, de la plus récente à la plus ancienne.
@@ -158,9 +160,9 @@ final readonly class SaisieRepository
             $params[] = '%' . addcslashes((string) $filtres['prenom'], '%_\\') . '%';
         }
         if ($filtres['sansCode'] ?? false) {
-            $where[] = 'c.code_reference IS NULL';
+            $where[] = RapprochementAida::CODE . ' IS NULL';
         } elseif (($filtres['code'] ?? '') !== '') {
-            $where[] = 'c.code_reference LIKE ?';
+            $where[] = RapprochementAida::CODE . ' LIKE ?';
             $params[] = '%' . addcslashes((string) $filtres['code'], '%_\\') . '%';
         }
         if (!($filtres['supprimees'] ?? false)) {
@@ -169,7 +171,7 @@ final readonly class SaisieRepository
         $clause = $where === [] ? '' : ' WHERE ' . implode(' AND ', $where);
 
         $count = $this->db->prepare(
-            'SELECT COUNT(*) FROM saisie s JOIN appareil a ON a.id = s.appareil_id JOIN categorie c ON c.id = s.categorie_id' . $clause,
+            'SELECT COUNT(*) FROM saisie s JOIN appareil a ON a.id = s.appareil_id JOIN categorie c ON c.id = s.categorie_id' . RapprochementAida::JOIN_CIBLE . $clause,
         );
         $count->execute($params);
 
@@ -199,20 +201,21 @@ final readonly class SaisieRepository
      *
      * @return list<array{
      *     saisieLe: string, magasin: string, ville: string, prenom: string, categorie: string,
-     *     codeReference: string|null, variante: string|null, unite: string, quantite: int,
+     *     codeAida: string|null, codeAVerifier: bool, variante: string|null, unite: string, quantite: int,
      *     contenanceUnitaire: int|null, corrigeParResponsable: string|null
      * }>
      */
     public function forExport(int $campagneId): array
     {
         $stmt = $this->db->prepare(
-            'SELECT s.saisie_le, m.nom AS magasin, m.ville, a.prenom, c.nom AS categorie, c.code_reference, c.unite,
+            'SELECT s.saisie_le, m.nom AS magasin, m.ville, a.prenom, c.nom AS categorie, c.unite,
+                    ' . RapprochementAida::CODE . ' AS code_aida, ' . RapprochementAida::A_VERIFIER . ' AS code_a_verifier,
                     f.libelle AS variante, s.quantite, s.contenance_unitaire, s.modifie_par_responsable
              FROM saisie s
              JOIN appareil a ON a.id = s.appareil_id
              JOIN magasin m ON m.id = s.magasin_id
              JOIN categorie c ON c.id = s.categorie_id
-             LEFT JOIN format f ON f.id = s.format_id
+             LEFT JOIN format f ON f.id = s.format_id' . RapprochementAida::JOIN_CIBLE . '
              WHERE s.campagne_id = ? AND s.supprime_le IS NULL
              ORDER BY s.saisie_le, s.id',
         );
@@ -224,7 +227,8 @@ final readonly class SaisieRepository
             'ville' => (string) $row['ville'],
             'prenom' => (string) $row['prenom'],
             'categorie' => (string) $row['categorie'],
-            'codeReference' => $row['code_reference'] === null ? null : (string) $row['code_reference'],
+            'codeAida' => $row['code_aida'] === null ? null : (string) $row['code_aida'],
+            'codeAVerifier' => (bool) $row['code_a_verifier'],
             'variante' => $row['variante'] === null ? null : (string) $row['variante'],
             'unite' => (string) $row['unite'],
             'quantite' => (int) $row['quantite'],
@@ -289,7 +293,8 @@ final readonly class SaisieRepository
             'magasinNom' => (string) $row['magasin_nom'],
             'categorieNom' => (string) $row['categorie_nom'],
             'unite' => (string) $row['unite'],
-            'codeReference' => $row['code_reference'] === null ? null : (string) $row['code_reference'],
+            'codeAida' => $row['code_aida'] === null ? null : (string) $row['code_aida'],
+            'codeAVerifier' => (bool) $row['code_a_verifier'],
             'formatLibelle' => $row['format_libelle'] === null ? null : (string) $row['format_libelle'],
         ];
     }

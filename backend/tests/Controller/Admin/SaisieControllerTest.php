@@ -76,7 +76,7 @@ final class SaisieControllerTest extends ApiTestCase
         $c = $this->saisieDe(self::APPAREIL, $this->lidl, '2026-11-27 12:00:00', ['categorie_id' => $this->savon]);
 
         $tout = $this->request('GET', '/api/admin/saisies')->data;
-        self::assertSame([null, 'EPI-02', 'EPI-01'], array_column($tout['saisies'], 'codeReference'));
+        self::assertSame([null, 'EPI-02', 'EPI-01'], array_column($tout['saisies'], 'codeAida'));
 
         $epi = $this->request('GET', '/api/admin/saisies', query: ['code' => 'epi'])->data;
         self::assertSame([$b, $a], array_column($epi['saisies'], 'id'));
@@ -307,12 +307,12 @@ final class SaisieControllerTest extends ApiTestCase
         self::assertSame([
             [
                 'saisieLe' => '2026-11-27 10:00:00', 'magasin' => 'Lidl', 'ville' => 'Centre', 'prenom' => 'Marie',
-                'categorie' => 'Pâtes', 'codeReference' => 'EPI-01', 'variante' => 'Coquillettes', 'unite' => 'kg', 'quantite' => 1,
+                'categorie' => 'Pâtes', 'codeAida' => 'EPI-01', 'codeAVerifier' => true, 'variante' => 'Coquillettes', 'unite' => 'kg', 'quantite' => 1,
                 'contenanceUnitaire' => 500, 'corrigeParResponsable' => null,
             ],
             [
                 'saisieLe' => '2026-11-27 11:00:00', 'magasin' => 'Auchan', 'ville' => '', 'prenom' => 'Marie',
-                'categorie' => 'Savon', 'codeReference' => null, 'variante' => null, 'unite' => 'unite', 'quantite' => 3,
+                'categorie' => 'Savon', 'codeAida' => null, 'codeAVerifier' => false, 'variante' => null, 'unite' => 'unite', 'quantite' => 3,
                 'contenanceUnitaire' => null, 'corrigeParResponsable' => 'Paul',
             ],
         ], $response->data['saisies']);

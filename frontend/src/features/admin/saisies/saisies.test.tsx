@@ -41,7 +41,8 @@ const SAISIE: SaisieAdmin = {
   magasinNom: 'Lidl',
   categorieNom: 'Pâtes',
   unite: 'kg',
-  codeReference: null,
+  codeAida: null,
+  codeAVerifier: false,
   formatId: 12,
   formatLibelle: null,
 }
@@ -91,15 +92,15 @@ describe('Saisies (responsable)', () => {
     expect(api.calls.filter((c) => c.path.includes('prenom='))).toHaveLength(1)
   })
 
-  it('affiche le code de référence et filtre sur le code', async () => {
+  it('affiche le code AÏDA et filtre sur le code', async () => {
     const user = userEvent.setup()
     const api = fakeApi({
       ...SESSION_OK,
       'GET /api/admin/campagnes': { body: CAMPAGNES },
       'GET /api/admin/magasins': { body: [] },
       'GET /api/admin/categories': { body: [PATES] },
-      'GET /api/admin/saisies?page=1&parPage=50&campagne=2': page([{ ...SAISIE, codeReference: 'EPI-01' }, SAISIE]),
-      'GET /api/admin/saisies?page=1&parPage=50&campagne=2&code=EPI': page([{ ...SAISIE, codeReference: 'EPI-01' }]),
+      'GET /api/admin/saisies?page=1&parPage=50&campagne=2': page([{ ...SAISIE, codeAida: 'EPI-01', codeAVerifier: true }, SAISIE]),
+      'GET /api/admin/saisies?page=1&parPage=50&campagne=2&code=EPI': page([{ ...SAISIE, codeAida: 'EPI-01' }]),
       'GET /api/admin/saisies?page=1&parPage=50&campagne=2&sansCode=1': page([SAISIE]),
     })
     renderApp('/admin/saisies')
@@ -107,14 +108,16 @@ describe('Saisies (responsable)', () => {
     expect(await screen.findByRole('columnheader', { name: 'Code' })).toBeInTheDocument()
     const lignes = screen.getAllByRole('row').slice(1)
     expect(lignes[0]).toHaveTextContent('EPI-01')
-    expect(within(lignes[1]!).getByRole('button', { name: 'Ajouter un code de référence à « Pâtes »' })).toBeInTheDocument()
+    expect(lignes[0]).toHaveTextContent('à vérifier')
+    expect(within(lignes[1]!).getByRole('button', { name: 'Ajouter un code AÏDA à « Pâtes »' })).toBeInTheDocument()
+    expect(lignes[1]).not.toHaveTextContent('à vérifier')
 
     await user.type(screen.getByLabelText('Code'), 'EPI')
     await waitFor(() => expect(api.calls.some((c) => c.path.endsWith('&code=EPI'))).toBe(true))
     expect(api.calls.filter((c) => c.path.includes('code='))).toHaveLength(1)
 
     // « Sans code » remplace la recherche sur le code, qui est désactivée
-    await user.click(screen.getByLabelText('Sans code de référence'))
+    await user.click(screen.getByLabelText('Sans code AÏDA'))
     await waitFor(() => expect(api.calls.some((c) => c.path.endsWith('&sansCode=1'))).toBe(true))
     expect(screen.getByLabelText('Code')).toBeDisabled()
   })
@@ -131,7 +134,7 @@ describe('Saisies (responsable)', () => {
     })
     renderApp('/admin/saisies')
 
-    await user.click(await screen.findByRole('button', { name: 'Ajouter un code de référence à « Pâtes »' }))
+    await user.click(await screen.findByRole('button', { name: 'Ajouter un code AÏDA à « Pâtes »' }))
     const dialog = screen.getByRole('dialog', { name: 'Modifier la catégorie' })
     await user.type(within(dialog).getByLabelText('Code de référence'), 'EPI-01')
     await user.click(within(dialog).getByRole('button', { name: /Enregistrer/ }))

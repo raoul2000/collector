@@ -57,7 +57,7 @@ export function SaisiesPage() {
     setFiltresSelection(filtres)
     setSelection(new Set())
   }
-  // Catégorie ouverte depuis la colonne « Code » pour lui ajouter un code de référence
+  // Catégorie ouverte depuis la colonne « Code » pour lui ajouter un code
   const [categorieACompleter, setCategorieACompleter] = useState<Categorie | null>(null)
 
   // Campagne active sélectionnée par défaut
@@ -79,7 +79,7 @@ export function SaisiesPage() {
     return () => clearTimeout(minuteur)
   }, [prenom])
 
-  // Idem pour le code de référence
+  // Idem pour le code AÏDA
   useEffect(() => {
     const minuteur = setTimeout(() => setFiltres((f) => ((f.code ?? '') === code ? f : { ...f, code, page: 1 })), 300)
     return () => clearTimeout(minuteur)
@@ -158,13 +158,13 @@ export function SaisiesPage() {
         <TextField label="Bénévole" placeholder="Prénom" value={prenom} onChange={(e) => setPrenom(e.target.value)} />
         <TextField
           label="Code"
-          placeholder="Code de référence"
+          placeholder="Code AÏDA"
           value={code}
           disabled={filtres.sansCode}
           onChange={(e) => setCode(e.target.value)}
         />
         <Checkbox
-          label="Sans code de référence"
+          label="Sans code AÏDA"
           checked={filtres.sansCode ?? false}
           onChange={(e) => filtrer({ sansCode: e.target.checked })}
         />
@@ -256,7 +256,8 @@ export function SaisiesPage() {
                   <td>{saisie.magasinNom}</td>
                   <td>{saisie.prenom}</td>
                   <td className={pageStyles.code}>
-                    {saisie.codeReference ?? <SansCode saisie={saisie} categories={categories.data} onOuvrir={setCategorieACompleter} />}
+                    {saisie.codeAida ?? <SansCode saisie={saisie} categories={categories.data} onOuvrir={setCategorieACompleter} />}
+                    {saisie.codeAVerifier && <div className={styles.muted}>à vérifier</div>}
                   </td>
                   <td>{libelleAdmin(saisie)}</td>
                   <td>
@@ -347,7 +348,7 @@ export function SaisiesPage() {
 }
 
 /**
- * Tiret d'une saisie dont la catégorie n'a pas de code : ouvre la catégorie pour le compléter.
+ * Tiret d'une saisie sans code AÏDA : ouvre la catégorie pour le compléter.
  */
 function SansCode({
   saisie,
@@ -367,8 +368,8 @@ function SansCode({
       type="button"
       className={pageStyles.ajouterCode}
       onClick={() => onOuvrir(categorie)}
-      aria-label={`Ajouter un code de référence à « ${categorie.nom} »`}
-      title="Ajouter un code de référence à la catégorie"
+      aria-label={`Ajouter un code AÏDA à « ${categorie.nom} »`}
+      title="Ajouter un code AÏDA à la catégorie"
     >
       —
     </button>

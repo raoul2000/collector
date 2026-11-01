@@ -324,3 +324,4 @@ Environnement de développement : voir le [README](../README.md). La base locale
 | 01/11/2026 | Étape 4.3 : scénarios de recette validés (`docs/recette.md`) |
 | 01/11/2026 | Étape 4.5 cadrée : codes saisis à la main dans AÏDA, pas de valorisation en euros, pas de table d'articles |
 | 01/11/2026 | Étape 4.5 réalisée : code AÏDA des boutons (migration `007_codes_aida.sql`), écran « Réception AÏDA » (`GET /api/admin/bilans/aida`), impression et export Excel ; pas encore en production |
+| 01/11/2026 | Mise en production de la Réception AÏDA ; colonne, filtres et export des saisies alignés sur les mêmes règles de rattachement (requête commune `RapprochementAida`) ; correctif à déployer |

@@ -5,9 +5,8 @@ declare(strict_types=1);
 namespace App\Aida;
 
 /**
- * Traduit les saisies d'une campagne en nombres d'articles par code AÏDA, à ressaisir dans AÏDA.
+ * Rattachement des saisies aux codes AÏDA : mêmes règles pour la Réception AÏDA, la liste et l'export des saisies.
  *
- * Rattachement d'une saisie :
  * - bouton choisi : le code de ce bouton ;
  * - catégorie sans bouton : le code de référence de la catégorie ;
  * - contenance libre : le format le plus proche (à égale distance, le plus petit), à vérifier sauf si la contenance
@@ -15,13 +14,46 @@ namespace App\Aida;
  * - contenance inconnue, ou bouton sans code : le code de référence, sinon celui du premier bouton, à vérifier ;
  * - aucun code possible (« Autre ») : non rapprochée.
  *
- * @phpstan-type Groupe array{categorieId: int, formatId: int|null, contenance: int|null, nbArticles: int, nbSaisies: int}
- * @phpstan-type Format array{id: int, contenance: int|null, libelle: string|null, codeAida: string|null}
- * @phpstan-type Categorie array{id: int, nom: string, unite: string, codeReference: string|null, formats: list<Format>}
+ * @phpstan-type Groupe array{categorieId: int, formatId: int|null, code: string|null, aVerifier: bool, nbArticles: int, nbSaisies: int}
+ * @phpstan-type Format array{id: int, contenance: int|null, libelle: string|null}
+ * @phpstan-type Categorie array{id: int, nom: string, unite: string, formats: list<Format>}
  */
 final class RapprochementAida
 {
+    /** Bouton visé par la saisie (alias cible), à joindre après la saisie (s) et sa catégorie (c) */
+    public const string JOIN_CIBLE =
+        ' LEFT JOIN format cible ON cible.id = COALESCE(
+            (SELECT b.id FROM format b
+             WHERE b.id = s.format_id AND b.categorie_id = s.categorie_id AND b.code_aida IS NOT NULL),
+            (SELECT p.id FROM format p
+             WHERE p.categorie_id = s.categorie_id AND p.code_aida IS NOT NULL
+               AND p.contenance IS NOT NULL AND s.contenance_unitaire IS NOT NULL
+             ORDER BY ABS(CAST(p.contenance AS SIGNED) - CAST(s.contenance_unitaire AS SIGNED)), p.contenance, p.ordre, p.id
+             LIMIT 1),
+            (SELECT d.id FROM format d
+             WHERE c.code_reference IS NULL AND d.categorie_id = s.categorie_id AND d.code_aida IS NOT NULL
+             ORDER BY d.ordre, d.id
+             LIMIT 1)
+        )';
+
+    /** Code retenu pour la saisie (NULL : non rapprochée) */
+    public const string CODE = 'COALESCE(cible.code_aida, c.code_reference)';
+
+    /** 1 si le code retenu a été déduit et mérite d'être vérifié */
+    public const string A_VERIFIER =
+        'CASE
+            WHEN COALESCE(cible.code_aida, c.code_reference) IS NULL THEN 0
+            WHEN s.format_id = cible.id THEN 0
+            WHEN NOT EXISTS (SELECT 1 FROM format e WHERE e.categorie_id = s.categorie_id) THEN 0
+            WHEN s.format_id IS NULL AND cible.contenance = s.contenance_unitaire
+                AND (SELECT COUNT(*) FROM format n
+                     WHERE n.categorie_id = s.categorie_id AND n.code_aida IS NOT NULL AND n.contenance = s.contenance_unitaire) = 1 THEN 0
+            ELSE 1
+        END';
+
     /**
+     * Regroupe les saisies en nombres d'articles par code, à ressaisir dans AÏDA.
+     *
      * @param list<Categorie> $categories dans l'ordre d'affichage, qui donne celui des articles
      * @param list<Groupe> $groupes
      * @return array{
@@ -39,22 +71,30 @@ final class RapprochementAida
         $nonRapprochees = [];
         foreach ($groupes as $groupe) {
             $categorie = $parId[$groupe['categorieId']];
-            $cible = self::cible($categorie, $groupe['formatId'], $groupe['contenance']);
+            $code = $groupe['code'];
 
-            if ($cible === null) {
+            if ($code === null) {
                 $nonRapprochees[$categorie['id']] ??= ['categorieId' => $categorie['id'], 'nom' => $categorie['nom'], 'nbArticles' => 0, 'nbSaisies' => 0];
                 $nonRapprochees[$categorie['id']]['nbArticles'] += $groupe['nbArticles'];
                 $nonRapprochees[$categorie['id']]['nbSaisies'] += $groupe['nbSaisies'];
                 continue;
             }
 
-            $code = $cible['code'];
-            $rang = [$rangs[$categorie['id']], $cible['ordre']];
+            $ordre = 0;
+            $libelle = $categorie['nom'];
+            foreach ($categorie['formats'] as $index => $format) {
+                if ($format['id'] === $groupe['formatId']) {
+                    $ordre = $index + 1;
+                    $libelle = self::libelle($categorie, $format);
+                }
+            }
+
+            $rang = [$rangs[$categorie['id']], $ordre];
             $articles[$code] ??= ['code' => $code, 'libelles' => [], 'nbArticles' => 0, 'aVerifier' => 0, 'rang' => $rang];
             $articles[$code]['rang'] = min($articles[$code]['rang'], $rang);
-            $articles[$code]['libelles'][$rang[0] . '-' . $rang[1]] = $cible['libelle'];
+            $articles[$code]['libelles'][$rang[0] . '-' . $rang[1]] = $libelle;
             $articles[$code]['nbArticles'] += $groupe['nbArticles'];
-            $articles[$code]['aVerifier'] += $cible['aVerifier'] ? $groupe['nbArticles'] : 0;
+            $articles[$code]['aVerifier'] += $groupe['aVerifier'] ? $groupe['nbArticles'] : 0;
         }
 
         uasort($articles, static fn (array $a, array $b): int => $a['rang'] <=> $b['rang']);
@@ -76,64 +116,6 @@ final class RapprochementAida
                 'aVerifier' => array_sum(array_column($liste, 'aVerifier')),
                 'nonRapproches' => array_sum(array_column($nonRapprochees, 'nbArticles')),
             ],
-        ];
-    }
-
-    /**
-     * @param Categorie $categorie
-     * @return array{code: string, libelle: string, ordre: int, aVerifier: bool}|null
-     */
-    private static function cible(array $categorie, ?int $formatId, ?int $contenance): ?array
-    {
-        $formats = $categorie['formats'];
-        $codes = array_filter($formats, static fn (array $f): bool => $f['codeAida'] !== null);
-
-        foreach ($codes as $ordre => $format) {
-            if ($format['id'] === $formatId) {
-                return self::versFormat($categorie, $format, $ordre, false);
-            }
-        }
-
-        if ($formats === [] && $categorie['codeReference'] !== null) {
-            return ['code' => $categorie['codeReference'], 'libelle' => $categorie['nom'], 'ordre' => 0, 'aVerifier' => false];
-        }
-
-        $avecContenance = array_filter($codes, static fn (array $f): bool => $f['contenance'] !== null);
-        if ($contenance !== null && $avecContenance !== []) {
-            uasort($avecContenance, static fn (array $a, array $b): int =>
-                [abs($a['contenance'] - $contenance), $a['contenance']] <=> [abs($b['contenance'] - $contenance), $b['contenance']]);
-            $ordre = (int) array_key_first($avecContenance);
-            $format = $avecContenance[$ordre];
-            $memeContenance = array_filter($avecContenance, static fn (array $f): bool => $f['contenance'] === $format['contenance']);
-            $exact = $format['contenance'] === $contenance && count($memeContenance) === 1 && $formatId === null;
-
-            return self::versFormat($categorie, $format, $ordre, !$exact);
-        }
-
-        if ($categorie['codeReference'] !== null) {
-            return ['code' => $categorie['codeReference'], 'libelle' => $categorie['nom'], 'ordre' => 0, 'aVerifier' => true];
-        }
-        if ($codes !== []) {
-            $ordre = (int) array_key_first($codes);
-
-            return self::versFormat($categorie, $codes[$ordre], $ordre, true);
-        }
-
-        return null;
-    }
-
-    /**
-     * @param Categorie $categorie
-     * @param Format $format
-     * @return array{code: string, libelle: string, ordre: int, aVerifier: bool}
-     */
-    private static function versFormat(array $categorie, array $format, int $ordre, bool $aVerifier): array
-    {
-        return [
-            'code' => (string) $format['codeAida'],
-            'libelle' => self::libelle($categorie, $format),
-            'ordre' => $ordre + 1,
-            'aVerifier' => $aVerifier,
         ];
     }
 

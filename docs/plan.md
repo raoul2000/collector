@@ -328,5 +328,5 @@ Environnement de développement : voir le [README](../README.md). La base locale
 | 01/11/2026 | Saisie : bandeau de confirmation flottant au-dessus des onglets (plus de décalage de la grille), protection contre le double appui, bandeau retiré au choix de la catégorie suivante ; déployé et validé |
 | 01/11/2026 | Saisie : zones mieux délimitées (panneau des récents, bande des sections, titres de section marqués) ; déployé et validé |
 | 01/11/2026 | Produits à privilégier : liste par campagne choisie par les responsables (migration `008_categories_privilegiees.sql`, `PUT /api/admin/categories/{id}/privilegiee`, champ `privilegiees` du référentiel), affichée dans l'onglet Collecte, message et point rouge au changement ; déployé et validé |
-| 01/11/2026 | Thème sombre de l'espace des bénévoles, au choix dans Réglages (couleurs uniquement, contrastes vérifiés par `theme.test.ts`) ; à déployer |
-| 01/11/2026 | Saisie : retour en haut de page à l'ouverture d'une catégorie (page décalée sur Android, cause non reproduite en simulation) ; à vérifier sur téléphone |
+| 01/11/2026 | Thème sombre de l'espace des bénévoles, au choix dans Réglages (couleurs uniquement, contrastes vérifiés par `theme.test.ts`) ; déployé |
+| 01/11/2026 | Saisie : retour en haut de page à l'ouverture d'une catégorie (page décalée sur Android, cause non reproduite en simulation) ; déployé, correction confirmée sur téléphone Android |

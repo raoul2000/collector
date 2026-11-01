@@ -3,6 +3,7 @@ import type { CategorieRef, FormatRef, SectionRef } from '../../api/types'
 import { Alert } from '../../components/Alert'
 import { Tile } from '../../components/Tile'
 import { toast } from '../../components/toast'
+import { cx } from '../../lib/cx'
 import { enregistrerRecherche } from '../../db/recherches'
 import { creerSaisie, supprimerSaisie, useCategoriesRecentes } from '../../db/saisies'
 import { demanderSynchro } from '../../sync/engine'
@@ -168,7 +169,7 @@ export function SaisiePage() {
           ) : (
             <>
               {recentes.length > 0 && (
-                <section className={styles.groupe} aria-labelledby="categories-recentes">
+                <section className={cx(styles.groupe, styles.recents)} aria-labelledby="categories-recentes">
                   <h2 id="categories-recentes" className={styles.titreSection}>
                     Récents
                   </h2>

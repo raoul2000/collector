@@ -326,3 +326,4 @@ Environnement de développement : voir le [README](../README.md). La base locale
 | 01/11/2026 | Étape 4.5 réalisée : code AÏDA des boutons (migration `007_codes_aida.sql`), écran « Réception AÏDA » (`GET /api/admin/bilans/aida`), impression et export Excel ; pas encore en production |
 | 01/11/2026 | Mise en production de la Réception AÏDA ; colonne, filtres et export des saisies alignés sur les mêmes règles de rattachement (requête commune `RapprochementAida`) ; déployé et validé |
 | 01/11/2026 | Saisie : bandeau de confirmation flottant au-dessus des onglets (plus de décalage de la grille), protection contre le double appui, bandeau retiré au choix de la catégorie suivante ; à déployer |
+| 01/11/2026 | Saisie : zones mieux délimitées (panneau des récents, bande des sections, titres de section marqués) ; à déployer |

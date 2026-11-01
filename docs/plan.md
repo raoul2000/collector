@@ -231,7 +231,7 @@ Décisions (31/10/2026) :
 - ✅ [Guide du responsable](guide-responsable.md) : préparation (magasins, catégories, campagne, essai), suivi et corrections pendant la collecte, clôture, questions fréquentes
 - ⬜ Version imprimable de la fiche bénévole avec l'adresse et le QR code
 
-### 4.5 Rapprochement AÏDA ✅ (à mettre en production)
+### 4.5 Rapprochement AÏDA ✅ (en production)
 
 Réalisé le 01/11/2026, sans attendre la collecte : migration `007_codes_aida.sql` (colonne et codes de la liste), `GET /api/admin/bilans/aida`, écran « Réception AÏDA » depuis les Bilans. Les codes ne sont pas envoyés aux téléphones. À valider sur les vraies saisies après la collecte.
 
@@ -268,13 +268,13 @@ Décisions (01/11/2026) : les codes sont **saisis à la main dans AÏDA**, le bi
 
 ## Reprise du travail
 
-État au 31/10/2026 : lots 1, 2 et 3 terminés ; référentiel Croix-Rouge (4.2) terminé et **en production** sur https://collecte.exdata.info (migrations 001 à 006, liste des bénévoles installée par `reinitialiser-referentiel.sql`, tests concluants). Évolutions réalisées : code de référence dans les saisies, correction du magasin des saisies par le responsable, export Excel d'une campagne, liste des appareils, journal technique de l'API (voir [déploiement](deploiement.md), section 7), outil de mise à jour du serveur par SFTP (`scripts/deployer.mjs`, [déploiement](deploiement.md), section 5.1), sections, variantes, récents, recherche par mots-clés, recherches sans résultat.
+État au 01/11/2026 : lots 1, 2 et 3 terminés ; référentiel Croix-Rouge (4.2) et rapprochement AÏDA (4.5) terminés et **en production** sur https://collecte.exdata.info (migrations 001 à 007, liste des bénévoles installée par `reinitialiser-referentiel.sql`, tests concluants). Évolutions réalisées : code de référence dans les saisies, correction du magasin des saisies par le responsable, export Excel d'une campagne, liste des appareils, journal technique de l'API (voir [déploiement](deploiement.md), section 7), outil de mise à jour du serveur par SFTP (`scripts/deployer.mjs`, [déploiement](deploiement.md), section 5.1), sections, variantes, récents, recherche par mots-clés, recherches sans résultat.
 
 Mise à jour de la production : `node scripts/deployer.mjs` (mot de passe SFTP demandé ; `--simulation` pour un essai à blanc). Modifier la liste des catégories : `docs/categories/liste-benevoles.csv`, puis `node scripts/generer-categories.mjs` (installation neuve) ; en production, la liste se modifie désormais depuis l'onglet Catégories (la remise à zéro supprimerait les saisies).
 
 Prochaines étapes possibles :
 1. **Recette sur de vrais téléphones** (4.3), Android et iPhone, avec la nouvelle liste : dérouler les [scénarios](recette.md) et noter les résultats.
-2. **Rapprochement AÏDA** (4.5) : développé le 01/11/2026, à mettre en production (migration 007) ; scan des codes-barres en bonus, plus tard (pas pour l'édition 2026).
+2. **Rapprochement AÏDA** (4.5) : en production depuis le 01/11/2026 (migration 007), à éprouver sur les vraies saisies après la collecte ; scan des codes-barres en bonus, plus tard (pas pour l'édition 2026).
 3. **En dernier** (décision du 29/10/2026), une fois toutes les fonctionnalités réalisées et validées : **version imprimable de la fiche bénévole** avec l'adresse et un QR code, pour ne pas avoir à la refaire après chaque évolution.
 
 Environnement de développement : voir le [README](../README.md). La base locale `collector` contient la liste des bénévoles et environ 800 saisies de démonstration ; `php bin/migrate.php --fresh --seed` puis `php bin/generer-demo.php` la remettent à zéro.
@@ -324,4 +324,4 @@ Environnement de développement : voir le [README](../README.md). La base locale
 | 01/11/2026 | Étape 4.3 : scénarios de recette validés (`docs/recette.md`) |
 | 01/11/2026 | Étape 4.5 cadrée : codes saisis à la main dans AÏDA, pas de valorisation en euros, pas de table d'articles |
 | 01/11/2026 | Étape 4.5 réalisée : code AÏDA des boutons (migration `007_codes_aida.sql`), écran « Réception AÏDA » (`GET /api/admin/bilans/aida`), impression et export Excel ; pas encore en production |
-| 01/11/2026 | Mise en production de la Réception AÏDA ; colonne, filtres et export des saisies alignés sur les mêmes règles de rattachement (requête commune `RapprochementAida`) ; correctif à déployer |
+| 01/11/2026 | Mise en production de la Réception AÏDA ; colonne, filtres et export des saisies alignés sur les mêmes règles de rattachement (requête commune `RapprochementAida`) ; déployé et validé |

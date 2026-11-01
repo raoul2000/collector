@@ -1,3 +1,4 @@
+import { GARDE_ANNULATION_MS } from './SaisiePage'
 import { screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -150,10 +151,28 @@ describe('Écran de saisie', () => {
 
     await user.click(await screen.findByRole('button', { name: /Savon/ }))
     await user.click(screen.getByRole('button', { name: 'Valider' }))
-    await user.click(await screen.findByRole('button', { name: 'Annuler' }))
+    const annuler = await screen.findByRole('button', { name: 'Annuler' })
+
+    // Un double appui sur « Valider » ne doit pas annuler la saisie
+    await user.click(annuler)
+    expect((await saisies())[0]).toMatchObject({ supprime: false })
+
+    await new Promise((resolve) => setTimeout(resolve, GARDE_ANNULATION_MS + 50))
+    await user.click(annuler)
 
     expect(await screen.findByText('Saisie annulée : 1 × Savon')).toBeInTheDocument()
     await waitFor(async () => expect((await saisies())[0]).toMatchObject({ supprime: true, aEnvoyer: 1 }))
+  })
+
+  it('retire le bandeau de confirmation quand le bénévole passe au don suivant', async () => {
+    const user = await demarrer()
+
+    await user.click(await screen.findByRole('button', { name: /Savon/ }))
+    await user.click(screen.getByRole('button', { name: 'Valider' }))
+    expect(await screen.findByRole('button', { name: 'Annuler' })).toBeInTheDocument()
+
+    await user.click(screen.getAllByRole('button', { name: /Pâtes/ })[0]!)
+    expect(screen.queryByRole('button', { name: 'Annuler' })).not.toBeInTheDocument()
   })
 
   it('permet de revenir aux catégories sans rien enregistrer', async () => {

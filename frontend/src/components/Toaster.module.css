@@ -59,3 +59,12 @@
     transform: translateY(8px);
   }
 }
+
+/* Espace des bénévoles : au-dessus des onglets et, s'il est affiché, du bandeau de confirmation */
+:global(body):has(:global([data-onglets])) .region {
+  bottom: calc(var(--touch-lg) + var(--safe-bottom) + var(--space-2));
+}
+
+:global(body):has(:global([data-confirmation-saisie])) .region {
+  bottom: calc(var(--touch-lg) + var(--safe-bottom) + var(--space-2) + var(--hauteur-confirmation));
+}

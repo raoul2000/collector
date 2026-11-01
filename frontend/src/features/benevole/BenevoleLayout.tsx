@@ -85,7 +85,7 @@ export function BenevoleLayout() {
       <main className={styles.main}>{contenu}</main>
 
       {identifie && (
-        <nav className={styles.tabbar} aria-label="Navigation">
+        <nav className={styles.tabbar} aria-label="Navigation" data-onglets>
           {NAVIGATION.map((item) => (
             <NavLink key={item.to} to={item.to} end={item.end} className={({ isActive }) => cx(styles.tab, isActive && styles.active)}>
               <span className={styles.tabIcon} aria-hidden="true">

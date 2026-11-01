@@ -16,6 +16,9 @@ import styles from './SaisiePage.module.css'
 /** Durée pendant laquelle la dernière saisie peut être annulée d'un appui */
 export const DUREE_ANNULATION_MS = 8000
 
+/** Le bandeau apparaît sous le pouce qui vient de valider : un double appui n'annule pas la saisie */
+export const GARDE_ANNULATION_MS = 500
+
 const DETAIL_UNITE = { kg: 'poids', L: 'volume', unite: 'à l\'unité' } as const
 
 /** Catégories récentes affichées en haut de la grille */
@@ -34,7 +37,7 @@ export function SaisiePage() {
   // Variante trouvée par la recherche : la saisie s'ouvre sur ce bouton
   const [boutonInitial, setBoutonInitial] = useState<FormatRef>()
   const [recherche, setRecherche] = useState('')
-  const [derniere, setDerniere] = useState<{ id: string; libelle: string } | null>(null)
+  const [derniere, setDerniere] = useState<{ id: string; libelle: string; le: number } | null>(null)
   const idsRecents = useCategoriesRecentes(
     referentiel.categories.length > SEUIL_RECENTES ? referentiel.categories.map((c) => c.id) : [],
     NB_RECENTES,
@@ -85,6 +88,7 @@ export function SaisiePage() {
     })
     demanderSynchro()
     setDerniere({
+      le: Date.now(),
       id: saisie.id,
       libelle: libelleSaisie(choisie, contenu.quantite, contenu.contenanceUnitaire, varianteSaisie(choisie, contenu.formatId)),
     })
@@ -97,6 +101,8 @@ export function SaisiePage() {
       void enregistrerRecherche(sansResultat.current.campagneId, sansResultat.current.terme, choisie.id)
       sansResultat.current = null
     }
+    // Le bénévole passe au don suivant : le bandeau ne doit pas masquer « Valider » (annulation encore possible dans Mes saisies)
+    setDerniere(null)
     setCategorie(choisie)
     setBoutonInitial(bouton)
     setRecherche('')
@@ -105,7 +111,7 @@ export function SaisiePage() {
   const nomSection = (c: CategorieRef) => referentiel.sections?.find((s) => s.id === c.sectionId)?.nom
 
   const annuler = async () => {
-    if (!derniere) {
+    if (!derniere || Date.now() - derniere.le < GARDE_ANNULATION_MS) {
       return
     }
     await supprimerSaisie(derniere.id)
@@ -117,7 +123,7 @@ export function SaisiePage() {
   return (
     <div className={styles.page}>
       {derniere && (
-        <div className={styles.confirmation} role="status">
+        <div className={styles.confirmation} role="status" data-confirmation-saisie>
           <span className={styles.check} aria-hidden="true">
             ✓
           </span>

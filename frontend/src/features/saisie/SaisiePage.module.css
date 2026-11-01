@@ -4,6 +4,8 @@
   gap: var(--space-4);
   max-width: 40rem;
   margin: 0 auto;
+  /* Le bas de la page reste accessible sous le bandeau de confirmation ; marge permanente : son retrait ne décale rien */
+  padding-bottom: var(--hauteur-confirmation);
 }
 
 .grid {
@@ -18,9 +20,16 @@
   }
 }
 
-/* Confirmation de la dernière saisie, avec annulation possible */
+/* Confirmation de la dernière saisie, avec annulation possible : flotte au-dessus des onglets, sans décaler la page */
 .confirmation {
+  position: fixed;
+  right: var(--space-3);
+  bottom: calc(var(--touch-lg) + var(--safe-bottom) + var(--space-2));
+  left: var(--space-3);
+  z-index: 8;
   display: flex;
+  max-width: 40rem;
+  margin: 0 auto;
   align-items: center;
   gap: var(--space-3);
   padding: var(--space-2) var(--space-2) var(--space-2) var(--space-4);
@@ -28,6 +37,7 @@
   background: var(--color-success);
   color: #fff;
   font-weight: var(--font-weight-bold);
+  box-shadow: var(--shadow-md);
   animation: appear 0.15s ease-out;
 }
 
@@ -35,9 +45,15 @@
   font-size: var(--font-size-xl);
 }
 
+/* Deux lignes au plus : le bandeau garde une hauteur connue */
 .confirmationTexte {
+  display: -webkit-box;
   flex: 1;
   min-width: 0;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-height: 1.5;
 }
 
 .annuler {

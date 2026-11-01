@@ -4,6 +4,9 @@
  */
 :root {
   /* Couleurs */
+  /* Bandeau de confirmation de saisie, marge comprise */
+  --hauteur-confirmation: 4.5rem;
+
   --color-primary: #b0001a;
   --color-primary-hover: #8f0015;
   --color-primary-soft: #fbe9eb;

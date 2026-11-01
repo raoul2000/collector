@@ -10,7 +10,7 @@ import { toast } from '../../../components/toast'
 import { UNITE_LIBELLES } from '../../../lib/format'
 import { libelleBouton } from '../../saisie/libelle'
 import styles from '../admin.module.css'
-import { useCategories, useDeleteCategorie, useDeleteSection, useReorderCategories, useReorderSections, useSections } from '../api'
+import { useCategories, useDeleteCategorie, useDeleteSection, usePrivilegierCategorie, useReorderCategories, useReorderSections, useSections } from '../api'
 import { handleMutationError } from '../errors'
 import { PageHeader } from '../PageHeader'
 import { CategorieFormDialog } from './CategorieFormDialog'
@@ -33,6 +33,7 @@ export function CategoriesPage() {
   const reorderSections = useReorderSections()
   const deleteCategorie = useDeleteCategorie()
   const deleteSection = useDeleteSection()
+  const privilegier = usePrivilegierCategorie()
 
   // undefined : formulaire fermé ; null : création ; objet : modification
   const [edited, setEdited] = useState<Categorie | null>()
@@ -42,6 +43,7 @@ export function CategoriesPage() {
 
   const listeSections = sections.data ?? []
   const nomSection = new Map(listeSections.map((s) => [s.id, s.nom]))
+  const privilegiees = categories.data?.filter((c) => c.privilegiee && c.active) ?? []
 
   // Les catégories arrivent groupées par section : on ne les déplace qu'à l'intérieur de leur section
   const move = (index: number, delta: -1 | 1) => {
@@ -91,6 +93,14 @@ export function CategoriesPage() {
         description="Types de produits proposés à la saisie, regroupés par section, dans l'ordre d'affichage (les plus fréquents en premier)."
         actions={<Button onClick={() => setEdited(null)}>Nouvelle catégorie</Button>}
       />
+
+      <Card title="Produits à privilégier">
+        <p className={styles.muted}>
+          Liste de la campagne active, affichée aux bénévoles dans l'onglet Collecte pour orienter les donateurs. Cochez les
+          produits dans la colonne « À privilégier » ci-dessous.
+        </p>
+        <p>{privilegiees.length === 0 ? 'Aucun produit à privilégier' : privilegiees.map((c) => c.nom).join(' · ')}</p>
+      </Card>
 
       <Card
         title="Sections"
@@ -164,6 +174,7 @@ export function CategoriesPage() {
               <th>Mesure</th>
               <th>Formats</th>
               <th>Statut</th>
+              <th>À privilégier</th>
               <th className={styles.numeric}>Saisies</th>
               <th>
                 <span className="visually-hidden">Actions</span>
@@ -173,7 +184,7 @@ export function CategoriesPage() {
           <tbody>
             {categories.data.length === 0 && (
               <tr>
-                <td colSpan={7} className={styles.empty}>
+                <td colSpan={8} className={styles.empty}>
                   Aucune catégorie pour l'instant.
                 </td>
               </tr>
@@ -182,7 +193,7 @@ export function CategoriesPage() {
               <Fragment key={categorie.id}>
                 {listeSections.length > 0 && !memeSection(index, index - 1) && (
                   <tr className={pageStyles.groupe}>
-                    <th colSpan={7} scope="colgroup">
+                    <th colSpan={8} scope="colgroup">
                       {categorie.sectionId === null ? 'Sans section' : (nomSection.get(categorie.sectionId) ?? '…')}
                     </th>
                   </tr>
@@ -210,6 +221,21 @@ export function CategoriesPage() {
                     )}
                   </td>
                   <td>{categorie.active ? <Badge kind="success">Active</Badge> : <Badge>Désactivée</Badge>}</td>
+                  <td>
+                    <input
+                      type="checkbox"
+                      className={pageStyles.privilegier}
+                      aria-label={`Produit à privilégier : ${categorie.nom}`}
+                      checked={categorie.privilegiee ?? false}
+                      disabled={!categorie.active || privilegier.isPending}
+                      onChange={(e) =>
+                        privilegier.mutate(
+                          { id: categorie.id, privilegiee: e.target.checked },
+                          { onError: (error) => handleMutationError(error) },
+                        )
+                      }
+                    />
+                  </td>
                   <td className={styles.numeric}>{categorie.nbSaisies}</td>
                   <td>
                     <div className={styles.actionsCell}>

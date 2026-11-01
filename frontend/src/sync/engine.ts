@@ -1,4 +1,5 @@
 import { ApiError, request } from '../api/client'
+import { toast } from '../components/toast'
 import type { Referentiel, SyncRequest, SyncResponse } from '../api/types'
 import { db, META } from '../db/db'
 import { enregistrerReferentiel } from '../db/referentiel'
@@ -45,7 +46,9 @@ export function synchroniser(): Promise<boolean> {
 async function executer(): Promise<void> {
   useSyncStore.setState({ enCours: true })
   try {
-    await enregistrerReferentiel(await request<Referentiel>('referentiel'))
+    if (await enregistrerReferentiel(await request<Referentiel>('referentiel'))) {
+      toast.info('La liste des produits à privilégier a changé.')
+    }
 
     const { appareilId, prenom } = useBenevoleStore.getState()
     if (prenom) {

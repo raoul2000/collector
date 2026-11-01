@@ -13,7 +13,7 @@ use PDO;
  *
  * @phpstan-type Categorie array{
  *     id: int, nom: string, sectionId: int|null, unite: 'kg'|'L'|'unite', ordre: int, active: bool,
- *     codeReference: string|null, motsCles: list<string>, formats: list<Format>, nbSaisies: int
+ *     codeReference: string|null, motsCles: list<string>, formats: list<Format>, nbSaisies: int, privilegiee: bool
  * }
  * @phpstan-type Format array{id: int, contenance: int|null, libelle: string|null, codeAida: string|null}
  * @phpstan-type FormatInput array{id: int|null, contenance: int|null, libelle: string|null, codeAida: string|null}
@@ -22,7 +22,9 @@ final readonly class CategorieRepository
 {
     private const string SELECT =
         'SELECT c.id, c.nom, c.section_id, c.unite, c.ordre, c.active, c.code_reference, c.mots_cles,
-                (SELECT COUNT(*) FROM saisie s WHERE s.categorie_id = c.id) AS nb_saisies
+                (SELECT COUNT(*) FROM saisie s WHERE s.categorie_id = c.id) AS nb_saisies,
+                EXISTS (SELECT 1 FROM categorie_privilegiee cp JOIN campagne ca ON ca.id = cp.campagne_id AND ca.active = 1
+                        WHERE cp.categorie_id = c.id) AS privilegiee
          FROM categorie c
          LEFT JOIN section sec ON sec.id = c.section_id';
 
@@ -156,6 +158,18 @@ final readonly class CategorieRepository
         }
     }
 
+    /**
+     * Ajoute la catégorie aux produits à privilégier de la campagne, ou l'en retire.
+     */
+    public function setPrivilegiee(int $campagneId, int $id, bool $privilegiee): void
+    {
+        $this->db->prepare(
+            $privilegiee
+                ? 'INSERT IGNORE INTO categorie_privilegiee (campagne_id, categorie_id) VALUES (?, ?)'
+                : 'DELETE FROM categorie_privilegiee WHERE campagne_id = ? AND categorie_id = ?',
+        )->execute([$campagneId, $id]);
+    }
+
     public function delete(int $id): void
     {
         $this->db->prepare('DELETE FROM categorie WHERE id = ?')->execute([$id]);
@@ -253,6 +267,7 @@ final readonly class CategorieRepository
                 'motsCles' => self::motsCles($row['mots_cles']),
                 'formats' => $formats[(int) $row['id']] ?? [],
                 'nbSaisies' => (int) $row['nb_saisies'],
+                'privilegiee' => (bool) $row['privilegiee'],
             ],
             $rows,
         );

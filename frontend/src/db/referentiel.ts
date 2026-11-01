@@ -7,13 +7,29 @@ import { db, type ReferentielLocal } from './db'
  * Elle permet de saisir sans réseau, même après un redémarrage du téléphone.
  */
 
-export async function enregistrerReferentiel(data: Referentiel, now = new Date()): Promise<void> {
+const memesProduits = (a: number[] = [], b: number[] = []) => a.length === b.length && a.every((id) => b.includes(id))
+
+/**
+ * @returns true si la liste des produits à privilégier a changé (jamais au premier téléchargement)
+ */
+export async function enregistrerReferentiel(data: Referentiel, now = new Date()): Promise<boolean> {
   const actuel = await db.referentiel.get('courant')
   if (actuel?.data.version === data.version) {
     // Contenu identique : évite de réveiller inutilement les écrans abonnés
-    return
+    return false
   }
-  await db.referentiel.put({ cle: 'courant', data, misAJourLe: now.toISOString() })
+  const change = actuel !== undefined && !memesProduits(actuel.data.privilegiees, data.privilegiees)
+  await db.referentiel.put({
+    cle: 'courant',
+    data,
+    misAJourLe: now.toISOString(),
+    privilegieesNonVues: change || actuel?.privilegieesNonVues === true,
+  })
+  return change
+}
+
+export async function marquerPrivilegieesVues(): Promise<void> {
+  await db.referentiel.update('courant', { privilegieesNonVues: false })
 }
 
 /**

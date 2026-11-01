@@ -27,6 +27,7 @@ final readonly class ReferentielController
     public function show(Request $request): JsonResponse
     {
         $campagne = $this->campagnes->findActive();
+        $categories = $this->categories->findActiveWithFormats();
 
         $referentiel = [
             'campagne' => $campagne,
@@ -49,8 +50,10 @@ final readonly class ReferentielController
                         $c['formats'],
                     ),
                 ],
-                $this->categories->findActiveWithFormats(),
+                $categories,
             ),
+            // Produits à privilégier, dans l'ordre d'affichage
+            'privilegiees' => array_column(array_filter($categories, static fn (array $c): bool => $c['privilegiee']), 'id'),
         ];
         // Sections ayant au moins une catégorie active, dans l'ordre d'affichage
         $utilisees = array_flip(array_filter(array_column($referentiel['categories'], 'sectionId')));

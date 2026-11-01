@@ -60,6 +60,10 @@ Onglet **Bilans** (actualisé toutes les 30 secondes) : articles, poids, volume,
 
 Les bénévoles voient de leur côté (onglet **Collecte**) les chiffres de leur magasin, le total général et le classement des magasins.
 
+### Produits à privilégier
+
+Pour orienter les donateurs, cochez les produits qui manquent dans la colonne **À privilégier** de l'onglet **Catégories**. La liste est commune à tous les magasins et propre à la campagne active : elle repart vide à la campagne suivante. Les bénévoles la retrouvent dans leur onglet **Collecte**. Un téléphone connecté reçoit le changement en 30 secondes environ, avec un message et un point rouge sur l'onglet.
+
 ### 2.2 Corriger une erreur
 
 Onglet **Saisies** : filtrez par magasin, catégorie, prénom du bénévole ou **code** AÏDA (il suffit d'en taper une partie).

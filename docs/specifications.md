@@ -201,6 +201,7 @@ categorie     (id, nom, section_id NULL, unite ENUM('kg','L','unite'), ordre, ac
 format        (id, categorie_id, contenance INT NULL, libelle NULL, code_aida NULL, ordre)  -- g ou ml ; libellé de variante ; article AÏDA visé
 appareil      (id CHAR(36) UUID, prenom, cree_le, vu_le)
 recherche     (id CHAR(36) UUID, campagne_id, appareil_id, terme, categorie_id NULL, cherche_le)  -- recherches sans résultat
+categorie_privilegiee (campagne_id, categorie_id, ajoute_le)      -- produits à privilégier de la campagne
 recherche_ignoree (terme)                                         -- mots écartés par un responsable
 saisie        (id CHAR(36) UUID généré côté client,
                campagne_id, magasin_id, appareil_id, categorie_id,
@@ -248,6 +249,7 @@ Volumétrie estimée : quelques dizaines de milliers de lignes par campagne, ce 
 | PUT, DELETE | `/api/admin/magasins/{id}` | Modification, suppression si aucune saisie |
 | GET, POST | `/api/admin/categories` | Liste (avec formats), création |
 | PUT | `/api/admin/categories/ordre` | Nouvel ordre d'affichage |
+| PUT | `/api/admin/categories/{id}/privilegiee` | Ajout ou retrait des produits à privilégier de la campagne active |
 | PUT, DELETE | `/api/admin/categories/{id}` | Modification (dont formats), suppression si aucune saisie |
 | GET | `/api/admin/bilans?campagne=&magasin=` | Bilan complet : totaux, par catégorie, par heure, par magasin |
 | GET | `/api/admin/bilans/aida?campagne=&magasin=` | Réception AÏDA : nombre d'articles par code, à vérifier, non rapprochés |

@@ -88,6 +88,17 @@ Scénarios à dérouler en production (https://collecte.exdata.info), avant la c
 | H2 | Ajouter, puis désactiver une catégorie, alors qu'un téléphone est hors ligne et l'utilise | Saisie conservée, liste à jour au retour du réseau | | | |
 | H3 ★ | Après la recette : activer la vraie campagne | Les téléphones de test passent à la nouvelle campagne, leurs anciennes saisies ne s'y retrouvent pas, et les bilans partent de zéro | | | |
 
+## I. Produits à privilégier
+
+| # | Action | Résultat attendu | Android | iPhone | Remarques |
+|---|---|---|---|---|---|
+| I1 ★ | Application ouverte sur la saisie : le responsable coche deux catégories | En 30 s environ, message « La liste des produits à privilégier a changé » et point rouge sur l'onglet Collecte ; la grille ne bouge pas | | | |
+| I2 ★ | Ouvrir l'onglet Collecte | Les deux produits sont listés, le point rouge disparaît | | | |
+| I3 | Le responsable décoche tout | Message, point rouge, puis « Aucun produit à privilégier » dans Collecte | | | |
+| I4 | Mode avion : ouvrir Collecte, puis redémarrer le téléphone et rouvrir | La liste reste affichée, avec la mention qu'elle n'est peut-être plus à jour | | | |
+| I5 | Téléphone hors ligne pendant un changement, puis retour du réseau | Message et point rouge au retour du réseau | | | |
+| I6 ★ | Activer une nouvelle campagne (avec H3) | La liste repart vide | | | |
+
 ## Anomalies
 
 | # | Scénario | Téléphone | Description | Bloquant ? | État |

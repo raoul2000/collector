@@ -1,4 +1,6 @@
-import { screen, within } from '@testing-library/react'
+import { onlineManager } from '@tanstack/react-query'
+import { screen, waitFor, within } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { BilanPublic, Referentiel } from '../../api/types'
 import { db } from '../../db/db'
@@ -47,6 +49,83 @@ beforeEach(async () => {
 
 afterEach(() => {
   vi.unstubAllGlobals()
+})
+
+describe('Produits à privilégier', () => {
+  const CATEGORIES = [
+    { id: 1, nom: 'Huile', unite: 'L' as const, formats: [] },
+    { id: 2, nom: 'Café', unite: 'kg' as const, formats: [] },
+  ]
+  const avecListe = (privilegiees: number[], version: string): Referentiel => ({ ...REFERENTIEL, categories: CATEGORIES, privilegiees, version })
+  const api = () =>
+    fakeApi({
+      'GET /api/bilans?magasin=4': { body: BILAN },
+      'GET /api/referentiel': { body: REFERENTIEL },
+      'POST /api/sync': SYNC_VIDE,
+    })
+
+  it('affiche « Aucun produit à privilégier » quand la liste est vide', async () => {
+    api()
+    renderApp('/collecte')
+
+    expect(await screen.findByText('Aucun produit à privilégier')).toBeInTheDocument()
+  })
+
+  it('liste les produits, sans réseau aussi', { timeout: 10_000 }, async () => {
+    await enregistrerReferentiel(avecListe([2, 1], 'v2'))
+    fakeApi({
+      'GET /api/bilans?magasin=4': { status: 503, body: { error: { code: 'x', message: 'Indisponible' } } },
+      'GET /api/referentiel': { body: avecListe([2, 1], 'v2') },
+      'POST /api/sync': SYNC_VIDE,
+    } as never)
+    renderApp('/collecte')
+
+    const liste = await screen.findByRole('list')
+    expect(within(liste).getAllByRole('listitem').map((l) => l.textContent)).toEqual(['Café', 'Huile'])
+    expect(await screen.findByText(/cette liste n'est peut-être plus à jour/, {}, { timeout: 8000 })).toBeInTheDocument()
+  })
+
+  it('signale l\'absence de réseau quand le téléphone est hors ligne', async () => {
+    api()
+    onlineManager.setOnline(false)
+    try {
+      renderApp('/collecte')
+      expect(await screen.findByText(/cette liste n'est peut-être plus à jour/)).toBeInTheDocument()
+      expect(screen.queryByText('Chargement…')).not.toBeInTheDocument()
+    } finally {
+      onlineManager.setOnline(true)
+    }
+  })
+
+  it('signale un changement, jamais au premier téléchargement', async () => {
+    await db.referentiel.clear()
+    expect(await enregistrerReferentiel(avecListe([1], 'v2'))).toBe(false)
+    expect((await db.referentiel.get('courant'))?.privilegieesNonVues).toBe(false)
+
+    // Autre contenu, même liste (même dans un autre ordre)
+    expect(await enregistrerReferentiel(avecListe([1], 'v3'))).toBe(false)
+    expect(await enregistrerReferentiel(avecListe([1, 2], 'v4'))).toBe(true)
+    expect(await enregistrerReferentiel(avecListe([2, 1], 'v5'))).toBe(false)
+    expect((await db.referentiel.get('courant'))?.privilegieesNonVues).toBe(true)
+    expect(await enregistrerReferentiel(avecListe([], 'v6'))).toBe(true)
+  })
+
+  it('affiche le point rouge jusqu\'à la visite de l\'onglet Collecte', async () => {
+    const user = userEvent.setup()
+    await enregistrerReferentiel(avecListe([1], 'v2'))
+    fakeApi({
+      'GET /api/bilans?magasin=4': { body: BILAN },
+      'GET /api/referentiel': { body: avecListe([1], 'v2') },
+      'POST /api/sync': SYNC_VIDE,
+    })
+    renderApp('/mes-saisies')
+
+    await user.click(await screen.findByRole('link', { name: /liste des produits à privilégier modifiée/ }))
+
+    expect(await screen.findByText('Huile')).toBeInTheDocument()
+    await waitFor(() => expect(screen.getByRole('link', { name: 'Collecte' })).toBeInTheDocument())
+    expect((await db.referentiel.get('courant'))?.privilegieesNonVues).toBe(false)
+  })
 })
 
 describe('Notre collecte', () => {

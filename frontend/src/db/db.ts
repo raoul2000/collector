@@ -37,6 +37,8 @@ export interface ReferentielLocal {
   data: Referentiel
   /** Date de la dernière mise à jour depuis le serveur (ISO) */
   misAJourLe: string
+  /** La liste des produits à privilégier a changé depuis la dernière visite de l'onglet Collecte */
+  privilegieesNonVues?: boolean
 }
 
 /** Recherche sans résultat en attente d'envoi (supprimée dès que le serveur l'a reçue) */

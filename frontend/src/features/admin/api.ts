@@ -247,6 +247,16 @@ export function useSaveCategorie() {
   })
 }
 
+/** Ajoute une catégorie aux produits à privilégier de la campagne active, ou l'en retire */
+export function usePrivilegierCategorie() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, privilegiee }: { id: number; privilegiee: boolean }) =>
+      api.put<Categorie>(`admin/categories/${id}/privilegiee`, { privilegiee }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: CATEGORIES_KEY }),
+  })
+}
+
 export function useReorderCategories() {
   const queryClient = useQueryClient()
   return useMutation({

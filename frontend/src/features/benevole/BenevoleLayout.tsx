@@ -90,8 +90,12 @@ export function BenevoleLayout() {
             <NavLink key={item.to} to={item.to} end={item.end} className={({ isActive }) => cx(styles.tab, isActive && styles.active)}>
               <span className={styles.tabIcon} aria-hidden="true">
                 {item.icone}
+                {item.to === '/collecte' && referentiel?.privilegieesNonVues && <span className={styles.point} />}
               </span>
               {item.label}
+              {item.to === '/collecte' && referentiel?.privilegieesNonVues && (
+                <span className="visually-hidden"> : liste des produits à privilégier modifiée</span>
+              )}
             </NavLink>
           ))}
         </nav>

@@ -57,6 +57,8 @@ export interface Referentiel {
   sections?: SectionRef[]
   /** Dans l'ordre d'affichage : par section, les catégories sans section en dernier */
   categories: CategorieRef[]
+  /** Produits à privilégier : identifiants des catégories (absent d'une ancienne copie locale) */
+  privilegiees?: number[]
   version: string
 }
 
@@ -115,6 +117,8 @@ export interface Categorie {
   motsCles: string[]
   formats: FormatAdmin[]
   nbSaisies: number
+  /** Produit à privilégier pour la campagne active */
+  privilegiee?: boolean
 }
 
 /** Format envoyé à l'enregistrement d'une catégorie : sans identifiant, c'est un nouveau bouton */

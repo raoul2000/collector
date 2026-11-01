@@ -220,7 +220,7 @@ Décisions (31/10/2026) :
 - ✅ Recherches sans résultat : mot cherché et catégorie choisie ensuite, mémorisés sur le téléphone et envoyés avec la synchronisation (`recherches` / `recherchesRecues`, migration 006) ; cadre « Recherches sans résultat » de l'onglet Catégories (regroupement sans accents ni majuscules, catégorie le plus souvent choisie, **Ajouter** aux mots-clés, **Ignorer**)
 
 ### 4.3 Recette 🔄
-- ✅ [Scénarios de recette](recette.md) validés le 01/11/2026 (34 scénarios, Android et iPhone) ; à dérouler, nombre de participants à fixer
+- ✅ [Scénarios de recette](recette.md) validés le 01/11/2026 (40 scénarios avec ceux des produits à privilégier, Android et iPhone) ; à dérouler, nombre de participants à fixer
 - Simulation de collecte avec plusieurs téléphones (Android et iPhone)
 - Scénarios de coupure réseau, de changement de magasin, de corrections
 - Vérification des exigences : saisie < 5 s, chargement initial < 300 Ko, lisibilité en extérieur
@@ -327,3 +327,4 @@ Environnement de développement : voir le [README](../README.md). La base locale
 | 01/11/2026 | Mise en production de la Réception AÏDA ; colonne, filtres et export des saisies alignés sur les mêmes règles de rattachement (requête commune `RapprochementAida`) ; déployé et validé |
 | 01/11/2026 | Saisie : bandeau de confirmation flottant au-dessus des onglets (plus de décalage de la grille), protection contre le double appui, bandeau retiré au choix de la catégorie suivante ; à déployer |
 | 01/11/2026 | Saisie : zones mieux délimitées (panneau des récents, bande des sections, titres de section marqués) ; à déployer |
+| 01/11/2026 | Produits à privilégier : liste par campagne choisie par les responsables (migration `008_categories_privilegiees.sql`, `PUT /api/admin/categories/{id}/privilegiee`, champ `privilegiees` du référentiel), affichée dans l'onglet Collecte, message et point rouge au changement ; à déployer |

@@ -147,6 +147,7 @@ return static function (App $app): void {
         new CategorieRepository($db()),
         new SectionRepository($db()),
         new JournalRepository($db()),
+        new CampagneRepository($db()),
     );
     $sections = static fn (): SectionController => new SectionController(
         $db(),
@@ -175,6 +176,7 @@ return static function (App $app): void {
     // Déclarée avant /categories/{id} pour ne pas être capturée par celle-ci
     $r->put('/api/admin/categories/ordre', $admin(static fn ($q, $p) => $categories()->reorder($q, $p)));
     $r->put('/api/admin/categories/{id}', $admin(static fn ($q, $p) => $categories()->update($q, $p)));
+    $r->put('/api/admin/categories/{id}/privilegiee', $admin(static fn ($q, $p) => $categories()->privilegier($q, $p)));
     $r->delete('/api/admin/categories/{id}', $admin(static fn ($q, $p) => $categories()->delete($q, $p)));
 
     $saisies = static fn (): SaisieController => new SaisieController(

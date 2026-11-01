@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { api } from '../../api/client'
 import type { BilanPublic } from '../../api/types'
@@ -6,11 +6,13 @@ import { Alert } from '../../components/Alert'
 import { Button } from '../../components/Button'
 import { Card } from '../../components/Card'
 import { StatRow, StatTile } from '../../components/StatTile'
+import { marquerPrivilegieesVues } from '../../db/referentiel'
 import { formatKg, formatLitres, formatNombre, pluriel } from '../../lib/format'
 import { mentionSansContenance, totalContenance } from '../../lib/bilans'
 import { BarresSimples } from './BarresSimples'
 import styles from './benevole.module.css'
 import { useBenevole } from './context'
+import { useSyncStore } from '../../sync/syncStore'
 
 /** Actualisation pendant que l'écran est affiché */
 const REFRESH_MS = 60_000
@@ -23,7 +25,7 @@ const CATEGORIES_VISIBLES = 6
  * les bénévoles. Nécessite le réseau (les derniers chiffres reçus restent affichés hors ligne).
  */
 export function CollectePage() {
-  const { magasin } = useBenevole()
+  const { magasin, referentiel } = useBenevole()
   const [toutesCategories, setToutesCategories] = useState(false)
   const bilan = useQuery({
     queryKey: ['bilans', magasin.id],
@@ -32,11 +34,34 @@ export function CollectePage() {
   })
 
   const data = bilan.data
-  const horsLigne = bilan.isError
+  // Téléphone hors ligne : la requête est mise en pause, sans échouer
+  const enLigne = useSyncStore((s) => s.enLigne)
+  const horsLigne = !enLigne || bilan.isError || bilan.fetchStatus === 'paused'
+  const privilegiees = (referentiel.privilegiees ?? []).flatMap((id) => referentiel.categories.find((c) => c.id === id)?.nom ?? [])
+
+  // Affichée à l'écran : le point de l'onglet n'a plus lieu d'être, même si la liste change pendant la visite
+  useEffect(() => {
+    void marquerPrivilegieesVues()
+  }, [referentiel])
 
   return (
     <div className={styles.stack}>
       <h1 className={styles.title}>Notre collecte</h1>
+
+      {referentiel.campagne !== null && (
+        <Card title="Produits à privilégier">
+          {privilegiees.length === 0 ? (
+            <p className={styles.muted}>Aucun produit à privilégier</p>
+          ) : (
+            <ul className={styles.privilegiees}>
+              {privilegiees.map((nom) => (
+                <li key={nom}>{nom}</li>
+              ))}
+            </ul>
+          )}
+          {horsLigne && <p className={styles.muted}>Pas de connexion : cette liste n'est peut-être plus à jour.</p>}
+        </Card>
+      )}
 
       {horsLigne && (
         <Alert kind="warning">
@@ -45,7 +70,7 @@ export function CollectePage() {
             : 'Les chiffres de la collecte s\'affichent quand le téléphone est connecté.'}
         </Alert>
       )}
-      {bilan.isPending && <p className={styles.muted}>Chargement…</p>}
+      {bilan.isPending && !horsLigne && <p className={styles.muted}>Chargement…</p>}
       {data && data.campagne === null && <Alert kind="info">Aucune collecte n'est en cours.</Alert>}
 
       {data && data.campagne !== null && (

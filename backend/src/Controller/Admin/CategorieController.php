@@ -8,6 +8,7 @@ use App\Database;
 use App\Http\HttpException;
 use App\Http\JsonResponse;
 use App\Http\Request;
+use App\Repository\CampagneRepository;
 use App\Repository\CategorieRepository;
 use App\Repository\JournalRepository;
 use App\Repository\SectionRepository;
@@ -34,6 +35,7 @@ final readonly class CategorieController
         private CategorieRepository $categories,
         private SectionRepository $sections,
         private JournalRepository $journal,
+        private CampagneRepository $campagnes,
     ) {
     }
 
@@ -115,6 +117,30 @@ final readonly class CategorieController
         });
 
         return new JsonResponse($this->categories->findAll());
+    }
+
+    /**
+     * Ajoute la catégorie aux produits à privilégier de la campagne active, ou l'en retire.
+     */
+    public function privilegier(Request $request, string $prenom): JsonResponse
+    {
+        $categorie = $this->findOr404($request->intParam('id'));
+        $v = new Validator($request->json());
+        $privilegiee = $v->bool('privilegiee');
+        $v->validate();
+
+        $campagne = $this->campagnes->findActive()
+            ?? throw HttpException::conflict('Aucune campagne active : activez-en une pour indiquer les produits à privilégier.', 'no_active_campaign');
+
+        Database::transaction($this->db, function () use ($campagne, $categorie, $privilegiee, $prenom): void {
+            $this->categories->setPrivilegiee($campagne['id'], $categorie['id'], (bool) $privilegiee);
+            $this->journal->log($prenom, 'produit_a_privilegier', 'categorie', $categorie['id'], [
+                'campagneId' => $campagne['id'],
+                'privilegiee' => $privilegiee,
+            ]);
+        });
+
+        return new JsonResponse($this->categories->find($categorie['id']));
     }
 
     public function delete(Request $request, string $prenom): JsonResponse
